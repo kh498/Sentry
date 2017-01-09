@@ -362,8 +362,8 @@ public class SentryListener implements Listener
 
 				}
 
-				if (inst.hasTargetType (16) && inst.sentryStatus == net.aufdemrand.sentry.SentryInstance.Status.isLOOKING && entfrom instanceof Player
-						&& CitizensAPI.getNPCRegistry ().isNPC (entfrom) == false)
+				if (inst.hasTargetType (16) && inst.sentryStatus == net.aufdemrand.sentry.SentryInstance.Status.LOOKING
+						&& entfrom instanceof Player && CitizensAPI.getNPCRegistry ().isNPC (entfrom) == false)
 				{
 					//pv-something event.
 					if (npc.getEntity ().getLocation ().distance (entto.getLocation ()) <= inst.sentryRange

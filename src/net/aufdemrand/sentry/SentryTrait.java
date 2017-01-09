@@ -207,7 +207,7 @@ public class SentryTrait extends Trait implements Toggleable
 		if (thisInstance != null)
 		{
 			thisInstance.isRespawnable = System.currentTimeMillis () + thisInstance.RespawnDelaySeconds * 1000;
-			thisInstance.sentryStatus = Status.isDEAD;
+			thisInstance.sentryStatus = Status.DEAD;
 			thisInstance.dismount ();
 		}
 	}

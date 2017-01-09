@@ -56,24 +56,24 @@ public class SentryInstance
 
 	public enum hittype
 	{
-		block,
-		disembowel,
-		glance,
-		injure,
-		main,
-		miss,
-		normal,
+		BLOCK,
+		DISEMBOWEL,
+		GLANCE,
+		INJURE,
+		MAIN,
+		MISS,
+		NORMAL,
 	}
 
 	public enum Status
 	{
-		isDEAD,
-		isDYING,
-		isHOSTILE,
-		isLOOKING,
-		isRETALIATING,
-		isSTUCK,
-		isWWAITING
+		DEAD,
+		DYING,
+		HOSTILE,
+		LOOKING,
+		RETALIATING,
+		STUCK,
+		WAITING
 	}
 
 	private Set<Player> _myDamamgers = new HashSet<Player> ();
@@ -144,7 +144,7 @@ public class SentryInstance
 	public float sentrySpeed = (float) 1.0;
 
 	/* Internals */
-	public Status sentryStatus = Status.isDYING;
+	public Status sentryStatus = Status.DYING;
 
 	public Double sentryWeight = 1.0;
 
@@ -578,10 +578,10 @@ public class SentryInstance
 
 	public void die (boolean runscripts, org.bukkit.event.entity.EntityDamageEvent.DamageCause cause)
 	{
-		if (sentryStatus == Status.isDYING || sentryStatus == Status.isDEAD || getMyEntity () instanceof LivingEntity == false)
+		if (sentryStatus == Status.DYING || sentryStatus == Status.DEAD || getMyEntity () instanceof LivingEntity == false)
 			return;
 
-		sentryStatus = Status.isDYING;
+		sentryStatus = Status.DYING;
 
 		setTarget (null, false);
 		//		myNPC.getTrait(Waypoints.class).getCurrentProvider().setPaused(true);
@@ -640,7 +640,7 @@ public class SentryInstance
 
 		}
 
-		sentryStatus = Status.isDEAD;
+		sentryStatus = Status.DEAD;
 
 		if (this.DropInventory)
 			getMyEntity ().getLocation ().getWorld ().spawn (getMyEntity ().getLocation (), ExperienceOrb.class).setExperience (plugin.SentryEXP);
@@ -783,7 +783,7 @@ public class SentryInstance
 					if (hasLOS (aTarget))
 					{
 
-						if (WarningRange > 0 && sentryStatus == Status.isLOOKING && aTarget instanceof Player && dist > (Range - WarningRange)
+						if (WarningRange > 0 && sentryStatus == Status.LOOKING && aTarget instanceof Player && dist > (Range - WarningRange)
 								&& !net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().isNPC (aTarget) & !(WarningMessage.isEmpty ()))
 						{
 
@@ -812,7 +812,7 @@ public class SentryInstance
 			{
 				//not a target
 
-				if (WarningRange > 0 && sentryStatus == Status.isLOOKING && aTarget instanceof Player
+				if (WarningRange > 0 && sentryStatus == Status.LOOKING && aTarget instanceof Player
 						&& !net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().isNPC (aTarget) && !(GreetingMessage.isEmpty ()))
 				{
 					boolean LOS = getMyEntity ().hasLineOfSight (aTarget);
@@ -1209,7 +1209,7 @@ public class SentryInstance
 
 		_myDamamgers.clear ();
 
-		this.sentryStatus = Status.isLOOKING;
+		this.sentryStatus = Status.LOOKING;
 		faceForward ();
 
 		healanim = new PacketPlayOutAnimation (((CraftEntity) getMyEntity ()).getHandle (), 6);
@@ -1297,7 +1297,7 @@ public class SentryInstance
 	public void onDamage (EntityDamageByEntityEvent event)
 	{
 
-		if (sentryStatus == Status.isDYING)
+		if (sentryStatus == Status.DYING)
 			return;
 
 		if (myNPC == null || !myNPC.isSpawned ())
@@ -1319,7 +1319,7 @@ public class SentryInstance
 
 		LivingEntity attacker = null;
 
-		hittype hit = hittype.normal;
+		hittype hit = hittype.NORMAL;
 
 		double finaldamage = event.getDamage ();
 
@@ -1369,23 +1369,23 @@ public class SentryInstance
 			if (luckeyhit < plugin.Crit3Chance)
 			{
 				damagemodifer = damagemodifer * 2.00;
-				hit = hittype.disembowel;
+				hit = hittype.DISEMBOWEL;
 			} else if (luckeyhit < plugin.Crit3Chance + plugin.Crit2Chance)
 			{
 				damagemodifer = damagemodifer * 1.75;
-				hit = hittype.main;
+				hit = hittype.MAIN;
 			} else if (luckeyhit < plugin.Crit3Chance + plugin.Crit2Chance + plugin.Crit1Chance)
 			{
 				damagemodifer = damagemodifer * 1.50;
-				hit = hittype.injure;
+				hit = hittype.INJURE;
 			} else if (luckeyhit < plugin.Crit3Chance + plugin.Crit2Chance + plugin.Crit1Chance + plugin.GlanceChance)
 			{
 				damagemodifer = damagemodifer * 0.50;
-				hit = hittype.glance;
+				hit = hittype.GLANCE;
 			} else if (luckeyhit < plugin.Crit3Chance + plugin.Crit2Chance + plugin.Crit1Chance + plugin.GlanceChance + plugin.MissChance)
 			{
 				damagemodifer = 0;
-				hit = hittype.miss;
+				hit = hittype.MISS;
 			}
 
 			finaldamage = Math.round (damagemodifer);
@@ -1409,7 +1409,7 @@ public class SentryInstance
 			if (finaldamage <= 0)
 			{
 				npc.getEntity ().getWorld ().playEffect (npc.getEntity ().getLocation (), org.bukkit.Effect.ZOMBIE_CHEW_IRON_DOOR, 1);
-				hit = hittype.block;
+				hit = hittype.BLOCK;
 			}
 		}
 
@@ -1421,25 +1421,25 @@ public class SentryInstance
 			// Messages
 			switch (hit)
 			{
-				case normal:
+				case NORMAL:
 					msg = plugin.HitMessage;
 					break;
-				case miss:
+				case MISS:
 					msg = plugin.MissMessage;
 					break;
-				case block:
+				case BLOCK:
 					msg = plugin.BlockMessage;
 					break;
-				case main:
+				case MAIN:
 					msg = plugin.Crit2Message;
 					break;
-				case disembowel:
+				case DISEMBOWEL:
 					msg = plugin.Crit3Message;
 					break;
-				case injure:
+				case INJURE:
 					msg = plugin.Crit1Message;
 					break;
-				case glance:
+				case GLANCE:
 					msg = plugin.GlanceMessage;
 					break;
 			}
@@ -1475,7 +1475,7 @@ public class SentryInstance
 	public void onEnvironmentDamae (EntityDamageEvent event)
 	{
 
-		if (sentryStatus == Status.isDYING)
+		if (sentryStatus == Status.DYING)
 			return;
 
 		if (!myNPC.isSpawned () || Invincible)
@@ -1663,7 +1663,7 @@ public class SentryInstance
 		{
 			// plugin.getServer().broadcastMessage("tick " + (myNPC ==null) +
 			if (getMyEntity () == null)
-				sentryStatus = Status.isDEAD; // incase it dies in a way im not handling.....
+				sentryStatus = Status.DEAD; // incase it dies in a way im not handling.....
 
 			if (UpdateWeapon ())
 			{
@@ -1672,7 +1672,7 @@ public class SentryInstance
 				{
 					plugin.debug (myNPC.getName () + " Switched to ranged");
 					LivingEntity derp = meleeTarget;
-					boolean ret = sentryStatus == Status.isRETALIATING;
+					boolean ret = sentryStatus == Status.RETALIATING;
 					setTarget (null, false);
 					setTarget (derp, ret);
 				}
@@ -1682,18 +1682,18 @@ public class SentryInstance
 				if (projectileTarget != null)
 				{
 					plugin.debug (myNPC.getName () + " Switched to melee");
-					boolean ret = sentryStatus == Status.isRETALIATING;
+					boolean ret = sentryStatus == Status.RETALIATING;
 					LivingEntity derp = projectileTarget;
 					setTarget (null, false);
 					setTarget (derp, ret);
 				}
 			}
 
-			if (sentryStatus != Status.isDEAD && HealRate > 0)
+			if (sentryStatus != Status.DEAD && HealRate > 0)
 			{
 				if (System.currentTimeMillis () > oktoheal)
 				{
-					if (getHealth () < sentryHealth && sentryStatus != Status.isDEAD && sentryStatus != Status.isDYING)
+					if (getHealth () < sentryHealth && sentryStatus != Status.DEAD && sentryStatus != Status.DYING)
 					{
 						double heal = 1;
 						if (HealRate < 0.5)
@@ -1716,7 +1716,7 @@ public class SentryInstance
 			if (myNPC.isSpawned () && getMyEntity ().isInsideVehicle () == false && isMounted () && isMyChunkLoaded ())
 				mount ();
 
-			if (sentryStatus == Status.isDEAD && System.currentTimeMillis () > isRespawnable
+			if (sentryStatus == Status.DEAD && System.currentTimeMillis () > isRespawnable
 					&& RespawnDelaySeconds > 0 & Spawn.getWorld ().isChunkLoaded (Spawn.getBlockX () >> 4, Spawn.getBlockZ () >> 4))
 			{
 				// Respawn
@@ -1732,7 +1732,7 @@ public class SentryInstance
 					//	myNPC.teleport(guardEntity.getLocation().add(2, 0, 2),org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
 				}
 				return;
-			} else if ((sentryStatus == Status.isHOSTILE || sentryStatus == Status.isRETALIATING) && myNPC.isSpawned ())
+			} else if ((sentryStatus == Status.HOSTILE || sentryStatus == Status.RETALIATING) && myNPC.isSpawned ())
 			{
 
 				if (!isMyChunkLoaded ())
@@ -1741,7 +1741,7 @@ public class SentryInstance
 					return;
 				}
 
-				if (targets > 0 && sentryStatus == Status.isHOSTILE && System.currentTimeMillis () > oktoreasses)
+				if (targets > 0 && sentryStatus == Status.HOSTILE && System.currentTimeMillis () > oktoreasses)
 				{
 					LivingEntity target = findTarget (sentryRange);
 					setTarget (target, false);
@@ -1803,7 +1803,7 @@ public class SentryInstance
 
 			}
 
-			else if (sentryStatus == Status.isLOOKING && myNPC.isSpawned ())
+			else if (sentryStatus == Status.LOOKING && myNPC.isSpawned ())
 			{
 
 				if (getMyEntity ().isInsideVehicle () == true)
@@ -2069,7 +2069,7 @@ public class SentryInstance
 		{
 			plugin.debug (myNPC.getName () + "- Set Target Null");
 			// this gets called while npc is dead, reset things.
-			sentryStatus = Status.isLOOKING;
+			sentryStatus = Status.LOOKING;
 			projectileTarget = null;
 			meleeTarget = null;
 			_projTargetLostLoc = null;
@@ -2128,9 +2128,9 @@ public class SentryInstance
 			return; // dont attack my dude.
 
 		if (isretaliation)
-			sentryStatus = Status.isRETALIATING;
+			sentryStatus = Status.RETALIATING;
 		else
-			sentryStatus = Status.isHOSTILE;
+			sentryStatus = Status.HOSTILE;
 
 		if (!getNavigator ().isNavigating ())
 			faceEntity (getMyEntity (), theEntity);

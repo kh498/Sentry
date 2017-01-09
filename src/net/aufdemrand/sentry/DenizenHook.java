@@ -116,7 +116,7 @@ public class DenizenHook
 
 					if (inst != null)
 					{
-						inst.sentryStatus = net.aufdemrand.sentry.SentryInstance.Status.isLOOKING;
+						inst.sentryStatus = net.aufdemrand.sentry.SentryInstance.Status.LOOKING;
 						if (deaggro)
 							inst.setTarget (null, false);
 					}
