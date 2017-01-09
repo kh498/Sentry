@@ -227,33 +227,9 @@ public class Sentry extends JavaPlugin
 		return null;
 	}
 
-	private Material GetMat (String S)
+	private Material GetMat (String str)
 	{
-		int item = -1;
-
-		if (S == null)
-			return null;
-
-		String[] args = S.toUpperCase ().split (":");
-
-		org.bukkit.Material M = org.bukkit.Material.getMaterial (args[0]);
-
-		if (item == -1)
-		{
-			try
-			{
-				item = Integer.parseInt (S.split (":")[0]);
-			} catch (Exception e)
-			{
-			}
-		}
-
-//		if (M != null)
-//		{
-//			item = M.getId ();
-//		}
-
-		return M;
+		return Material.getMaterial (str.toUpperCase ());
 	}
 
 	public String getNationNameForLocation (Location l)

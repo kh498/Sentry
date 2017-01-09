@@ -192,7 +192,7 @@ public class SentryInstance
 
 	public boolean isIgnored (LivingEntity aTarget)
 	{
-		//cheak ignores
+		//check ignores
 
 		if (aTarget == this.guardEntity)
 			return true;
