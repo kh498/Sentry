@@ -2,6 +2,7 @@ package net.aufdemrand.sentry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -86,17 +87,18 @@ public class Util
 		return false;
 	}
 
-	public static String getLocalItemName (int MatId)
+	@ SuppressWarnings ("deprecation")
+	public static String getLocalItemName (Material Mat)
 	{
-		if (MatId == 0)
+		if (Mat == Material.AIR)
 			return "Hand";
-		if (MatId < 256)
+		if (Mat.getId () < 256)
 		{
-			Block b = getMCBlock (MatId);
+			Block b = getMCBlock (Mat.getId ());
 			return b.getName ();
 		} else
 		{
-			Item b = getMCItem (MatId);
+			Item b = getMCItem (Mat.getId ());
 			return LocaleI18n.get (b.getName () + ".name");
 		}
 	}
@@ -153,7 +155,7 @@ public class Util
 
 	}
 
-	public static String format (String input, NPC npc, CommandSender player, int item, String amount)
+	public static String format (String input, NPC npc, CommandSender player, Material item, String amount)
 	{
 		if (input == null)
 			return null;

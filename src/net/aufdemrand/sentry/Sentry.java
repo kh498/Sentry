@@ -227,9 +227,9 @@ public class Sentry extends JavaPlugin
 		return null;
 	}
 
-	private Material GetMat (String str)
+	private Material getMaterial (String str)
 	{
-		return Material.getMaterial (str.toUpperCase ());
+		return str == null ? null : Material.getMaterial (str.toUpperCase ());
 	}
 
 	public String getNationNameForLocation (Location l)
@@ -251,7 +251,7 @@ public class Sentry extends JavaPlugin
 		return null;
 	}
 
-	private PotionEffect getpot (String S)
+	private PotionEffect getpotion (String S)
 	{
 		if (S == null)
 			return null;
@@ -262,17 +262,17 @@ public class Sentry extends JavaPlugin
 		int dur = 10;
 		int amp = 1;
 
-		type = PotionEffectType.getByName ((args[0].toUpperCase ()));
+		type = PotionEffectType.getByName ((args[0]));
 
-		if (type == null)
-		{
-			try
-			{
-				type = PotionEffectType.getById (Integer.parseInt (args[0]));
-			} catch (Exception e)
-			{
-			}
-		}
+//		if (type == null)
+//		{
+//			try
+//			{
+//				type = PotionEffectType.getByName (args[0])//getById (Integer.parseInt (args[0]));
+//			} catch (Exception e)
+//			{
+//			}
+//		}
 
 		if (type == null)
 			return null;
@@ -371,6 +371,7 @@ public class Sentry extends JavaPlugin
 
 	public String getMCTeamName (Player player)
 	{
+		@ SuppressWarnings ("deprecation")
 		Team t = getServer ().getScoreboardManager ().getMainScoreboard ().getPlayerTeam (player);
 		if (t != null)
 		{
@@ -418,7 +419,7 @@ public class Sentry extends JavaPlugin
 		for (String s : getConfig ().getStringList (key))
 		{
 //			Material item = ;
-			list.add (GetMat (s.trim ()));
+			list.add (getMaterial (s.trim ()));
 		}
 
 	}
@@ -441,7 +442,7 @@ public class Sentry extends JavaPlugin
 			{
 			}
 
-			Material item = GetMat (args[0]);
+			Material item = getMaterial (args[0]);
 
 			if (item != null && val != 0 && !map.containsKey (item))
 			{
@@ -460,13 +461,13 @@ public class Sentry extends JavaPlugin
 			if (args.length < 2)
 				continue;
 
-			Material item = GetMat (args[0]);
+			Material item = getMaterial (args[0]);
 
 			List<PotionEffect> list = new ArrayList<PotionEffect> ();
 
 			for (int i = 1; i < args.length; i++)
 			{
-				PotionEffect val = getpot (args[i]);
+				PotionEffect val = getpotion (args[i]);
 				if (val != null)
 					list.add (val);
 
@@ -1267,7 +1268,7 @@ public class Sentry extends JavaPlugin
 						player.sendMessage (ChatColor.YELLOW + ThisNPC.getName () + "'s equipment cleared.");
 					} else
 					{
-						Material mat = GetMat (args[1]);
+						Material mat = getMaterial (args[1]);
 						if (mat != null)
 						{
 							ItemStack is = new ItemStack (mat);
@@ -1666,19 +1667,19 @@ public class Sentry extends JavaPlugin
 		loaditemlist ("Chestplates", Chestplates);
 		loaditemlist ("Leggings", Leggings);
 		loaditemlist ("Boots", Boots);
-		archer = GetMat (getConfig ().getString ("AttackTypes.Archer", null));
-		pyro1 = GetMat (getConfig ().getString ("AttackTypes.Pyro1", null));
-		pyro2 = GetMat (getConfig ().getString ("AttackTypes.Pyro2", null));
-		pyro3 = GetMat (getConfig ().getString ("AttackTypes.Pyro3", null));
-		bombardier = GetMat (getConfig ().getString ("AttackTypes.Bombardier", null));
-		sc1 = GetMat (getConfig ().getString ("AttackTypes.StormCaller1", null));
-		sc2 = GetMat (getConfig ().getString ("AttackTypes.StormCaller2", null));
-		witchdoctor = GetMat (getConfig ().getString ("AttackTypes.WitchDoctor", null));
-		magi = GetMat (getConfig ().getString ("AttackTypes.IceMagi", null));
-		sc3 = GetMat (getConfig ().getString ("AttackTypes.StormCaller3", null));
-		warlock1 = GetMat (getConfig ().getString ("AttackTypes.Warlock1", null));
-		warlock2 = GetMat (getConfig ().getString ("AttackTypes.Warlock2", null));
-		warlock3 = GetMat (getConfig ().getString ("AttackTypes.Warlock3", null));
+		archer = getMaterial (getConfig ().getString ("AttackTypes.Archer", null));
+		pyro1 = getMaterial (getConfig ().getString ("AttackTypes.Pyro1", null));
+		pyro2 = getMaterial (getConfig ().getString ("AttackTypes.Pyro2", null));
+		pyro3 = getMaterial (getConfig ().getString ("AttackTypes.Pyro3", null));
+		bombardier = getMaterial (getConfig ().getString ("AttackTypes.Bombardier", null));
+		sc1 = getMaterial (getConfig ().getString ("AttackTypes.StormCaller1", null));
+		sc2 = getMaterial (getConfig ().getString ("AttackTypes.StormCaller2", null));
+		witchdoctor = getMaterial (getConfig ().getString ("AttackTypes.WitchDoctor", null));
+		magi = getMaterial (getConfig ().getString ("AttackTypes.IceMagi", null));
+		sc3 = getMaterial (getConfig ().getString ("AttackTypes.StormCaller3", null));
+		warlock1 = getMaterial (getConfig ().getString ("AttackTypes.Warlock1", null));
+		warlock2 = getMaterial (getConfig ().getString ("AttackTypes.Warlock2", null));
+		warlock3 = getMaterial (getConfig ().getString ("AttackTypes.Warlock3", null));
 		DieLikePlayers = getConfig ().getBoolean ("Server.DieLikePlayers", false);
 		BodyguardsObeyProtection = getConfig ().getBoolean ("Server.BodyguardsObeyProtection", true);
 		IgnoreListInvincibility = getConfig ().getBoolean ("Server.IgnoreListInvincibility", true);

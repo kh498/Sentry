@@ -14,6 +14,7 @@ import org.bukkit.Effect;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
@@ -51,7 +52,7 @@ import net.minecraft.server.v1_8_R3.EntityPotion;
 import net.minecraft.server.v1_8_R3.Packet;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAnimation;
 
-@ SuppressWarnings ({ "rawtypes", "deprecation" })
+@ SuppressWarnings ("rawtypes")
 public class SentryInstance
 {
 
@@ -190,6 +191,7 @@ public class SentryInstance
 		return (this.ignores & type) == type;
 	}
 
+	@ SuppressWarnings ("deprecation")
 	public boolean isIgnored (LivingEntity aTarget)
 	{
 		//check ignores
@@ -211,19 +213,20 @@ public class SentryInstance
 
 			else
 			{
-				String name = ((Player) aTarget).getName ();
 
-				if (this.hasIgnoreType (namedplayers) && containsIgnore ("PLAYER:" + name))
+				OfflinePlayer player = (OfflinePlayer) aTarget;
+
+				if (this.hasIgnoreType (namedplayers) && containsIgnore ("PLAYER:" + player))
 					return true;
 
-				if (this.hasIgnoreType (owner) && name.equalsIgnoreCase (myNPC.getTrait (Owner.class).getOwner ()))
+				if (this.hasIgnoreType (owner) && player.getUniqueId ().equals (myNPC.getTrait (Owner.class).getOwnerId ()))
 					return true;
 
 				else if (this.hasIgnoreType (groups))
 				{
 
-					String[] groups1 = plugin.perms.getPlayerGroups (aTarget.getWorld (), name); // world perms
-					String[] groups2 = plugin.perms.getPlayerGroups ((World) null, name); //global perms
+					String[] groups1 = plugin.perms.getPlayerGroups (aTarget.getWorld ().getName (), player); // world perms
+					String[] groups2 = plugin.perms.getPlayerGroups (null, player); //global perms
 					//		String[] groups3 = plugin.perms.getPlayerGroups(aTarget.getWorld().getName(),name); // world perms
 					//	String[] groups4 = plugin.perms.getPlayerGroups((Player)aTarget); // world perms
 
@@ -368,6 +371,7 @@ public class SentryInstance
 		return false;
 	}
 
+	@ SuppressWarnings ("deprecation")
 	public boolean isTarget (LivingEntity aTarget)
 	{
 
@@ -388,19 +392,19 @@ public class SentryInstance
 
 			else
 			{
-				String name = ((Player) aTarget).getName ();
+				OfflinePlayer player = (OfflinePlayer) aTarget;
 
-				if (hasTargetType (namedplayers) && this.containsTarget ("PLAYER:" + name))
+				if (hasTargetType (namedplayers) && this.containsTarget ("PLAYER:" + player))
 					return true;
 
-				if (this.containsTarget ("ENTITY:OWNER") && name.equalsIgnoreCase (myNPC.getTrait (Owner.class).getOwner ()))
+				if (this.containsTarget ("ENTITY:OWNER") && player.getUniqueId ().equals (myNPC.getTrait (Owner.class).getOwnerId ()))
 					return true;
 
 				if (hasTargetType (groups))
 				{
 
-					String[] groups1 = plugin.perms.getPlayerGroups (aTarget.getWorld (), name); // world perms
-					String[] groups2 = plugin.perms.getPlayerGroups ((World) null, name); //global perms
+					String[] groups1 = plugin.perms.getPlayerGroups (aTarget.getWorld ().getName (), player); // world perms
+					String[] groups2 = plugin.perms.getPlayerGroups (null, player); //global perms
 
 					if (groups1 != null)
 					{
@@ -653,19 +657,19 @@ public class SentryInstance
 		if (getMyEntity () instanceof HumanEntity)
 		{
 			//get drop inventory.
-			for (ItemStack is : ((HumanEntity) getMyEntity ()).getInventory ().getArmorContents ())
+			for (ItemStack invItems : ((HumanEntity) getMyEntity ()).getInventory ().getArmorContents ())
 			{
-				if (is == null)
+				if (invItems == null)
 				{
 					continue;
 				}
-				if (is.getTypeId () > 0)
-					items.add (is);
+				if (invItems.getType () != Material.AIR)
+					items.add (invItems);
 			}
 
-			ItemStack is = ((HumanEntity) getMyEntity ()).getInventory ().getItemInHand ();
-			if (is.getTypeId () > 0)
-				items.add (is);
+			ItemStack itemInHand = ((HumanEntity) getMyEntity ()).getInventory ().getItemInHand ();
+			if (itemInHand.getType () != Material.AIR)
+				items.add (itemInHand);
 
 			((HumanEntity) getMyEntity ()).getInventory ().clear ();
 			((HumanEntity) getMyEntity ()).getInventory ().setArmorContents (null);
@@ -1033,9 +1037,11 @@ public class SentryInstance
 
 			if (myProjectile == Fireball.class || myProjectile == org.bukkit.entity.WitherSkull.class)
 			{
+				//TODO find an explaination for this magic number
 				victor = victor.multiply (1 / 1000000000);
 			} else if (myProjectile == SmallFireball.class)
 			{
+				//TODO find an explaination for this magic number
 				victor = victor.multiply (1 / 1000000000);
 				((SmallFireball) theArrow).setIsIncendiary (inciendary);
 				if (!inciendary)
@@ -1074,20 +1080,21 @@ public class SentryInstance
 
 	}
 
+	@ SuppressWarnings ("deprecation")
 	public int getArmor ()
 	{
 
 		double mod = 0;
 		if (getMyEntity () instanceof Player)
 		{
-			for (ItemStack is : ((Player) getMyEntity ()).getInventory ().getArmorContents ())
+			for (ItemStack armourItems : ((Player) getMyEntity ()).getInventory ().getArmorContents ())
 			{
-				if (is == null)
+				if (armourItems == null)
 				{
 					continue;
 				}
-				if (plugin.ArmorBuffs.containsKey (is.getTypeId ()))
-					mod += plugin.ArmorBuffs.get (is.getTypeId ());
+				if (plugin.ArmorBuffs.containsKey (armourItems))
+					mod += plugin.ArmorBuffs.get (armourItems.getTypeId ());
 			}
 		}
 
@@ -1114,6 +1121,7 @@ public class SentryInstance
 		return ((CraftLivingEntity) getMyEntity ()).getHealth ();
 	}
 
+	@ SuppressWarnings ("deprecation")
 	public float getSpeed ()
 	{
 		if (myNPC.isSpawned () == false)
@@ -1121,14 +1129,14 @@ public class SentryInstance
 		double mod = 0;
 		if (getMyEntity () instanceof Player)
 		{
-			for (ItemStack is : ((Player) getMyEntity ()).getInventory ().getArmorContents ())
+			for (ItemStack armourItems : ((Player) getMyEntity ()).getInventory ().getArmorContents ())
 			{
-				if (is == null)
+				if (armourItems == null)
 				{
 					continue;
 				}
-				if (plugin.SpeedBuffs.containsKey (is.getTypeId ()))
-					mod += plugin.SpeedBuffs.get (is.getTypeId ());
+				if (plugin.SpeedBuffs.containsKey (armourItems))
+					mod += plugin.SpeedBuffs.get (armourItems.getTypeId ());
 			}
 		}
 		return (float) (sentrySpeed + mod) * (this.getMyEntity ().isInsideVehicle () ? 2 : 1);
@@ -1147,13 +1155,14 @@ public class SentryInstance
 
 	}
 
+	@ SuppressWarnings ("deprecation")
 	public int getStrength ()
 	{
 		double mod = 0;
 
 		if (getMyEntity () instanceof Player)
 		{
-			if (plugin.StrengthBuffs.containsKey (((Player) getMyEntity ()).getInventory ().getItemInHand ().getTypeId ()))
+			if (plugin.StrengthBuffs.containsKey (((Player) getMyEntity ()).getInventory ().getItemInHand ()))
 				mod += plugin.StrengthBuffs.get (((Player) getMyEntity ()).getInventory ().getItemInHand ().getTypeId ());
 		}
 
@@ -1177,6 +1186,7 @@ public class SentryInstance
 
 		if (sentryWeight <= 0)
 			sentryWeight = 1.0;
+
 		if (AttackRateSeconds > 30)
 			AttackRateSeconds = 30.0;
 
@@ -1185,6 +1195,7 @@ public class SentryInstance
 
 		if (sentryRange < 1)
 			sentryRange = 1;
+
 		if (sentryRange > 200)
 			sentryRange = 200;
 
@@ -1235,7 +1246,7 @@ public class SentryInstance
 		myNPC.data ().set (NPC.TARGETABLE_METADATA, this.Targetable);
 
 		myNPC.getNavigator ().getDefaultParameters ().range (pf);
-		myNPC.getNavigator ().getDefaultParameters ().stationaryTicks (5 * 20);
+		myNPC.getNavigator ().getDefaultParameters ().stationaryTicks (5 * 20); // so 100?
 		myNPC.getNavigator ().getDefaultParameters ().useNewPathfinder (false);
 		//	myNPC.getNavigator().getDefaultParameters().stuckAction(new BodyguardTeleportStuckAction(this, this.plugin));
 
@@ -1305,7 +1316,7 @@ public class SentryInstance
 
 		if (myNPC == null || !myNPC.isSpawned ())
 		{
-			// \\how did you get here?
+			// how did you get here?
 			return;
 		}
 
@@ -1449,8 +1460,7 @@ public class SentryInstance
 
 			if (msg != null && msg.isEmpty () == false)
 			{
-				((Player) attacker)
-						.sendMessage (Util.format (msg, npc, attacker, ((Player) attacker).getItemInHand ().getTypeId (), finaldamage + ""));
+				((Player) attacker).sendMessage (Util.format (msg, npc, attacker, ((Player) attacker).getItemInHand ().getType (), finaldamage + ""));
 			}
 		}
 
