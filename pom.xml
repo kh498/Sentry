@@ -140,9 +140,9 @@
         <url>http://ci.citizensnpcs.co</url>
     </ciManagement>
     <scm>
-        <connection>scm:git:git://github.com/mcmonkey4eva/Sentry.git</connection>
-        <developerConnection>scm:git:git:@github.com:mcmonkey4eva/Sentry.git</developerConnection>
-        <url>https://github.com/mcmonkey4eva/Sentry/tree/master/</url>
+        <connection>scm:git:git://github.com/kh498/Sentry.git</connection>
+        <developerConnection>scm:git:git:@github.com:kh498/Sentry.git</developerConnection>
+        <url>https://github.com/kh498/Sentry/tree/master/</url>
     </scm>
 
     <build>
