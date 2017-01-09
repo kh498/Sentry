@@ -35,6 +35,7 @@ import net.citizensnpcs.api.trait.trait.Owner;
 
 public class Sentry extends JavaPlugin
 {
+	public boolean debug = false;
 
 	public List<Material> Helmets = new LinkedList<Material> (java.util.Arrays.asList (Material.LEATHER_HELMET, Material.CHAINMAIL_HELMET,
 			Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.GOLD_HELMET, Material.JACK_O_LANTERN, Material.PUMPKIN));
@@ -54,36 +55,29 @@ public class Sentry extends JavaPlugin
 	public Map<Material, Double> ArmorBuffs = new HashMap<Material, Double> ();
 
 	public Queue<Projectile> arrows = new LinkedList<Projectile> ();
-	public String BlockMessage = "";
 
-	//SimpleClans sSuport
-	boolean ClansActive = false;
+	public int SentryEXP = 5;
+	public int LogicTicks = 10;
+
 	public int Crit1Chance;
-	public String Crit1Message = "";
 	public int Crit2Chance;
-	public String Crit2Message = "";
 	public int Crit3Chance;
+	public int MissChance;
+	public int GlanceChance;
+
+	public String Crit1Message = "";
+	public String Crit2Message = "";
 	public String Crit3Message = "";
-	public boolean debug = false;
-	//***Denizen Hook
-	public boolean DieLikePlayers = false;
+	public String GlanceMessage = "";
+	public String HitMessage = "";
+	public String MissMessage = "";
+	public String BlockMessage = "";
 
 	public boolean BodyguardsObeyProtection = true;
 
 	public boolean IgnoreListInvincibility = true;
 
-	//FactionsSuport
-	static boolean FactionsActive = false;
-	public int GlanceChance;
-	public String GlanceMessage = "";
 	public boolean GroupsChecked = false;
-
-	public String HitMessage = "";
-	public String MissMessage = "";
-
-	public int LogicTicks = 10;
-
-	public int MissChance;
 
 	public net.milkbowl.vault.permission.Permission perms = null;
 
@@ -101,10 +95,18 @@ public class Sentry extends JavaPlugin
 	public Material magi;
 	public Material bombardier;
 
-	public int SentryEXP = 5;
+	//Denizen Hook
+	public boolean DieLikePlayers = false;
+
+	//FactionsSuport
+	static boolean FactionsActive = false;
+
+	//SimpleClans sSuport
+	boolean ClansActive = false;
 
 	//TownySupport
 	boolean TownyActive = false;
+
 	//War sSuport
 	boolean WarActive = false;
 

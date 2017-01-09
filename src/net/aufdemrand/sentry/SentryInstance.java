@@ -100,6 +100,8 @@ public class SentryInstance
 	private GiveUpStuckAction giveup = new GiveUpStuckAction (this);
 
 	public String GreetingMessage = "&a<NPC> says: Welcome, <PLAYER>!";
+	public String WarningMessage = "&a<NPC> says: Halt! Come no further!";
+
 	public LivingEntity guardEntity = null;;
 	public String guardTarget = null;
 
@@ -114,7 +116,7 @@ public class SentryInstance
 
 	private boolean inciendary = false;
 	public Boolean Invincible = false;
-	Long isRespawnable = System.currentTimeMillis ();
+
 	boolean lightning = false;
 	int lightninglevel = 0;
 	public boolean loaded = false;
@@ -125,6 +127,8 @@ public class SentryInstance
 	/* Setables */
 	public SentryTrait myTrait;
 	public Integer NightVision = 16;
+
+	Long isRespawnable = System.currentTimeMillis ();
 	private long oktoFire = System.currentTimeMillis ();
 	private long oktoheal = System.currentTimeMillis ();
 	private long oktoreasses = System.currentTimeMillis ();
@@ -157,8 +161,6 @@ public class SentryInstance
 	private Integer taskID = null;
 
 	public int FollowDistance = 16;
-
-	public String WarningMessage = "&a<NPC> says: Halt! Come no further!";
 
 	public Integer WarningRange = 0;
 
