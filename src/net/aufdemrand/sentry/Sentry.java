@@ -36,14 +36,26 @@ import net.citizensnpcs.api.trait.trait.Owner;
 public class Sentry extends JavaPlugin
 {
 
-	public int archer = -1;
-	public Map<Integer, Double> ArmorBuffs = new HashMap<Integer, Double> ();
+	public List<Material> Helmets = new LinkedList<Material> (java.util.Arrays.asList (Material.LEATHER_HELMET, Material.CHAINMAIL_HELMET,
+			Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.GOLD_HELMET, Material.JACK_O_LANTERN, Material.PUMPKIN));
+
+	public List<Material> Chestplates = new LinkedList<Material> (java.util.Arrays.asList (Material.LEATHER_CHESTPLATE, Material.CHAINMAIL_CHESTPLATE,
+			Material.IRON_CHESTPLATE, Material.DIAMOND_CHESTPLATE, Material.GOLD_CHESTPLATE));
+
+	public List<Material> Leggings = new LinkedList<Material> (java.util.Arrays.asList (Material.LEATHER_LEGGINGS, Material.CHAINMAIL_LEGGINGS,
+			Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.GOLD_LEGGINGS));
+
+	public List<Material> Boots = new LinkedList<Material> (java.util.Arrays.asList (Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
+			Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.GOLD_BOOTS));
+
+	public Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<Material, List<PotionEffect>> ();
+	public Map<Material, Double> SpeedBuffs = new HashMap<Material, Double> ();
+	public Map<Material, Double> StrengthBuffs = new HashMap<Material, Double> ();
+	public Map<Material, Double> ArmorBuffs = new HashMap<Material, Double> ();
+
 	public Queue<Projectile> arrows = new LinkedList<Projectile> ();
 	public String BlockMessage = "";
-	public int bombardier = -1;
-	public List<Integer> Boots = new LinkedList<Integer> (java.util.Arrays.asList (301, 305, 309, 313, 317));
 
-	public List<Integer> Chestplates = new LinkedList<Integer> (java.util.Arrays.asList (299, 303, 307, 311, 315));
 	//SimpleClans sSuport
 	boolean ClansActive = false;
 	public int Crit1Chance;
@@ -65,41 +77,36 @@ public class Sentry extends JavaPlugin
 	public int GlanceChance;
 	public String GlanceMessage = "";
 	public boolean GroupsChecked = false;
-	public List<Integer> Helmets = new LinkedList<Integer> (java.util.Arrays.asList (298, 302, 306, 310, 314, 91, 86));
 
 	public String HitMessage = "";
-
-	public List<Integer> Leggings = new LinkedList<Integer> (java.util.Arrays.asList (300, 304, 308, 312, 316));
+	public String MissMessage = "";
 
 	public int LogicTicks = 10;
 
-	public int magi = -1;
-
 	public int MissChance;
-
-	public String MissMessage = "";
 
 	public net.milkbowl.vault.permission.Permission perms = null;
 
-	public int pyro1 = -1;
+	public Material archer;
+	public Material pyro1;
+	public Material pyro2;
+	public Material pyro3;
+	public Material sc1;
+	public Material sc2;
+	public Material sc3;
+	public Material warlock1;
+	public Material warlock2;
+	public Material warlock3;
+	public Material witchdoctor;
+	public Material magi;
+	public Material bombardier;
 
-	public int pyro2 = -1;
-	public int pyro3 = -1;
-	public int sc1 = -1;
-	public int sc2 = -1;
-	public int sc3 = -1;
 	public int SentryEXP = 5;
-	public Map<Integer, Double> SpeedBuffs = new HashMap<Integer, Double> ();
-	public Map<Integer, Double> StrengthBuffs = new HashMap<Integer, Double> ();
+
 	//TownySupport
 	boolean TownyActive = false;
 	//War sSuport
 	boolean WarActive = false;
-	public int warlock1 = -1;
-	public int warlock2 = -1;
-	public int warlock3 = -1;
-	public Map<Integer, List<PotionEffect>> WeaponEffects = new HashMap<Integer, List<PotionEffect>> ();
-	public int witchdoctor = -1;
 
 	boolean checkPlugin (String name)
 	{
@@ -156,13 +163,13 @@ public class Sentry extends JavaPlugin
 		Material type = hand == null ? Material.AIR : hand.getType ();
 		// First, determine the slot to edit
 
-		if (Helmets.contains (type.getId ()))
+		if (Helmets.contains (type))
 			slot = 1;
-		else if (Chestplates.contains (type.getId ()))
+		else if (Chestplates.contains (type))
 			slot = 2;
-		else if (Leggings.contains (type.getId ()))
+		else if (Leggings.contains (type))
 			slot = 3;
-		else if (Boots.contains (type.getId ()))
+		else if (Boots.contains (type))
 			slot = 4;
 
 		// Now edit the equipment based on the slot
@@ -218,12 +225,12 @@ public class Sentry extends JavaPlugin
 		return null;
 	}
 
-	private int GetMat (String S)
+	private Material GetMat (String S)
 	{
 		int item = -1;
 
 		if (S == null)
-			return item;
+			return null;
 
 		String[] args = S.toUpperCase ().split (":");
 
@@ -239,12 +246,12 @@ public class Sentry extends JavaPlugin
 			}
 		}
 
-		if (M != null)
-		{
-			item = M.getId ();
-		}
+//		if (M != null)
+//		{
+//			item = M.getId ();
+//		}
 
-		return item;
+		return M;
 	}
 
 	public String getNationNameForLocation (Location l)
@@ -423,7 +430,7 @@ public class Sentry extends JavaPlugin
 		return false;
 	}
 
-	public void loaditemlist (String key, List<Integer> list)
+	public void loaditemlist (String key, List<Material> list)
 	{
 		List<String> strs = getConfig ().getStringList (key);
 
@@ -432,13 +439,13 @@ public class Sentry extends JavaPlugin
 
 		for (String s : getConfig ().getStringList (key))
 		{
-			int item = GetMat (s.trim ());
-			list.add (item);
+//			Material item = ;
+			list.add (GetMat (s.trim ()));
 		}
 
 	}
 
-	private void loadmap (String node, Map<Integer, Double> map)
+	private void loadmap (String node, Map<Material, Double> map)
 	{
 		map.clear ();
 		for (String s : getConfig ().getStringList (node))
@@ -456,16 +463,16 @@ public class Sentry extends JavaPlugin
 			{
 			}
 
-			int item = GetMat (args[0]);
+			Material item = GetMat (args[0]);
 
-			if (item > 0 && val != 0 && !map.containsKey (item))
+			if (item != null && val != 0 && !map.containsKey (item))
 			{
 				map.put (item, val);
 			}
 		}
 	}
 
-	private void loadpots (String node, Map<Integer, List<PotionEffect>> map)
+	private void loadpots (String node, Map<Material, List<PotionEffect>> map)
 	{
 		map.clear ();
 		for (String s : getConfig ().getStringList (node))
@@ -475,7 +482,7 @@ public class Sentry extends JavaPlugin
 			if (args.length < 2)
 				continue;
 
-			int item = GetMat (args[0]);
+			Material item = GetMat (args[0]);
 
 			List<PotionEffect> list = new ArrayList<PotionEffect> ();
 
@@ -487,7 +494,7 @@ public class Sentry extends JavaPlugin
 
 			}
 
-			if (item > 0 && list.isEmpty () == false)
+			if (item != null && list.isEmpty () == false)
 				map.put (item, list);
 
 		}
@@ -1282,8 +1289,8 @@ public class Sentry extends JavaPlugin
 						player.sendMessage (ChatColor.YELLOW + ThisNPC.getName () + "'s equipment cleared.");
 					} else
 					{
-						int mat = GetMat (args[1]);
-						if (mat > 0)
+						Material mat = GetMat (args[1]);
+						if (mat != null)
 						{
 							ItemStack is = new ItemStack (mat);
 							if (equip (ThisNPC, is))

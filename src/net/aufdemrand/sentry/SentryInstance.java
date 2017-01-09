@@ -13,6 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
@@ -1973,14 +1974,14 @@ public class SentryInstance
 
 	public boolean UpdateWeapon ()
 	{
-		int weapon = 0;
+		Material weapon = Material.AIR;
 
 		ItemStack is = null;
 
 		if (getMyEntity () instanceof HumanEntity)
 		{
 			is = ((HumanEntity) getMyEntity ()).getInventory ().getItemInHand ();
-			weapon = is.getTypeId ();
+			weapon = is.getType ();
 			if (weapon != plugin.witchdoctor)
 				is.setDurability ((short) 0);
 		}
@@ -2026,7 +2027,7 @@ public class SentryInstance
 		{
 			if (is == null)
 			{
-				is = new ItemStack (373, 1, (short) 16396);
+				is = new ItemStack (Material.POTION, 1, (short) 16396);
 			}
 			myProjectile = org.bukkit.entity.ThrownPotion.class;
 			potiontype = is;
