@@ -7,7 +7,7 @@
     <groupId>net.aufdemrand</groupId>
     <artifactId>sentry</artifactId>
     <packaging>jar</packaging>
-    <version>1.9.1</version>
+    <version>1.10.0</version>
     <name>sentry</name>
     <description>Armed Citizens</description>
 
