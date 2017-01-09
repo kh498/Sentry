@@ -30,9 +30,10 @@
 # Mac Filesystem Dust
 .DS_Store
 
-# Windows Filesystem Dust
+# Windows
 Thumbs.db
+*.bat
+*.exe
 
 # Other
-*.exe
 *.iml
