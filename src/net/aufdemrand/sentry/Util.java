@@ -10,9 +10,9 @@ import org.bukkit.util.Vector;
 
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-import net.minecraft.server.v1_9_R2.Block;
-import net.minecraft.server.v1_9_R2.Item;
-import net.minecraft.server.v1_9_R2.LocaleI18n;
+import net.minecraft.server.v1_8_R3.Block;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.LocaleI18n;
 
 public class Util
 {
