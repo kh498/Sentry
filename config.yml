@@ -45,12 +45,14 @@ DefaultTexts:
  
 #Default target list for new Sentries. 
 DefaultTargets:
- #- "entity:monster"
+ - "entity:monster"
+ - "event:PvP"
+ - "event:PvE"
+ - "event:PvNPC"
 
- 
 #Default ignore list for new Sentries
 DefaultIgnores:
- #- "entity:owner"
+ - "entity:player"
 
 
 #Configurable messages used by all Sentries. You can use <NPC>, <PLAYER>, <ITEM>, and <AMOUNT> as placeholders. Remove a message or set it to "" to prevent it from displaying at all.
@@ -71,7 +73,7 @@ HitChances:
  Crit2: 4
  Crit3: 2
  
-#Set the item used by each type of Sentry. Use item name or id #. 
+#Set the item used by each type of Sentry. Use item name. 
 #Remove an entry to disable that attack type. Any other item makes a Brawler.
 AttackTypes:
  Archer: BOW
@@ -119,7 +121,7 @@ WeaponEffects:
   
 #The lists below control what items are equipped as armor. These should only be changed to disable specific armors or add extended (i.e. Spout) items.
  
-#The following items will be equipped as helmets, can use name or id #
+#The following items will be equipped as helmets, can use name
 Helmets:
    - PUMPKIN
    - JACK_O_LANTERN
@@ -129,7 +131,7 @@ Helmets:
    - IRON_HELMET
    - DIAMOND_HELMET
    
-#The following items will be equipped as chestplates, can use name or id #.
+#The following items will be equipped as chestplates, can use name.
 Chestplates:
     - LEATHER_CHESTPLATE
     - CHAINMAIL_CHESTPLATE
@@ -137,7 +139,7 @@ Chestplates:
     - IRON_CHESTPLATE
     - DIAMOND_CHESTPLATE
   
-#The following items will be equipped as leggings, can use name or id #
+#The following items will be equipped as leggings, can use name
 Leggings:
     - LEATHER_LEGGINGS
     - CHAINMAIL_LEGGINGS
@@ -145,7 +147,7 @@ Leggings:
     - IRON_LEGGINGS
     - DIAMOND_LEGGINGS
     
-#The following items will be equipped as boots, can use name or id #
+#The following items will be equipped as boots, can use name
 Boots:  
     - LEATHER_BOOTS
     - CHAINMAIL_BOOTS
