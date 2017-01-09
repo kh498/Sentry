@@ -189,7 +189,7 @@ public class DenizenHook
 
 			dNPC theDenizen = dNPC.mirrorCitizensNPC (npc);
 
-			dB.echoDebug (DebugElement.Header, "Parsing NPCDeath/Owner Trigger.");
+			dB.echoDebug (null, DebugElement.Header, "Parsing NPCDeath/Owner Trigger.");
 
 			String owner = npc.getTrait (net.citizensnpcs.api.trait.trait.Owner.class).getOwner ();
 
@@ -197,7 +197,7 @@ public class DenizenHook
 
 			if (thePlayer == null)
 			{
-				dB.echoDebug (DebugElement.Header, "Owner not found!");
+				dB.echoDebug (null, DebugElement.Header, "Owner not found!");
 				return false;
 			}
 
@@ -233,7 +233,7 @@ public class DenizenHook
 
 			dNPC theDenizen = dNPC.mirrorCitizensNPC (npc);
 
-			dB.echoDebug (DebugElement.Header, "Parsing NPCDeath/Killers Trigger");
+			dB.echoDebug (null, DebugElement.Header, "Parsing NPCDeath/Killers Trigger");
 
 			boolean founone = false;
 
@@ -242,7 +242,7 @@ public class DenizenHook
 
 				if (thePlayer != null && thePlayer.getLocation ().distance (npc.getEntity ().getLocation ()) > 300)
 				{
-					dB.echoDebug (DebugElement.Header, thePlayer.getName () + " is to far away.");
+					dB.echoDebug (null, DebugElement.Header, thePlayer.getName () + " is to far away.");
 					continue;
 				}
 
