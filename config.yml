@@ -49,6 +49,8 @@ DefaultTargets:
  - "event:PvP"
  - "event:PvE"
  - "event:PvNPC"
+ - "event:PvSentry"
+ 
 
 #Default ignore list for new Sentries
 DefaultIgnores:
