@@ -110,6 +110,8 @@ public class Sentry extends JavaPlugin
 	//War sSuport
 	boolean WarActive = false;
 
+	public static Sentry instance;
+
 	boolean checkPlugin (String name)
 	{
 		if (getServer ().getPluginManager ().getPlugin (name) != null)
@@ -1677,6 +1679,8 @@ public class Sentry extends JavaPlugin
 
 		CitizensAPI.getTraitFactory ().registerTrait (TraitInfo.create (SentryTrait.class).withName ("sentry"));
 
+		Sentry.instance = this;
+
 		this.getServer ().getPluginManager ().registerEvents (new SentryListener (this), this);
 
 		this.getServer ().getScheduler ().scheduleSyncRepeatingTask (this, new Runnable ()
@@ -1783,6 +1787,11 @@ public class Sentry extends JavaPlugin
 		{
 			return false;
 		}
+	}
+
+	public final static Sentry getInstance ()
+	{
+		return instance;
 	}
 
 }
