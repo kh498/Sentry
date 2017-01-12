@@ -156,13 +156,58 @@ public class Sentry extends JavaPlugin
 
 	}
 
-	public boolean equip (NPC npc, ItemStack hand)
+	/**
+	 * Equip a npc an item
+	 * <p>
+	 * If the item is a piece of armour the npc will equip it at the correct slot
+	 * 
+	 * @param npc
+	 *        The NPC to equip
+	 * @param material
+	 *        the material of the item
+	 * @return true if the item was equiped succsessfully
+	 */
+	public boolean equip (NPC npc, Material material)
+	{
+		return equip (npc, material, 1);
+	}
+
+	/**
+	 * Equip a npc an item
+	 * <p>
+	 * If the item is a piece of armour the npc will equip it at the correct slot
+	 * 
+	 * @param npc
+	 *        The NPC to equip
+	 * @param material
+	 *        the material of the item
+	 * @param amount
+	 *        the amount of material
+	 * @return true if the item was equiped succsessfully
+	 */
+	public boolean equip (NPC npc, Material material, int amount)
+	{
+		return equip (npc, new ItemStack (material, amount));
+	}
+
+	/**
+	 * Equip a npc an item
+	 * <p>
+	 * If the item is a piece of armour the npc will equip it at the correct slot
+	 * 
+	 * @param npc
+	 *        The NPC to equip
+	 * @param item
+	 *        The itemstack to equip
+	 * @return true if the item was equiped succsessfully
+	 */
+	public boolean equip (NPC npc, ItemStack item)
 	{
 		Equipment trait = npc.getTrait (Equipment.class);
 		if (trait == null)
 			return false;
 		int slot = 0;
-		Material type = hand == null ? Material.AIR : hand.getType ();
+		Material type = item == null ? Material.AIR : item.getType ();
 		// First, determine the slot to edit
 
 		if (Helmets.contains (type))
@@ -194,7 +239,7 @@ public class Sentry extends JavaPlugin
 			return true;
 		} else
 		{
-			ItemStack clone = hand.clone ();
+			ItemStack clone = item.clone ();
 			clone.setAmount (1);
 
 			try
