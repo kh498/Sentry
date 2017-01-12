@@ -939,16 +939,19 @@ public class Sentry extends JavaPlugin
 				}
 				arg = arg.trim ();
 
+				@ SuppressWarnings ("deprecation")
+				LivingEntity et = Bukkit.getPlayer (arg);
+
 				boolean ok = false;
 
 				if (!playersonly)
 				{
-					ok = inst.setGuardTarget (arg, false);
+					ok = inst.setGuardTarget (et, false);
 				}
 
 				if (!localonly)
 				{
-					ok = inst.setGuardTarget (arg, true);
+					ok = inst.setGuardTarget (et, true);
 				}
 
 				if (ok)

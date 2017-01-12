@@ -1928,7 +1928,7 @@ public class SentryInstance
 				if (aTarget instanceof Player)
 				{
 					//chesk for players
-					if (((Player) aTarget).getName ().equals (name))
+					if (((Player) aTarget).getUniqueId ().equals (entity.getUniqueId ()))
 					{
 						guardEntity = (LivingEntity) aTarget;
 						guardTarget = ((Player) aTarget).getName ();
@@ -1938,11 +1938,11 @@ public class SentryInstance
 				} else if (aTarget instanceof LivingEntity)
 				{
 					//check for named mobs.
-					String ename = ((LivingEntity) aTarget).getCustomName ();
-					if (ename != null && ename.equals (name))
+					LivingEntity ename = (LivingEntity) aTarget;
+					if (ename.getUniqueId ().equals (entity.getUniqueId ()))
 					{
 						guardEntity = (LivingEntity) aTarget;
-						guardTarget = ename;
+						guardTarget = ename.getCustomName ();
 						setTarget (null, false); // clear active hostile target
 						return true;
 					}
@@ -1952,12 +1952,12 @@ public class SentryInstance
 		} else
 		{
 
-			for (Player player : plugin.getServer ().getOnlinePlayers ())
+			for (Player loopPlayer : plugin.getServer ().getOnlinePlayers ())
 			{
-				if (player.getName ().equals (name))
+				if (loopPlayer.getUniqueId ().equals (entity.getUniqueId ()))
 				{
-					guardEntity = player;
-					guardTarget = player.getName ();
+					guardEntity = loopPlayer;
+					guardTarget = loopPlayer.getName ();
 					setTarget (null, false); // clear active hostile target
 					return true;
 				}
