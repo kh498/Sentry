@@ -41,31 +41,31 @@ public class SentryTrait extends Trait implements Toggleable
 			key = key.getRelative ("traits");
 
 		isToggled = key.getBoolean ("toggled", isToggled ());
-		thisInstance.Retaliate = key.getBoolean ("Retaliate", plugin.getConfig ().getBoolean ("DefaultOptions.Retaliate", true));
-		thisInstance.Invincible = key.getBoolean ("Invincinble", plugin.getConfig ().getBoolean ("DefaultOptions.Invincible", false));
-		thisInstance.DropInventory = key.getBoolean ("DropInventory", plugin.getConfig ().getBoolean ("DefaultOptions.Drops", false));
-		thisInstance.LuckyHits = key.getBoolean ("CriticalHits", plugin.getConfig ().getBoolean ("DefaultOptions.Criticals", true));
+		thisInstance.retaliate = key.getBoolean ("Retaliate", plugin.getConfig ().getBoolean ("DefaultOptions.Retaliate", true));
+		thisInstance.invincible = key.getBoolean ("Invincinble", plugin.getConfig ().getBoolean ("DefaultOptions.Invincible", false));
+		thisInstance.dropInventory = key.getBoolean ("DropInventory", plugin.getConfig ().getBoolean ("DefaultOptions.Drops", false));
+		thisInstance.luckyHits = key.getBoolean ("CriticalHits", plugin.getConfig ().getBoolean ("DefaultOptions.Criticals", true));
 		thisInstance.sentryHealth = key.getDouble ("Health", plugin.getConfig ().getInt ("DefaultStats.Health", 20));
 		thisInstance.sentryRange = key.getInt ("Range", plugin.getConfig ().getInt ("DefaultStats.Range", 10));
-		thisInstance.RespawnDelaySeconds = key.getInt ("RespawnDelay", plugin.getConfig ().getInt ("DefaultStats.Respawn", 10));
+		thisInstance.respawnDelaySeconds = key.getInt ("RespawnDelay", plugin.getConfig ().getInt ("DefaultStats.Respawn", 10));
 		thisInstance.sentrySpeed = (float) (key.getDouble ("Speed", plugin.getConfig ().getDouble ("DefaultStats.Speed", 1.0)));
 		thisInstance.sentryWeight = key.getDouble ("Weight", plugin.getConfig ().getDouble ("DefaultStats.Weight", 1.0));
-		thisInstance.Armor = key.getInt ("Armor", plugin.getConfig ().getInt ("DefaultStats.Armor", 0));
-		thisInstance.Strength = key.getInt ("Strength", plugin.getConfig ().getInt ("DefaultStats.Strength", 1));
-		thisInstance.FollowDistance = key.getInt ("FollowDistance", plugin.getConfig ().getInt ("DefaultStats.FollowDistance", 4));
+		thisInstance.armor = key.getInt ("Armor", plugin.getConfig ().getInt ("DefaultStats.Armor", 0));
+		thisInstance.strength = key.getInt ("Strength", plugin.getConfig ().getInt ("DefaultStats.Strength", 1));
+		thisInstance.followDistance = key.getInt ("FollowDistance", plugin.getConfig ().getInt ("DefaultStats.FollowDistance", 4));
 		thisInstance.guardTarget = (key.getString ("GuardTarget", null));
-		thisInstance.GreetingMessage = (key.getString ("Greeting",
+		thisInstance.greetingMessage = (key.getString ("Greeting",
 				plugin.getConfig ().getString ("DefaultTexts.Greeting", "'" + ChatColor.COLOR_CHAR + "b<NPC> says Welcome, <PLAYER>'")));
-		thisInstance.WarningMessage = (key.getString ("Warning",
+		thisInstance.warningMessage = (key.getString ("Warning",
 				plugin.getConfig ().getString ("DefaultTexts.Warning", "'" + ChatColor.COLOR_CHAR + "c<NPC> says Halt! Come no closer!'")));
-		thisInstance.WarningRange = key.getInt ("WarningRange", plugin.getConfig ().getInt ("DefaultStats.WarningRange", 0));
-		thisInstance.AttackRateSeconds = key.getDouble ("AttackRate", plugin.getConfig ().getDouble ("DefaultStats.AttackRate", 2.0));
-		thisInstance.HealRate = key.getDouble ("HealRate", plugin.getConfig ().getDouble ("DefaultStats.HealRate", 0.0));
-		thisInstance.NightVision = key.getInt ("NightVision", plugin.getConfig ().getInt ("DefaultStats.NightVision", 16));
-		thisInstance.KillsDropInventory = key.getBoolean ("KillDrops", plugin.getConfig ().getBoolean ("DefaultOptions.KillDrops", true));
-		thisInstance.IgnoreLOS = key.getBoolean ("IgnoreLOS", plugin.getConfig ().getBoolean ("DefaultOptions.IgnoreLOS", false));
-		thisInstance.MountID = key.getInt ("MountID", -1);
-		thisInstance.Targetable = key.getBoolean ("Targetable", plugin.getConfig ().getBoolean ("DefaultOptions.Targetable", true));
+		thisInstance.warningRange = key.getInt ("WarningRange", plugin.getConfig ().getInt ("DefaultStats.WarningRange", 0));
+		thisInstance.attackRateSeconds = key.getDouble ("AttackRate", plugin.getConfig ().getDouble ("DefaultStats.AttackRate", 2.0));
+		thisInstance.healRate = key.getDouble ("HealRate", plugin.getConfig ().getDouble ("DefaultStats.HealRate", 0.0));
+		thisInstance.nightVision = key.getInt ("NightVision", plugin.getConfig ().getInt ("DefaultStats.NightVision", 16));
+		thisInstance.killsDropInventory = key.getBoolean ("KillDrops", plugin.getConfig ().getBoolean ("DefaultOptions.KillDrops", true));
+		thisInstance.ignoreLOS = key.getBoolean ("IgnoreLOS", plugin.getConfig ().getBoolean ("DefaultOptions.IgnoreLOS", false));
+		thisInstance.mountID = key.getInt ("MountID", -1);
+		thisInstance.targetable = key.getBoolean ("Targetable", plugin.getConfig ().getBoolean ("DefaultOptions.Targetable", true));
 
 		if (key.keyExists ("Spawn"))
 		{
@@ -206,7 +206,7 @@ public class SentryTrait extends Trait implements Toggleable
 		plugin.debug (npc.getName () + ":" + npc.getId () + " onDespawn");
 		if (thisInstance != null)
 		{
-			thisInstance.isRespawnable = System.currentTimeMillis () + thisInstance.RespawnDelaySeconds * 1000;
+			thisInstance.isRespawnable = System.currentTimeMillis () + thisInstance.respawnDelaySeconds * 1000;
 			thisInstance.sentryStatus = Status.DEAD;
 			thisInstance.dismount ();
 		}
@@ -218,16 +218,16 @@ public class SentryTrait extends Trait implements Toggleable
 		if (thisInstance == null)
 			return;
 		key.setBoolean ("toggled", isToggled);
-		key.setBoolean ("Retaliate", thisInstance.Retaliate);
-		key.setBoolean ("Invincinble", thisInstance.Invincible);
-		key.setBoolean ("DropInventory", thisInstance.DropInventory);
-		key.setBoolean ("KillDrops", thisInstance.KillsDropInventory);
-		key.setBoolean ("Targetable", thisInstance.Targetable);
+		key.setBoolean ("Retaliate", thisInstance.retaliate);
+		key.setBoolean ("Invincinble", thisInstance.invincible);
+		key.setBoolean ("DropInventory", thisInstance.dropInventory);
+		key.setBoolean ("KillDrops", thisInstance.killsDropInventory);
+		key.setBoolean ("Targetable", thisInstance.targetable);
 
-		key.setInt ("MountID", thisInstance.MountID);
+		key.setInt ("MountID", thisInstance.mountID);
 
-		key.setBoolean ("CriticalHits", thisInstance.LuckyHits);
-		key.setBoolean ("IgnoreLOS", thisInstance.IgnoreLOS);
+		key.setBoolean ("CriticalHits", thisInstance.luckyHits);
+		key.setBoolean ("IgnoreLOS", thisInstance.ignoreLOS);
 		key.setRaw ("Targets", thisInstance.validTargets);
 		key.setRaw ("Ignores", thisInstance.ignoreTargets);
 
@@ -243,24 +243,24 @@ public class SentryTrait extends Trait implements Toggleable
 
 		key.setDouble ("Health", thisInstance.sentryHealth);
 		key.setInt ("Range", thisInstance.sentryRange);
-		key.setInt ("RespawnDelay", thisInstance.RespawnDelaySeconds);
+		key.setInt ("RespawnDelay", thisInstance.respawnDelaySeconds);
 		key.setDouble ("Speed", thisInstance.sentrySpeed);
 		key.setDouble ("Weight", thisInstance.sentryWeight);
-		key.setDouble ("HealRate", thisInstance.HealRate);
-		key.setInt ("Armor", thisInstance.Armor);
-		key.setInt ("Strength", thisInstance.Strength);
-		key.setInt ("WarningRange", thisInstance.WarningRange);
-		key.setDouble ("AttackRate", thisInstance.AttackRateSeconds);
-		key.setInt ("NightVision", thisInstance.NightVision);
-		key.setInt ("FollowDistance", thisInstance.FollowDistance);
+		key.setDouble ("HealRate", thisInstance.healRate);
+		key.setInt ("Armor", thisInstance.armor);
+		key.setInt ("Strength", thisInstance.strength);
+		key.setInt ("WarningRange", thisInstance.warningRange);
+		key.setDouble ("AttackRate", thisInstance.attackRateSeconds);
+		key.setInt ("NightVision", thisInstance.nightVision);
+		key.setInt ("FollowDistance", thisInstance.followDistance);
 
 		if (thisInstance.guardTarget != null)
 			key.setString ("GuardTarget", thisInstance.guardTarget);
 		else if (key.keyExists ("GuardTarget"))
 			key.removeKey ("GuardTarget");
 
-		key.setString ("Warning", thisInstance.WarningMessage);
-		key.setString ("Greeting", thisInstance.GreetingMessage);
+		key.setString ("Warning", thisInstance.warningMessage);
+		key.setString ("Greeting", thisInstance.greetingMessage);
 	}
 
 	@ Override

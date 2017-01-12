@@ -134,7 +134,7 @@ public class Util
 	{
 
 		Vector victor = from.clone ().subtract (to).toVector ();
-		Double dist = Math.sqrt (Math.pow (victor.getX (), 2) + Math.pow (victor.getZ (), 2));
+		double dist = Math.sqrt (Math.pow (victor.getX (), 2) + Math.pow (victor.getZ (), 2));
 
 		double v2 = Math.pow (v, 2);
 		double v4 = Math.pow (v, 4);

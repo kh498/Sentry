@@ -15,6 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
@@ -133,7 +134,7 @@ public class Sentry extends JavaPlugin
 	public void doGroups ()
 	{
 		if (!setupPermissions ())
-			getLogger ().log (Level.WARNING, "Could not register with Vault!  the GROUP target will not function.");
+			getLogger ().log (Level.WARNING, "Could not register with Vault! the GROUP target will not function.");
 		else
 		{
 			try
@@ -141,7 +142,7 @@ public class Sentry extends JavaPlugin
 				String[] Gr = perms.getGroups ();
 				if (Gr.length == 0)
 				{
-					getLogger ().log (Level.WARNING, "No permission groups found.  the GROUP target will not function.");
+					getLogger ().log (Level.WARNING, "No permission groups found. the GROUP target will not function.");
 					perms = null;
 				} else
 					getLogger ().log (Level.INFO,
@@ -149,7 +150,7 @@ public class Sentry extends JavaPlugin
 
 			} catch (Exception e)
 			{
-				getLogger ().log (Level.WARNING, "Error getting groups.  the GROUP target will not function.");
+				getLogger ().log (Level.WARNING, "Error getting groups. the GROUP target will not function.");
 				perms = null;
 			}
 		}
@@ -741,7 +742,7 @@ public class Sentry extends JavaPlugin
 		//					player.sendMessage("item null");
 		//					continue;
 		//				}
-		//				player.sendMessage(ii.getTypeId() + ":" + ii.getData());   // Talk to the player.
+		//				player.sendMessage(ii.getTypeId() + ":" + ii.getData());  // Talk to the player.
 		//
 		//			}
 		//
@@ -774,9 +775,9 @@ public class Sentry extends JavaPlugin
 				return true;
 			}
 
-			inst.Invincible = set == null ? !inst.Invincible : set;
+			inst.invincible = set == null ? !inst.invincible : set;
 
-			if (!inst.Invincible)
+			if (!inst.invincible)
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " now takes damage.."); // Talk to the player.
 			} else
@@ -793,9 +794,9 @@ public class Sentry extends JavaPlugin
 				return true;
 			}
 
-			inst.Retaliate = set == null ? !inst.Retaliate : set;
+			inst.retaliate = set == null ? !inst.retaliate : set;
 
-			if (!inst.Retaliate)
+			if (!inst.retaliate)
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " will not retaliate."); // Talk to the player.
 			} else
@@ -812,9 +813,9 @@ public class Sentry extends JavaPlugin
 				return true;
 			}
 
-			inst.LuckyHits = set == null ? !inst.LuckyHits : set;
+			inst.luckyHits = set == null ? !inst.luckyHits : set;
 
-			if (!inst.LuckyHits)
+			if (!inst.luckyHits)
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " will take normal damage."); // Talk to the player.
 			} else
@@ -831,9 +832,9 @@ public class Sentry extends JavaPlugin
 				return true;
 			}
 
-			inst.DropInventory = set == null ? !inst.DropInventory : set;
+			inst.dropInventory = set == null ? !inst.dropInventory : set;
 
-			if (inst.DropInventory)
+			if (inst.dropInventory)
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " will drop items"); // Talk to the player.
 			} else
@@ -850,9 +851,9 @@ public class Sentry extends JavaPlugin
 				return true;
 			}
 
-			inst.KillsDropInventory = set == null ? !inst.KillsDropInventory : set;
+			inst.killsDropInventory = set == null ? !inst.killsDropInventory : set;
 
-			if (inst.KillsDropInventory)
+			if (inst.killsDropInventory)
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + "'s kills will drop items or exp"); // Talk to the player.
 			} else
@@ -869,10 +870,10 @@ public class Sentry extends JavaPlugin
 				return true;
 			}
 
-			inst.Targetable = set == null ? !inst.Targetable : set;
-			ThisNPC.data ().set (NPC.TARGETABLE_METADATA, inst.Targetable);
+			inst.targetable = set == null ? !inst.targetable : set;
+			ThisNPC.data ().set (NPC.TARGETABLE_METADATA, inst.targetable);
 
-			if (inst.Targetable)
+			if (inst.targetable)
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " will be targeted by mobs"); // Talk to the player.
 			} else
@@ -900,8 +901,8 @@ public class Sentry extends JavaPlugin
 			{
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " is no longer Mounted"); // Talk to the player.
 				if (inst.isMounted ())
-					Util.removeMount (inst.MountID);
-				inst.MountID = -1;
+					Util.removeMount (inst.mountID);
+				inst.mountID = -1;
 			}
 
 			return true;
@@ -988,7 +989,7 @@ public class Sentry extends JavaPlugin
 			}
 			if (args.length <= 1)
 			{
-				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Follow Distance is " + inst.FollowDistance);
+				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Follow Distance is " + inst.followDistance);
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry follow [#]. Default is 4. ");
 			} else
 			{
@@ -1000,7 +1001,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " follow distance set to " + HPs + "."); // Talk to the player.
-				inst.FollowDistance = HPs * HPs;
+				inst.followDistance = HPs * HPs;
 
 			}
 
@@ -1017,8 +1018,8 @@ public class Sentry extends JavaPlugin
 			if (args.length <= 1)
 			{
 				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Health is " + inst.sentryHealth);
-				player.sendMessage (ChatColor.GOLD + "Usage: /sentry health [#]   note: Typically players");
-				player.sendMessage (ChatColor.GOLD + "  have 20 HPs when fully healed");
+				player.sendMessage (ChatColor.GOLD + "Usage: /sentry health [#]  note: Typically players");
+				player.sendMessage (ChatColor.GOLD + " have 20 HPs when fully healed");
 			} else
 			{
 
@@ -1045,7 +1046,7 @@ public class Sentry extends JavaPlugin
 			}
 			if (args.length <= 1)
 			{
-				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Armor is " + inst.Armor);
+				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Armor is " + inst.armor);
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry armor [#] ");
 			} else
 			{
@@ -1057,7 +1058,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " armor set to " + HPs + "."); // Talk to the player.
-				inst.Armor = HPs;
+				inst.armor = HPs;
 
 			}
 
@@ -1071,7 +1072,7 @@ public class Sentry extends JavaPlugin
 			}
 			if (args.length <= 1)
 			{
-				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Strength is " + inst.Strength);
+				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Strength is " + inst.strength);
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry strength # ");
 				player.sendMessage (ChatColor.GOLD + "Note: At Strength 0 the Sentry will do no damamge. ");
 			} else
@@ -1084,7 +1085,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " strength set to " + HPs + "."); // Talk to the player.
-				inst.Strength = HPs;
+				inst.strength = HPs;
 
 			}
 
@@ -1098,7 +1099,7 @@ public class Sentry extends JavaPlugin
 			}
 			if (args.length <= 1)
 			{
-				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Night Vision is " + inst.NightVision);
+				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Night Vision is " + inst.nightVision);
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry nightvision [0-16] ");
 				player.sendMessage (ChatColor.GOLD + "Usage: 0 = See nothing, 16 = See everything. ");
 			} else
@@ -1111,7 +1112,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " Night Vision set to " + HPs + "."); // Talk to the player.
-				inst.NightVision = HPs;
+				inst.nightVision = HPs;
 
 			}
 
@@ -1127,12 +1128,12 @@ public class Sentry extends JavaPlugin
 			}
 			if (args.length <= 1)
 			{
-				if (inst.RespawnDelaySeconds == 0)
+				if (inst.respawnDelaySeconds == 0)
 					player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + " will not automatically respawn.");
-				if (inst.RespawnDelaySeconds == -1)
+				if (inst.respawnDelaySeconds == -1)
 					player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + " will be deleted upon death");
-				if (inst.RespawnDelaySeconds > 0)
-					player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + " respawns after " + inst.RespawnDelaySeconds + "s");
+				if (inst.respawnDelaySeconds > 0)
+					player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + " respawns after " + inst.respawnDelaySeconds + "s");
 
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry respawn [-1 - 2000000] ");
 				player.sendMessage (ChatColor.GOLD + "Usage: set to 0 to prevent automatic respawn");
@@ -1147,7 +1148,7 @@ public class Sentry extends JavaPlugin
 					HPs = -1;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " now respawns after " + HPs + "s."); // Talk to the player.
-				inst.RespawnDelaySeconds = HPs;
+				inst.respawnDelaySeconds = HPs;
 
 			}
 			return true;
@@ -1189,7 +1190,7 @@ public class Sentry extends JavaPlugin
 			if (args.length <= 1)
 			{
 				player.sendMessage (
-						ChatColor.GOLD + ThisNPC.getName () + "'s Projectile Attack Rate is " + inst.AttackRateSeconds + "s between shots.");
+						ChatColor.GOLD + ThisNPC.getName () + "'s Projectile Attack Rate is " + inst.attackRateSeconds + "s between shots.");
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry attackrate [0.0 - 30.0]");
 			} else
 			{
@@ -1201,7 +1202,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0.0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " Projectile Attack Rate set to " + HPs + "."); // Talk to the player.
-				inst.AttackRateSeconds = HPs;
+				inst.attackRateSeconds = HPs;
 
 			}
 
@@ -1215,7 +1216,7 @@ public class Sentry extends JavaPlugin
 			}
 			if (args.length <= 1)
 			{
-				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Heal Rate is " + inst.HealRate + "s");
+				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Heal Rate is " + inst.healRate + "s");
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry healrate [0.0 - 300.0]");
 				player.sendMessage (ChatColor.GOLD + "Usage: Set to 0 to disable healing");
 			} else
@@ -1228,7 +1229,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0.0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " Heal Rate set to " + HPs + "."); // Talk to the player.
-				inst.HealRate = HPs;
+				inst.healRate = HPs;
 
 			}
 
@@ -1272,7 +1273,7 @@ public class Sentry extends JavaPlugin
 
 			if (args.length <= 1)
 			{
-				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Warning Range is " + inst.WarningRange);
+				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Warning Range is " + inst.warningRange);
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry warningrangee [0 - 50]");
 			}
 
@@ -1286,7 +1287,7 @@ public class Sentry extends JavaPlugin
 					HPs = 0;
 
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " warning range set to " + HPs + "."); // Talk to the player.
-				inst.WarningRange = HPs;
+				inst.warningRange = HPs;
 
 			}
 
@@ -1313,7 +1314,7 @@ public class Sentry extends JavaPlugin
 					if (args[1].equalsIgnoreCase ("none"))
 					{
 						//remove equipment
-						equip (ThisNPC, null);
+						equip (ThisNPC, Material.AIR);
 						inst.UpdateWeapon ();
 						player.sendMessage (ChatColor.YELLOW + ThisNPC.getName () + "'s equipment cleared.");
 					} else
@@ -1355,11 +1356,11 @@ public class Sentry extends JavaPlugin
 				String str = arg.replaceAll ("\"$", "").replaceAll ("^\"", "").replaceAll ("'$", "").replaceAll ("^'", "");
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " warning message set to " + ChatColor.RESET
 						+ ChatColor.translateAlternateColorCodes ('&', str) + "."); // Talk to the player.
-				inst.WarningMessage = str;
+				inst.warningMessage = str;
 			} else
 			{
 				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Warning Message is: " + ChatColor.RESET
-						+ ChatColor.translateAlternateColorCodes ('&', inst.WarningMessage));
+						+ ChatColor.translateAlternateColorCodes ('&', inst.warningMessage));
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry warning 'The Text to use'");
 			}
 			return true;
@@ -1384,11 +1385,11 @@ public class Sentry extends JavaPlugin
 				String str = arg.replaceAll ("\"$", "").replaceAll ("^\"", "").replaceAll ("'$", "").replaceAll ("^'", "");
 				player.sendMessage (ChatColor.GREEN + ThisNPC.getName () + " Greeting message set to " + ChatColor.RESET
 						+ ChatColor.translateAlternateColorCodes ('&', str) + "."); // Talk to the player.
-				inst.GreetingMessage = str;
+				inst.greetingMessage = str;
 			} else
 			{
 				player.sendMessage (ChatColor.GOLD + ThisNPC.getName () + "'s Greeting Message is: " + ChatColor.RESET
-						+ ChatColor.translateAlternateColorCodes ('&', inst.GreetingMessage));
+						+ ChatColor.translateAlternateColorCodes ('&', inst.greetingMessage));
 				player.sendMessage (ChatColor.GOLD + "Usage: /sentry greeting 'The Text to use'");
 			}
 			return true;
@@ -1403,10 +1404,10 @@ public class Sentry extends JavaPlugin
 			}
 			player.sendMessage (ChatColor.GOLD + "------- Sentry Info for (" + ThisNPC.getId () + ") " + ThisNPC.getName () + "------");
 			player.sendMessage (ChatColor.GREEN + inst.getStats ());
-			player.sendMessage (ChatColor.GREEN + "Invincible: " + inst.Invincible + "  Retaliate: " + inst.Retaliate);
-			player.sendMessage (ChatColor.GREEN + "Drops Items: " + inst.DropInventory + "  Critical Hits: " + inst.LuckyHits);
+			player.sendMessage (ChatColor.GREEN + "Invincible: " + inst.invincible + " Retaliate: " + inst.retaliate);
+			player.sendMessage (ChatColor.GREEN + "Drops Items: " + inst.dropInventory + " Critical Hits: " + inst.luckyHits);
 			player.sendMessage (
-					ChatColor.GREEN + "Kills Drop Items: " + inst.KillsDropInventory + "  Respawn Delay: " + inst.RespawnDelaySeconds + "s");
+					ChatColor.GREEN + "Kills Drop Items: " + inst.killsDropInventory + " Respawn Delay: " + inst.respawnDelaySeconds + "s");
 			player.sendMessage (ChatColor.BLUE + "Status: " + inst.sentryStatus);
 			if (inst.meleeTarget == null)
 			{
@@ -1610,7 +1611,6 @@ public class Sentry extends JavaPlugin
 	@ Override
 	public void onEnable ()
 	{
-
 		if (getServer ().getPluginManager ().getPlugin ("Citizens") == null
 				|| getServer ().getPluginManager ().getPlugin ("Citizens").isEnabled () == false)
 		{

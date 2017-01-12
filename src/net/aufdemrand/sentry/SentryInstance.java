@@ -82,32 +82,50 @@ public class SentryInstance
 
 	private Location _projTargetLostLoc;
 
-	public Integer Armor = 0;
+	public int armor = 0;
+	public int sentryRange = 10;
+	public int nightVision = 16;
+	public int strength = 1;
+	public int followDistance = 16;
+	public int warningRange = 0;
+	public int respawnDelaySeconds = 10;
 
-	public Double AttackRateSeconds = 2.0;
+	public double healRate = 0.0;
+	public double attackRateSeconds = 2.0;
+	public double sentryHealth = 20;
+	public double sentryWeight = 1.0;
 
-	public boolean KillsDropInventory = true;
-	public boolean DropInventory = false;
-	public boolean Targetable = true;
+	public float sentrySpeed = (float) 1.0;
 
-	public int MountID = -1;
+	public boolean killsDropInventory = true;
+	public boolean dropInventory = false;
+	public boolean targetable = true;
+	public boolean luckyHits = true;
+	public boolean ignoreLOS;
+	public boolean invincible = false;
+	public boolean retaliate = true;
+
+	private int lightninglevel = 0;
+	private boolean inciendary = false;
+
+	public int mountID = -1;
 
 	public boolean isMounted ()
 	{
-		return MountID >= 0;
+		return mountID >= 0;
 	}
 
 	public int epcount = 0;
+
 	private GiveUpStuckAction giveup = new GiveUpStuckAction (this);
 
-	public String GreetingMessage = "&a<NPC> says: Welcome, <PLAYER>!";
-	public String WarningMessage = "&a<NPC> says: Halt! Come no further!";
+	public String greetingMessage = "&a<NPC> says: Welcome, <PLAYER>!";
+	public String warningMessage = "&a<NPC> says: Halt! Come no further!";
 
 	public LivingEntity guardEntity = null;;
 	public String guardTarget = null;
 
 	Packet healanim = null;
-	public Double HealRate = 0.0;
 
 	public List<String> ignoreTargets = new ArrayList<String> ();
 	public List<String> validTargets = new ArrayList<String> ();
@@ -115,56 +133,37 @@ public class SentryInstance
 	public Set<String> _ignoreTargets = new HashSet<String> ();
 	public Set<String> _validTargets = new HashSet<String> ();
 
-	private boolean inciendary = false;
-	public Boolean Invincible = false;
-
 	boolean lightning = false;
-	int lightninglevel = 0;
+
 	public boolean loaded = false;
-	public Boolean LuckyHits = true;
 	public LivingEntity meleeTarget;
+
 	public NPC myNPC = null;
 	private Class<? extends Projectile> myProjectile;
+
 	/* Setables */
 	public SentryTrait myTrait;
-	public Integer NightVision = 16;
 
 	Long isRespawnable = System.currentTimeMillis ();
 	private long oktoFire = System.currentTimeMillis ();
 	private long oktoheal = System.currentTimeMillis ();
 	private long oktoreasses = System.currentTimeMillis ();
 	private long okToTakedamage = 0;
+
 	/* plugin Constructer */
 	Sentry plugin;
 	public List<PotionEffect> potionEffects = null;
 	ItemStack potiontype = null;
 	public LivingEntity projectileTarget;
 	Random r = new Random ();
-	public Integer RespawnDelaySeconds = 10;
-	public Boolean Retaliate = true;
-	public double sentryHealth = 20;
-	public boolean IgnoreLOS;
-
-	public Integer sentryRange = 10;
-
-	public float sentrySpeed = (float) 1.0;
 
 	/* Internals */
 	public Status sentryStatus = Status.DYING;
 
-	public Double sentryWeight = 1.0;
-
 	public Location Spawn = null;
 
-	public Integer Strength = 1;
-
 	/* Technicals */
-	private Integer taskID = null;
-
-	public int FollowDistance = 16;
-
-	public Integer WarningRange = 0;
-
+	private int taskID = -1;
 	private Map<Player, Long> Warnings = new HashMap<Player, Long> ();
 
 	public SentryInstance (Sentry plugin)
@@ -175,7 +174,7 @@ public class SentryInstance
 
 	public void cancelRunnable ()
 	{
-		if (taskID != null)
+		if (taskID != -1)
 		{
 			plugin.getServer ().getScheduler ().cancelTask (taskID);
 		}
@@ -649,7 +648,7 @@ public class SentryInstance
 
 		sentryStatus = Status.DEAD;
 
-		if (this.DropInventory)
+		if (this.dropInventory)
 			getMyEntity ().getLocation ().getWorld ().spawn (getMyEntity ().getLocation (), ExperienceOrb.class).setExperience (plugin.SentryEXP);
 
 		List<ItemStack> items = new java.util.LinkedList<ItemStack> ();
@@ -681,7 +680,7 @@ public class SentryInstance
 		else
 			getMyEntity ().playEffect (EntityEffect.HURT);
 
-		if (!DropInventory)
+		if (!dropInventory)
 			items.clear ();
 
 		for (ItemStack is : items)
@@ -704,16 +703,16 @@ public class SentryInstance
 
 		}
 
-		if (RespawnDelaySeconds == -1)
+		if (respawnDelaySeconds == -1)
 		{
 			cancelRunnable ();
 			if (this.isMounted ())
-				Util.removeMount (MountID);
+				Util.removeMount (mountID);
 			myNPC.destroy ();
 			return;
 		} else
 		{
-			isRespawnable = System.currentTimeMillis () + RespawnDelaySeconds * 1000;
+			isRespawnable = System.currentTimeMillis () + respawnDelaySeconds * 1000;
 		}
 	}
 
@@ -753,12 +752,12 @@ public class SentryInstance
 		net.citizensnpcs.util.NMS.look (getMyEntity (), v.getLocation ().getYaw (), 0);
 	}
 
-	public LivingEntity findTarget (Integer Range)
+	public LivingEntity findTarget (int Range)
 	{
-		Range += WarningRange;
+		Range += warningRange;
 		List<Entity> EntitiesWithinRange = getMyEntity ().getNearbyEntities (Range, Range, Range);
 		LivingEntity theTarget = null;
-		Double distanceToBeat = 99999.0;
+		double distanceToBeat = 99999.0;
 
 		// plugin.getServer().broadcastMessage("Targets scanned : " +
 		// EntitiesWithinRange.toString());
@@ -782,7 +781,7 @@ public class SentryInstance
 						ll /= 2;
 
 				// too dark?
-				if (ll >= (16 - this.NightVision))
+				if (ll >= (16 - this.nightVision))
 				{
 
 					double dist = aTarget.getLocation ().distance (getMyEntity ().getLocation ());
@@ -790,8 +789,8 @@ public class SentryInstance
 					if (hasLOS (aTarget))
 					{
 
-						if (WarningRange > 0 && sentryStatus == Status.LOOKING && aTarget instanceof Player && dist > (Range - WarningRange)
-								&& !net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().isNPC (aTarget) & !(WarningMessage.isEmpty ()))
+						if (warningRange > 0 && sentryStatus == Status.LOOKING && aTarget instanceof Player && dist > (Range - warningRange)
+								&& !net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().isNPC (aTarget) & !(warningMessage.isEmpty ()))
 						{
 
 							if (Warnings.containsKey (aTarget) && System.currentTimeMillis () < Warnings.get (aTarget) + 60 * 1000)
@@ -819,8 +818,8 @@ public class SentryInstance
 			{
 				//not a target
 
-				if (WarningRange > 0 && sentryStatus == Status.LOOKING && aTarget instanceof Player
-						&& !net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().isNPC (aTarget) && !(GreetingMessage.isEmpty ()))
+				if (warningRange > 0 && sentryStatus == Status.LOOKING && aTarget instanceof Player
+						&& !net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().isNPC (aTarget) && !(greetingMessage.isEmpty ()))
 				{
 					boolean LOS = getMyEntity ().hasLineOfSight (aTarget);
 					if (LOS)
@@ -858,7 +857,7 @@ public class SentryInstance
 
 	public void Fire (LivingEntity theEntity)
 	{
-
+		//TODO Wtf are these numbers? 
 		double v = 34;
 		double g = 20;
 
@@ -897,7 +896,7 @@ public class SentryInstance
 
 		Vector test = targetsHeart.clone ().subtract (loc).toVector ();
 
-		Double elev = test.getY ();
+		double elev = test.getY ();
 
 		Double testAngle = Util.launchAngle (loc, targetsHeart, v, elev, g);
 
@@ -913,7 +912,7 @@ public class SentryInstance
 
 		// plugin.getServer().broadcastMessage("ta " + testAngle.toString());
 
-		Double hangtime = Util.hangtime (testAngle, v, elev, g);
+		double hangtime = Util.hangtime (testAngle, v, elev, g);
 		// plugin.getServer().broadcastMessage("ht " + hangtime.toString());
 
 		Vector targetVelocity = theEntity.getLocation ().subtract (_projTargetLostLoc).toVector ();
@@ -927,7 +926,7 @@ public class SentryInstance
 
 		Vector victor = to.clone ().subtract (loc).toVector ();
 
-		Double dist = Math.sqrt (Math.pow (victor.getX (), 2) + Math.pow (victor.getZ (), 2));
+		double dist = Math.sqrt (Math.pow (victor.getX (), 2) + Math.pow (victor.getZ (), 2));
 		elev = victor.getY ();
 		if (dist == 0)
 			return;
@@ -1098,12 +1097,12 @@ public class SentryInstance
 			}
 		}
 
-		return (int) (Armor + mod);
+		return (int) (armor + mod);
 	}
 
 	String getGreetingMEssage (Player player)
 	{
-		String str = GreetingMessage.replace ("<NPC>", myNPC.getName ()).replace ("<PLAYER>", player.getName ());
+		String str = greetingMessage.replace ("<NPC>", myNPC.getName ()).replace ("<PLAYER>", player.getName ());
 		return ChatColor.translateAlternateColorCodes ('&', str);
 	}
 
@@ -1149,9 +1148,9 @@ public class SentryInstance
 
 		return ChatColor.RED + "[HP]:" + ChatColor.WHITE + h + "/" + sentryHealth + ChatColor.RED + " [AP]:" + ChatColor.WHITE + getArmor ()
 				+ ChatColor.RED + " [STR]:" + ChatColor.WHITE + getStrength () + ChatColor.RED + " [SPD]:" + ChatColor.WHITE + df.format (getSpeed ())
-				+ ChatColor.RED + " [RNG]:" + ChatColor.WHITE + sentryRange + ChatColor.RED + " [ATK]:" + ChatColor.WHITE + AttackRateSeconds
-				+ ChatColor.RED + " [VIS]:" + ChatColor.WHITE + NightVision + ChatColor.RED + " [HEAL]:" + ChatColor.WHITE + HealRate + ChatColor.RED
-				+ " [WARN]:" + ChatColor.WHITE + WarningRange + ChatColor.RED + " [FOL]:" + ChatColor.WHITE + Math.sqrt (FollowDistance);
+				+ ChatColor.RED + " [RNG]:" + ChatColor.WHITE + sentryRange + ChatColor.RED + " [ATK]:" + ChatColor.WHITE + attackRateSeconds
+				+ ChatColor.RED + " [VIS]:" + ChatColor.WHITE + nightVision + ChatColor.RED + " [HEAL]:" + ChatColor.WHITE + healRate + ChatColor.RED
+				+ " [WARN]:" + ChatColor.WHITE + warningRange + ChatColor.RED + " [FOL]:" + ChatColor.WHITE + Math.sqrt (followDistance);
 
 	}
 
@@ -1166,12 +1165,12 @@ public class SentryInstance
 				mod += plugin.StrengthBuffs.get (((Player) getMyEntity ()).getInventory ().getItemInHand ().getTypeId ());
 		}
 
-		return (int) (Strength + mod);
+		return (int) (strength + mod);
 	}
 
 	String getWarningMessage (Player player)
 	{
-		String str = WarningMessage.replace ("<NPC>", myNPC.getName ()).replace ("<PLAYER>", player.getName ());
+		String str = warningMessage.replace ("<NPC>", myNPC.getName ()).replace ("<PLAYER>", player.getName ());
 		return ChatColor.translateAlternateColorCodes ('&', str);
 
 	}
@@ -1187,8 +1186,8 @@ public class SentryInstance
 		if (sentryWeight <= 0)
 			sentryWeight = 1.0;
 
-		if (AttackRateSeconds > 30)
-			AttackRateSeconds = 30.0;
+		if (attackRateSeconds > 30)
+			attackRateSeconds = 30.0;
 
 		if (sentryHealth < 0)
 			sentryHealth = 0;
@@ -1202,8 +1201,8 @@ public class SentryInstance
 		if (sentryWeight <= 0)
 			sentryWeight = 1.0;
 
-		if (RespawnDelaySeconds < -1)
-			RespawnDelaySeconds = -1;
+		if (respawnDelaySeconds < -1)
+			respawnDelaySeconds = -1;
 
 		if (Spawn == null)
 		{
@@ -1243,7 +1242,7 @@ public class SentryInstance
 		}
 
 		myNPC.data ().set (NPC.DEFAULT_PROTECTED_METADATA, false);
-		myNPC.data ().set (NPC.TARGETABLE_METADATA, this.Targetable);
+		myNPC.data ().set (NPC.TARGETABLE_METADATA, this.targetable);
 
 		myNPC.getNavigator ().getDefaultParameters ().range (pf);
 		myNPC.getNavigator ().getDefaultParameters ().stationaryTicks (5 * 20); // so 100?
@@ -1262,7 +1261,7 @@ public class SentryInstance
 
 		processTargets ();
 
-		if (taskID == null)
+		if (taskID == -1)
 		{
 			taskID = plugin.getServer ().getScheduler ().scheduleSyncRepeatingTask (plugin, new SentryLogic (), 40 + this.myNPC.getId (),
 					plugin.LogicTicks);
@@ -1349,7 +1348,7 @@ public class SentryInstance
 			attacker = (LivingEntity) event.getDamager ();
 		}
 
-		if (Invincible)
+		if (invincible)
 			return;
 
 		if (plugin.IgnoreListInvincibility)
@@ -1361,7 +1360,7 @@ public class SentryInstance
 		// can i kill it? lets go kill it.
 		if (attacker != null)
 		{
-			if (this.Retaliate)
+			if (this.retaliate)
 			{
 				if (!(event.getDamager () instanceof Projectile) || (net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().getNPC (attacker) == null))
 				{
@@ -1373,7 +1372,7 @@ public class SentryInstance
 			}
 		}
 
-		if (LuckyHits)
+		if (luckyHits)
 		{
 			// Calulate crits
 			double damagemodifer = event.getDamage ();
@@ -1491,7 +1490,7 @@ public class SentryInstance
 		if (sentryStatus == Status.DYING)
 			return;
 
-		if (!myNPC.isSpawned () || Invincible)
+		if (!myNPC.isSpawned () || invincible)
 		{
 			return;
 		}
@@ -1702,15 +1701,15 @@ public class SentryInstance
 				}
 			}
 
-			if (sentryStatus != Status.DEAD && HealRate > 0)
+			if (sentryStatus != Status.DEAD && healRate > 0)
 			{
 				if (System.currentTimeMillis () > oktoheal)
 				{
 					if (getHealth () < sentryHealth && sentryStatus != Status.DEAD && sentryStatus != Status.DYING)
 					{
 						double heal = 1;
-						if (HealRate < 0.5)
-							heal = (0.5 / HealRate);
+						if (healRate < 0.5)
+							heal = (0.5 / healRate);
 
 						setHealth (getHealth () + heal);
 
@@ -1721,7 +1720,7 @@ public class SentryInstance
 							_myDamamgers.clear (); //healed to full, forget attackers
 
 					}
-					oktoheal = (long) (System.currentTimeMillis () + HealRate * 1000);
+					oktoheal = (long) (System.currentTimeMillis () + healRate * 1000);
 				}
 
 			}
@@ -1730,7 +1729,7 @@ public class SentryInstance
 				mount ();
 
 			if (sentryStatus == Status.DEAD && System.currentTimeMillis () > isRespawnable
-					&& RespawnDelaySeconds > 0 & Spawn.getWorld ().isChunkLoaded (Spawn.getBlockX () >> 4, Spawn.getBlockZ () >> 4))
+					&& respawnDelaySeconds > 0 & Spawn.getWorld ().isChunkLoaded (Spawn.getBlockX () >> 4, Spawn.getBlockZ () >> 4))
 			{
 				// Respawn
 
@@ -1775,7 +1774,7 @@ public class SentryInstance
 					if (System.currentTimeMillis () > oktoFire)
 					{
 						// Fire!
-						oktoFire = (long) (System.currentTimeMillis () + AttackRateSeconds * 1000.0);
+						oktoFire = (long) (System.currentTimeMillis () + attackRateSeconds * 1000.0);
 						Fire (projectileTarget);
 					}
 					if (projectileTarget != null)
@@ -1833,13 +1832,13 @@ public class SentryInstance
 				if (guardTarget != null && guardEntity == null)
 				{
 					// daddy? where are u?
-					setGuardTarget (guardTarget, false);
+					setGuardTarget (guardEntity, false);
 				}
 
 				if (guardTarget != null && guardEntity == null)
 				{
 					// daddy? where are u?
-					setGuardTarget (guardTarget, true);
+					setGuardTarget (guardEntity, true);
 				}
 
 				if (guardEntity != null)
@@ -1866,11 +1865,11 @@ public class SentryInstance
 						if (dist > 1024)
 						{
 							myNPC.teleport (guardEntity.getLocation ().add (1, 0, 1), TeleportCause.PLUGIN);
-						} else if (dist > FollowDistance && !getNavigator ().isNavigating ())
+						} else if (dist > followDistance && !getNavigator ().isNavigating ())
 						{
 							getNavigator ().setTarget (guardEntity, false);
 							getNavigator ().getLocalParameters ().stationaryTicks (3 * 20);
-						} else if (dist < FollowDistance && getNavigator ().isNavigating ())
+						} else if (dist < followDistance && getNavigator ().isNavigating ())
 						{
 							getNavigator ().cancelNavigation ();
 						}
@@ -1903,17 +1902,17 @@ public class SentryInstance
 		return npcLoc.getWorld ().isChunkLoaded (npcLoc.getBlockX () >> 4, npcLoc.getBlockZ () >> 4);
 	}
 
-	public boolean setGuardTarget (String name, boolean forcePlayer)
+	public boolean setGuardTarget (LivingEntity entity, boolean forcePlayer)
 	{
 
 		if (myNPC == null)
 			return false;
 
-		if (name == null)
+		if (entity == null)
 		{
 			guardEntity = null;
 			guardTarget = null;
-			setTarget (null, false);// clear active hostile target
+			setTarget (null, false); // clear active hostile target
 			return true;
 		}
 
@@ -2232,7 +2231,7 @@ public class SentryInstance
 				n.getEntity ().setPassenger (null);
 				n.getEntity ().setPassenger (getMyEntity ());
 			} else
-				this.MountID = -1;
+				this.mountID = -1;
 
 		}
 	}
@@ -2248,14 +2247,14 @@ public class SentryInstance
 
 			if (isMounted ())
 			{
-				horseNPC = CitizensAPI.getNPCRegistry ().getById (MountID);
+				horseNPC = CitizensAPI.getNPCRegistry ().getById (mountID);
 
 				if (horseNPC != null)
 				{
 					horseNPC.despawn ();
 				} else
 				{
-					plugin.getServer ().getLogger ().info ("Cannot find mount NPC " + MountID);
+					plugin.getServer ().getLogger ().info ("Cannot find mount NPC " + mountID);
 				}
 			}
 
@@ -2283,7 +2282,7 @@ public class SentryInstance
 			//cant do this is screws up the pathfinding.
 			((Horse) horseNPC.getEntity ()).getInventory ().setSaddle (new ItemStack (org.bukkit.Material.SADDLE));
 
-			this.MountID = horseNPC.getId ();
+			this.mountID = horseNPC.getId ();
 
 			return horseNPC;
 
@@ -2296,7 +2295,7 @@ public class SentryInstance
 	{
 		if (!myNPC.isSpawned ())
 			return false;
-		if (IgnoreLOS)
+		if (ignoreLOS)
 			return true;
 		return getMyEntity ().hasLineOfSight (other);
 	}
@@ -2322,7 +2321,7 @@ public class SentryInstance
 		if (this.isMounted () && net.citizensnpcs.api.CitizensAPI.hasImplementation ())
 		{
 
-			return net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().getById (this.MountID);
+			return net.citizensnpcs.api.CitizensAPI.getNPCRegistry ().getById (this.mountID);
 
 		}
 		return null;

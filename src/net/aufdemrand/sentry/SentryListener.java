@@ -52,7 +52,7 @@ public class SentryListener implements Listener
 
 		SentryInstance sentry = plugin.getSentry (killer);
 
-		if (sentry != null && sentry.KillsDropInventory == false)
+		if (sentry != null && sentry.killsDropInventory == false)
 		{
 			event.getDrops ().clear ();
 			event.setDroppedExp (0);
@@ -348,7 +348,7 @@ public class SentryListener implements Listener
 
 				if (inst.guardEntity == entto)
 				{
-					if (inst.Retaliate && entfrom instanceof LivingEntity)
+					if (inst.retaliate && entfrom instanceof LivingEntity)
 						inst.setTarget ((LivingEntity) entfrom, true);
 				}
 
@@ -357,7 +357,7 @@ public class SentryListener implements Listener
 				{
 					if (entfrom == inst.guardEntity)
 						event.setCancelled (true);
-					else if (inst.Retaliate && entfrom instanceof LivingEntity)
+					else if (inst.retaliate && entfrom instanceof LivingEntity)
 						inst.setTarget ((LivingEntity) entfrom, true);
 
 				}
@@ -370,8 +370,8 @@ public class SentryListener implements Listener
 							|| npc.getEntity ().getLocation ().distance (entfrom.getLocation ()) <= inst.sentryRange)
 					{
 						// in range
-						if (inst.NightVision >= entfrom.getLocation ().getBlock ().getLightLevel ()
-								|| inst.NightVision >= entto.getLocation ().getBlock ().getLightLevel ())
+						if (inst.nightVision >= entfrom.getLocation ().getBlock ().getLightLevel ()
+								|| inst.nightVision >= entto.getLocation ().getBlock ().getLightLevel ())
 						{
 							//can see
 							if (inst.hasLOS (entfrom) || inst.hasLOS (entto))
@@ -409,7 +409,7 @@ public class SentryListener implements Listener
 			final SentryInstance inst = plugin.getSentry (npc);
 			if (inst == null || !npc.isSpawned () || !inst.isMounted ())
 				continue; //not a sentry, dead, or not mounted
-			if (hnpc.getId () == inst.MountID)
+			if (hnpc.getId () == inst.mountID)
 			{
 				///nooooo butterstuff!
 
