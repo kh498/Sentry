@@ -101,7 +101,7 @@ public class SentryInstance
 	public boolean dropInventory = false;
 	public boolean targetable = true;
 	public boolean luckyHits = true;
-	public boolean ignoreLOS;
+	public boolean ignoreLOS = false;
 	public boolean invincible = false;
 	public boolean retaliate = true;
 
