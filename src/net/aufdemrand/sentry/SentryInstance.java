@@ -1144,13 +1144,14 @@ public class SentryInstance
 	public String getStats ()
 	{
 		DecimalFormat df = new DecimalFormat ("#.0");
+		DecimalFormat df2 = new DecimalFormat ("#.##");
 		double h = getHealth ();
 
 		return ChatColor.RED + "[HP]:" + ChatColor.WHITE + h + "/" + sentryHealth + ChatColor.RED + " [AP]:" + ChatColor.WHITE + getArmor ()
 				+ ChatColor.RED + " [STR]:" + ChatColor.WHITE + getStrength () + ChatColor.RED + " [SPD]:" + ChatColor.WHITE + df.format (getSpeed ())
 				+ ChatColor.RED + " [RNG]:" + ChatColor.WHITE + sentryRange + ChatColor.RED + " [ATK]:" + ChatColor.WHITE + attackRateSeconds
 				+ ChatColor.RED + " [VIS]:" + ChatColor.WHITE + nightVision + ChatColor.RED + " [HEAL]:" + ChatColor.WHITE + healRate + ChatColor.RED
-				+ " [WARN]:" + ChatColor.WHITE + warningRange + ChatColor.RED + " [FOL]:" + ChatColor.WHITE + Math.sqrt (followDistance);
+				+ " [WARN]:" + ChatColor.WHITE + warningRange + ChatColor.RED + " [FOL]:" + ChatColor.WHITE + df2.format (Math.sqrt (followDistance));
 
 	}
 
