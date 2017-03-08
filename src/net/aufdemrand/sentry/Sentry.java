@@ -28,8 +28,10 @@ import java.util.*;
 import java.util.logging.Level;
 
 public class Sentry extends JavaPlugin {
+    public static Sentry instance;
+    //FactionsSuport
+    static boolean FactionsActive = false;
     public boolean debug = false;
-
     public List<Material> Helmets = new LinkedList<Material>(java.util.Arrays.asList(Material.LEATHER_HELMET,
                                                                                      Material.CHAINMAIL_HELMET,
                                                                                      Material.IRON_HELMET,
@@ -37,40 +39,32 @@ public class Sentry extends JavaPlugin {
                                                                                      Material.GOLD_HELMET,
                                                                                      Material.JACK_O_LANTERN,
                                                                                      Material.PUMPKIN));
-
     public List<Material> Chestplates = new LinkedList<Material>(java.util.Arrays.asList(Material.LEATHER_CHESTPLATE,
                                                                                          Material.CHAINMAIL_CHESTPLATE,
                                                                                          Material.IRON_CHESTPLATE,
                                                                                          Material.DIAMOND_CHESTPLATE,
                                                                                          Material.GOLD_CHESTPLATE));
-
     public List<Material> Leggings = new LinkedList<Material>(java.util.Arrays.asList(Material.LEATHER_LEGGINGS,
                                                                                       Material.CHAINMAIL_LEGGINGS,
                                                                                       Material.IRON_LEGGINGS,
                                                                                       Material.DIAMOND_LEGGINGS,
                                                                                       Material.GOLD_LEGGINGS));
-
     public List<Material> Boots = new LinkedList<Material>(java.util.Arrays
                                                                .asList(Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
                                                                        Material.IRON_BOOTS, Material.DIAMOND_BOOTS,
                                                                        Material.GOLD_BOOTS));
-
     public Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<Material, List<PotionEffect>>();
     public Map<Material, Double> SpeedBuffs = new HashMap<Material, Double>();
     public Map<Material, Double> StrengthBuffs = new HashMap<Material, Double>();
     public Map<Material, Double> ArmorBuffs = new HashMap<Material, Double>();
-
     public Queue<Projectile> arrows = new LinkedList<Projectile>();
-
     public int SentryEXP = 5;
     public int LogicTicks = 10;
-
     public int Crit1Chance;
     public int Crit2Chance;
     public int Crit3Chance;
     public int MissChance;
     public int GlanceChance;
-
     public String Crit1Message = "";
     public String Crit2Message = "";
     public String Crit3Message = "";
@@ -78,15 +72,10 @@ public class Sentry extends JavaPlugin {
     public String HitMessage = "";
     public String MissMessage = "";
     public String BlockMessage = "";
-
     public boolean BodyguardsObeyProtection = true;
-
     public boolean IgnoreListInvincibility = true;
-
     public boolean GroupsChecked = false;
-
     public net.milkbowl.vault.permission.Permission perms = null;
-
     public Material archer;
     public Material pyro1;
     public Material pyro2;
@@ -100,24 +89,18 @@ public class Sentry extends JavaPlugin {
     public Material witchdoctor;
     public Material magi;
     public Material bombardier;
-
     //Denizen Hook
     public boolean DieLikePlayers = false;
-
-    //FactionsSuport
-    static boolean FactionsActive = false;
-
     //SimpleClans sSuport
     boolean ClansActive = false;
-
     //TownySupport
     boolean TownyActive = false;
-
     //War sSuport
     boolean WarActive = false;
-
-    public static Sentry instance;
-
+    boolean DenizenActive = false;
+    public final static Sentry getInstance() {
+        return instance;
+    }
     private boolean checkPlugin(String name) {
         if (getServer().getPluginManager().getPlugin(name) != null) {
             if (getServer().getPluginManager().getPlugin(name).isEnabled()) {
@@ -126,11 +109,9 @@ public class Sentry extends JavaPlugin {
         }
         return false;
     }
-
     public void debug(String s) {
         if (debug) { this.getServer().getLogger().info(s); }
     }
-
     public void doGroups() {
         if (!setupPermissions()) {
             getLogger().log(Level.WARNING, "Could not register with Vault! the GROUP target will not function.");
@@ -156,7 +137,6 @@ public class Sentry extends JavaPlugin {
         GroupsChecked = true;
 
     }
-
     /**
      * Equip a npc an item
      * <p>
@@ -170,7 +150,6 @@ public class Sentry extends JavaPlugin {
     public boolean equip(NPC npc, Material material) {
         return equip(npc, material, 1);
     }
-
     /**
      * Equip a npc an item
      * <p>
@@ -185,7 +164,6 @@ public class Sentry extends JavaPlugin {
     public boolean equip(NPC npc, Material material, int amount) {
         return equip(npc, new ItemStack(material, amount));
     }
-
     /**
      * Equip a npc an item
      * <p>
@@ -235,7 +213,6 @@ public class Sentry extends JavaPlugin {
         }
 
     }
-
     public String getClan(Player player) {
         if (ClansActive == false) { return null; }
         try {
@@ -249,11 +226,9 @@ public class Sentry extends JavaPlugin {
         }
         return null;
     }
-
     private Material getMaterial(String str) {
         return str == null ? null : Material.getMaterial(str.toUpperCase());
     }
-
     public String getNationNameForLocation(Location l) {
         if (TownyActive == false) { return null; }
         try {
@@ -266,7 +241,6 @@ public class Sentry extends JavaPlugin {
         }
         return null;
     }
-
     private PotionEffect getpotion(String S) {
         if (S == null) { return null; }
         String[] args = S.trim().split(":");
@@ -306,7 +280,6 @@ public class Sentry extends JavaPlugin {
 
         return new PotionEffect(type, dur, amp);
     }
-
     public String[] getResidentTownyInfo(Player player) {
         String[] info = {null, null};
 
@@ -328,7 +301,6 @@ public class Sentry extends JavaPlugin {
 
         return info;
     }
-
     public SentryInstance getSentry(Entity ent) {
         if (ent == null) { return null; }
         if (!(ent instanceof org.bukkit.entity.LivingEntity)) { return null; }
@@ -339,14 +311,12 @@ public class Sentry extends JavaPlugin {
 
         return null;
     }
-
     public SentryInstance getSentry(NPC npc) {
         if (npc != null && npc.hasTrait(SentryTrait.class)) {
             return npc.getTrait(SentryTrait.class).getInstance();
         }
         return null;
     }
-
     public String getWarTeam(Player player) {
         if (WarActive == false) { return null; }
         try {
@@ -358,7 +328,6 @@ public class Sentry extends JavaPlugin {
         }
         return null;
     }
-
     public String getMCTeamName(Player player) {
         @SuppressWarnings("deprecation")
         Team t = getServer().getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
@@ -367,7 +336,6 @@ public class Sentry extends JavaPlugin {
         }
         return null;
     }
-
     boolean isNationEnemy(String Nation1, String Nation2) {
         if (TownyActive == false) { return false; }
         if (Nation1.equalsIgnoreCase(Nation2)) { return false; }
@@ -389,7 +357,6 @@ public class Sentry extends JavaPlugin {
 
         return false;
     }
-
     public void loaditemlist(String key, List<Material> list) {
         List<String> strs = getConfig().getStringList(key);
 
@@ -401,7 +368,6 @@ public class Sentry extends JavaPlugin {
         }
 
     }
-
     private void loadmap(String node, Map<Material, Double> map) {
         map.clear();
         for (String s : getConfig().getStringList(node)) {
@@ -422,7 +388,6 @@ public class Sentry extends JavaPlugin {
             }
         }
     }
-
     private void loadpots(String node, Map<Material, List<PotionEffect>> map) {
         map.clear();
         for (String s : getConfig().getStringList(node)) {
@@ -444,7 +409,6 @@ public class Sentry extends JavaPlugin {
 
         }
     }
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] inargs) {
 
@@ -1420,9 +1384,6 @@ public class Sentry extends JavaPlugin {
         }
         return false;
     }
-
-
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] inargs) {
 
@@ -2397,7 +2358,7 @@ public class Sentry extends JavaPlugin {
             }
         }
         return false;
-    }    boolean DenizenActive = false;
+    }
     @Override
     public void onDisable() {
 
@@ -2561,8 +2522,6 @@ public class Sentry extends JavaPlugin {
         } catch (NumberFormatException nfe) {
             return false;
         }
-    }    public final static Sentry getInstance() {
-        return instance;
     }
 
 }

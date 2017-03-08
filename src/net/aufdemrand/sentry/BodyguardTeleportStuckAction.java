@@ -1,70 +1,57 @@
 package net.aufdemrand.sentry;
 
+import net.citizensnpcs.api.ai.Navigator;
+import net.citizensnpcs.api.ai.StuckAction;
+import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import net.citizensnpcs.api.ai.Navigator;
-import net.citizensnpcs.api.ai.StuckAction;
-import net.citizensnpcs.api.npc.NPC;
+public class BodyguardTeleportStuckAction implements StuckAction {
+    private static final int MAX_ITERATIONS = 10;
+    SentryInstance inst = null;
+    Sentry plugin = null;
 
-public class BodyguardTeleportStuckAction implements StuckAction
-{
-	SentryInstance inst = null;
-	Sentry plugin = null;
+    BodyguardTeleportStuckAction(SentryInstance inst, Sentry plugin) {
+        this.inst = inst;
+        this.plugin = plugin;
+    }
+    @Override
+    public boolean run(final NPC npc, Navigator navigator) {
 
-	BodyguardTeleportStuckAction (SentryInstance inst, Sentry plugin)
-	{
-		this.inst = inst;
-		this.plugin = plugin;
-	}
+        if (!npc.isSpawned()) { return false; }
 
-	@ Override
-	public boolean run (final NPC npc, Navigator navigator)
-	{
+        Location base = navigator.getTargetAsLocation();
 
-		if (!npc.isSpawned ())
-			return false;
+        if (base.getWorld() == npc.getEntity().getLocation().getWorld()) {
+            if (npc.getEntity().getLocation().distanceSquared(base) <= 4)
+            //do nothing
+            { return true; }
+        }
+        else {
+            //do nothing, next logic tick will clear the entity.
+            if (inst.getGuardEntity() == null || !Util.CanWarp(inst.getGuardEntity(), npc)) { return true; }
+        }
 
-		Location base = navigator.getTargetAsLocation ();
+        Block block = base.getBlock();
+        int iterations = 0;
+        while (!block.isEmpty()) {
+            block = block.getRelative(BlockFace.UP);
+            if (++iterations >= MAX_ITERATIONS && !block.isEmpty()) { block = base.getBlock(); }
+            break;
+        }
 
-		if (base.getWorld () == npc.getEntity ().getLocation ().getWorld ())
-		{
-			if (npc.getEntity ().getLocation ().distanceSquared (base) <= 4)
-				//do nothing
-				return true;
-		} else
-		{
-			//do nothing, next logic tick will clear the entity.
-			if (inst.getGuardEntity() == null || !Util.CanWarp (inst.getGuardEntity(), npc))
-				return true;
-		}
+        final Location loc = block.getLocation();
 
-		Block block = base.getBlock ();
-		int iterations = 0;
-		while (!block.isEmpty ())
-		{
-			block = block.getRelative (BlockFace.UP);
-			if (++iterations >= MAX_ITERATIONS && !block.isEmpty ())
-				block = base.getBlock ();
-			break;
-		}
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
-		final Location loc = block.getLocation ();
+            @Override
+            public void run() {
+                npc.teleport(loc, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
 
-		plugin.getServer ().getScheduler ().scheduleSyncDelayedTask (plugin, new Runnable ()
-		{
+        }, 2);
 
-			@ Override
-			public void run ()
-			{
-				npc.teleport (loc, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
-			}
-
-		}, 2);
-
-		return false;
-	}
-
-	private static final int MAX_ITERATIONS = 10;
+        return false;
+    }
 }
