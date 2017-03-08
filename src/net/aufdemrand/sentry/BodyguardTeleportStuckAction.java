@@ -36,7 +36,7 @@ public class BodyguardTeleportStuckAction implements StuckAction
 		} else
 		{
 			//do nothing, next logic tick will clear the entity.
-			if (inst.guardEntity == null || !Util.CanWarp (inst.guardEntity, npc))
+			if (inst.getGuardEntity() == null || !Util.CanWarp (inst.getGuardEntity(), npc))
 				return true;
 		}
 
@@ -66,5 +66,5 @@ public class BodyguardTeleportStuckAction implements StuckAction
 		return false;
 	}
 
-	private static int MAX_ITERATIONS = 10;
+	private static final int MAX_ITERATIONS = 10;
 }
