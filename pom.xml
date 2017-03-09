@@ -7,7 +7,7 @@
     <groupId>net.aufdemrand</groupId>
     <artifactId>sentry</artifactId>
     <packaging>jar</packaging>
-    <version>1.10.0</version>
+    <version>1.11.0</version>
     <name>sentry</name>
     <description>Armed Citizens</description>
 
@@ -38,7 +38,7 @@
         <repository>
             <id>sk89q-repo</id>
             <url>http://maven.sk89q.com/repo/</url>
-        </repository>        
+        </repository>
     </repositories>
 
     <!-- Dependencies -->
@@ -77,7 +77,7 @@
             <version>1.0.3-SNAPSHOT</version>
             <type>jar</type>
             <scope>system</scope>
-          <systemPath>${project.basedir}/lib/SimpleClans.jar</systemPath>
+            <systemPath>${project.basedir}/lib/SimpleClans.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.tommytony.war</groupId>
@@ -85,7 +85,7 @@
             <version>1.7.4</version>
             <type>jar</type>
             <scope>system</scope>
-          <systemPath>${project.basedir}/lib/War.jar</systemPath>
+            <systemPath>${project.basedir}/lib/War.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.palmergames.bukkit</groupId>
@@ -93,7 +93,7 @@
             <version>0.84.0.4</version>
             <type>jar</type>
             <scope>system</scope>
-          <systemPath>${project.basedir}/lib/Towny.jar</systemPath>
+            <systemPath>${project.basedir}/lib/Towny.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.massivecraft</groupId>
@@ -101,7 +101,7 @@
             <version>2.7.5</version>
             <type>jar</type>
             <scope>system</scope>
-          <systemPath>${project.basedir}/lib/Factions.jar</systemPath>
+            <systemPath>${project.basedir}/lib/Factions.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.massivecraft</groupId>
@@ -109,7 +109,7 @@
             <version>2.7.5</version>
             <type>jar</type>
             <scope>system</scope>
-          <systemPath>${project.basedir}/lib/mcore.jar</systemPath>
+            <systemPath>${project.basedir}/lib/mcore.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
@@ -117,7 +117,7 @@
             <version>LATEST</version>
             <type>jar</type>
             <scope>system</scope>
-          <systemPath>${project.basedir}/lib/Vault.jar</systemPath>
+            <systemPath>${project.basedir}/lib/Vault.jar</systemPath>
         </dependency>
     </dependencies>
 
