@@ -1,4 +1,4 @@
 # Sentry
 Citizens2 Town Sentry Character
 
-DEPRECATED IN FAVOR OF SENTINEL: https://github.com/mcmonkey4eva/Sentinel/blob/master/README.md
+Costum version made for private use. No binary is provided, but you are free to compile it yourself.
