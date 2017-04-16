@@ -1,5 +1,7 @@
 package net.aufdemrand.sentry;
 
+import com.google.common.base.Preconditions;
+import net.aufdemrand.sentry.events.SentryTargetEntityEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.MobType;
@@ -28,30 +30,26 @@ import java.util.*;
 /////////////////////////
 //Version Specifics
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class SentryInstance {
 
-    private final int all = 1;
-    private final int players = 2;
-    private final int npcs = 4;
-    private final int monsters = 8;
-    private final int events = 16;
-    private final int namedEntities = 32;
-    private final int namedPlayers = 64;
-    private final int namedNpcs = 128;
-    private final int faction = 256;
-    private final int towny = 512;
-    private final int war = 1024;
-    private final int groups = 2048;
-    private final int owner = 4096;
-    private final int clans = 8192;
-    private final int townyEnemies = 16384;
-    private final int factionEnemies = 16384 * 2;
-    private final int mcTeams = 16384 * 4;
+    private final Set<Player> _myDamagers = new HashSet<>();
+    private final GiveUpStuckAction giveUp = new GiveUpStuckAction(this);
+    private final Set<String> _ignoreTargets = new HashSet<>();
+    private final Set<String> _validTargets = new HashSet<>();
+    /* plugin Constructor */
+
+    private final Sentry plugin;
+    private final Map<UUID, Long> warnings = new HashMap<>();
+    private final Random random = new Random();
+    private final List<String> _nationsEnemies = new ArrayList<>();
+    private final List<String> _factionEnemies = new ArrayList<>();
     boolean loaded = false;
     NPC myNPC = null;
-    /* Sttables */ SentryTrait myTrait;
+    /* Settable */
+
+    SentryTrait myTrait;
     Long isRespawnable = System.currentTimeMillis();
-    private final Set<Player> _myDamagers = new HashSet<Player>();
     private Location _projTargetLostLoc;
     private int armor = 0;
     private int sentryRange = 10;
@@ -76,16 +74,13 @@ public class SentryInstance {
     private boolean incendiary = false;
     private int mountID = -1;
     private int epcount = 0;
-    private final GiveUpStuckAction giveUp = new GiveUpStuckAction(this);
     private String greetingMessage = "&a<NPC> says: Welcome, <PLAYER>!";
     private String warningMessage = "&a<NPC> says: Halt! Come no further!";
     private LivingEntity guardEntity = null;
     private String guardTarget = null;
     private Packet healAnimation = null;
-    private List<String> ignoreTargets = new ArrayList<String>();
-    private List<String> validTargets = new ArrayList<String>();
-    private final Set<String> _ignoreTargets = new HashSet<String>();
-    private final Set<String> _validTargets = new HashSet<String>();
+    private List<String> ignoreTargets = new ArrayList<>();
+    private List<String> validTargets = new ArrayList<>();
     private boolean lightning = false;
     private LivingEntity meleeTarget;
     private Class<? extends Projectile> myProjectile;
@@ -93,29 +88,30 @@ public class SentryInstance {
     private long okToHeal = System.currentTimeMillis();
     private long okToReasses = System.currentTimeMillis();
     private long okToTakeDamage = 0;
-
-    // private Random r = new Random();
-    /* plugin Constructor */
-    private final Sentry plugin;
     private List<PotionEffect> potionEffects = null;
     private ItemStack potionType = null;
     private LivingEntity projectileTarget;
     /* Internals */
+
     private Status sentryStatus = Status.DYING;
     private Location Spawn = null;
     /* Technicals */
+
     private int taskID = -1;
-    private final Map<Player, Long> Warnings = new HashMap<Player, Long>();
     private boolean mountCreated = false;
-    private final Random random = new Random();
     private int targets = 0;
     private int ignores = 0;
-    private final List<String> _nationsEnemies = new ArrayList<String>();
-    private final List<String> _factionEnemies = new ArrayList<String>();
-
     public SentryInstance(final Sentry plugin) {
         this.plugin = plugin;
         this.isRespawnable = System.currentTimeMillis();
+    }
+    /**
+     * @param exponent The number 2 will be timed by it self
+     *
+     * @return {@code 2^a}
+     */
+    private static int powTwo(final int exponent) {
+        return 1 << exponent;
     }
     boolean isMounted() {
         return this.mountID >= 0;
@@ -138,22 +134,24 @@ public class SentryInstance {
 
         if (this.ignores == 0) { return false; }
 
-        if (hasIgnoreType(this.all)) { return true; }
+        if (hasIgnoreType(Target.ALL.level)) { return true; }
 
         if (aTarget instanceof Player && !net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (hasIgnoreType(this.players)) { return true; }
+            if (hasIgnoreType(Target.PLAYERS.level)) { return true; }
 
             else {
 
                 final OfflinePlayer player = (OfflinePlayer) aTarget;
 
-                if (this.hasIgnoreType(this.namedPlayers) && containsIgnore("PLAYER:" + player)) { return true; }
+                if (this.hasIgnoreType(Target.NAMED_PLAYERS.level) && containsIgnore("PLAYER:" + player)) {
+                    return true;
+                }
 
-                if (this.hasIgnoreType(this.owner) &&
+                if (this.hasIgnoreType(Target.OWNER.level) &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                else if (this.hasIgnoreType(this.groups)) {
+                else if (this.hasIgnoreType(Target.NAMED_NPCS.level)) {
 
                     final String[] groups1 =
                         this.plugin.perms.getPlayerGroups(aTarget.getWorld().getName(), player); // world perms
@@ -162,21 +160,21 @@ public class SentryInstance {
                     //	String[] groups4 = plugin.perms.getPlayerGroups((Player)aTarget); // world perms
 
                     if (groups1 != null) {
-                        for (int i = 0; i < groups1.length; i++) {
+                        for (final String aGroups1 : groups1) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + groups1[i])) { return true; }
+                            if (this.containsIgnore("GROUP:" + aGroups1)) { return true; }
                         }
                     }
 
                     if (groups2 != null) {
-                        for (int i = 0; i < groups2.length; i++) {
+                        for (final String aGroups2 : groups2) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + groups2[i])) { return true; }
+                            if (this.containsIgnore("GROUP:" + aGroups2)) { return true; }
                         }
                     }
                 }
 
-                if (this.hasIgnoreType(this.towny)) {
+                if (this.hasIgnoreType(Target.TOWNY.level)) {
                     final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
 
                     if (info[1] != null) {
@@ -188,28 +186,28 @@ public class SentryInstance {
                     }
                 }
 
-                if (this.hasIgnoreType(this.faction)) {
+                if (this.hasIgnoreType(Target.FACTION.level)) {
                     final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (faction != null) {
                         if (this.containsIgnore("FACTION:" + faction)) { return true; }
                     }
                 }
-                if (this.hasIgnoreType(this.war)) {
+                if (this.hasIgnoreType(Target.WAR.level)) {
                     final String team = this.plugin.getWarTeam((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
                         if (this.containsIgnore("WARTEAM:" + team)) { return true; }
                     }
                 }
-                if (this.hasIgnoreType(this.mcTeams)) {
+                if (this.hasIgnoreType(Target.MC_TEAMS.level)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
                         if (this.containsIgnore("TEAM:" + team)) { return true; }
                     }
                 }
-                if (this.hasIgnoreType(this.clans)) {
+                if (this.hasIgnoreType(Target.CLANS.level)) {
                     final String clan = this.plugin.getClan((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (clan != null) {
@@ -221,7 +219,7 @@ public class SentryInstance {
 
         else if (net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasIgnoreType(this.npcs)) {
+            if (this.hasIgnoreType(Target.NPCS.level)) {
                 return true;
             }
 
@@ -231,33 +229,34 @@ public class SentryInstance {
 
                 final String name = npc.getName();
 
-                if (this.hasIgnoreType(this.namedNpcs) && this.containsIgnore("NPC:" + name)) { return true; }
+                if (this.hasIgnoreType(Target.NAMED_NPCS.level) && this.containsIgnore("NPC:" + name)) { return true; }
 
-                else if (hasIgnoreType(this.groups)) {
-
+                else if (hasIgnoreType(Target.NAMED_NPCS.level)) {
+                    @SuppressWarnings("deprecation")
                     final String[] groups1 = this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
+                    @SuppressWarnings("deprecation")
                     final String[] groups2 = this.plugin.perms.getPlayerGroups((World) null, name); //global perms
 
                     if (groups1 != null) {
-                        for (int i = 0; i < groups1.length; i++) {
+                        for (final String aGroups1 : groups1) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + groups1[i])) { return true; }
+                            if (this.containsIgnore("GROUP:" + aGroups1)) { return true; }
                         }
                     }
 
                     if (groups2 != null) {
-                        for (int i = 0; i < groups2.length; i++) {
+                        for (final String aGroups2 : groups2) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + groups2[i])) { return true; }
+                            if (this.containsIgnore("GROUP:" + aGroups2)) { return true; }
                         }
                     }
                 }
             }
         }
 
-        else if (aTarget instanceof Monster && hasIgnoreType(this.monsters)) { return true; }
+        else if (aTarget instanceof Monster && hasIgnoreType(Target.MONSTERS.level)) { return true; }
 
-        else if (aTarget instanceof LivingEntity && hasIgnoreType(this.namedEntities)) {
+        else if (aTarget != null && hasIgnoreType(Target.NAMED_ENTITIES.level)) {
             if (this.containsIgnore("ENTITY:" + aTarget.getType())) { return true; }
         }
 
@@ -266,57 +265,61 @@ public class SentryInstance {
     }
     public boolean isTarget(final LivingEntity aTarget) {
 
-        if (this.targets == 0 || this.targets == this.events) { return false; }
+        if (this.targets == 0 || this.targets == Target.EVENTS.level) { return false; }
 
-        if (this.hasTargetType(this.all)) { return true; }
+        if (this.hasTargetType(Target.ALL.level)) { return true; }
 
         //Check if target
         if (aTarget instanceof Player && !net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasTargetType(this.players)) {
+            if (this.hasTargetType(Target.PLAYERS.level)) {
                 return true;
             }
 
             else {
                 final OfflinePlayer player = (OfflinePlayer) aTarget;
 
-                if (hasTargetType(this.namedPlayers) && this.containsTarget("PLAYER:" + player)) { return true; }
+                if (hasTargetType(Target.NAMED_PLAYERS.level) && this.containsTarget("PLAYER:" + player)) {
+                    return true;
+                }
 
                 if (this.containsTarget("ENTITY:OWNER") &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                if (hasTargetType(this.groups)) {
+                if (hasTargetType(Target.NAMED_NPCS.level)) {
 
                     final String[] groups1 =
                         this.plugin.perms.getPlayerGroups(aTarget.getWorld().getName(), player); // world perms
                     final String[] groups2 = this.plugin.perms.getPlayerGroups(null, player); //global perms
 
                     if (groups1 != null) {
-                        for (int i = 0; i < groups1.length; i++) {
+                        for (final String aGroups1 : groups1) {
                             //			plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (this.containsTarget("GROUP:" + groups1[i])) { return true; }
+                            if (this.containsTarget("GROUP:" + aGroups1)) { return true; }
                         }
                     }
 
                     if (groups2 != null) {
-                        for (int i = 0; i < groups2.length; i++) {
+                        for (final String aGroups2 : groups2) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (this.containsTarget("GROUP:" + groups2[i])) { return true; }
+                            if (this.containsTarget("GROUP:" + aGroups2)) { return true; }
                         }
                     }
                 }
 
-                if (this.hasTargetType(this.towny) || (this.hasTargetType(this.townyEnemies))) {
+                if (this.hasTargetType(Target.TOWNY.level) || (this.hasTargetType(Target.TOWNY_ENEMIES.level))) {
                     final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
 
-                    if (this.hasTargetType(this.towny) && info[1] != null) {
+                    if (this.hasTargetType(Target.TOWNY.level) && info[1] != null) {
                         if (this.containsTarget("TOWN:" + info[1])) { return true; }
                     }
 
                     if (info[0] != null) {
-                        if (this.hasTargetType(this.towny) && this.containsTarget("NATION:" + info[0])) { return true; }
+                        if (this.hasTargetType(Target.TOWNY.level) && this.containsTarget("NATION:" + info[0])) {
+                            return true;
+                        }
 
-                        if (this.hasTargetType(this.townyEnemies)) {
+                        if (this.hasTargetType(Target.TOWNY_ENEMIES.level)) {
                             for (final String s : this._nationsEnemies) {
                                 if (this.plugin.isNationEnemy(s, info[0])) { return true; }
                             }
@@ -325,14 +328,14 @@ public class SentryInstance {
                     }
                 }
 
-                if (this.hasTargetType(this.faction) || this.hasTargetType(this.factionEnemies)) {
+                if (this.hasTargetType(Target.FACTION.level) || this.hasTargetType(Target.FACTION_ENEMIES.level)) {
                     if (Sentry.FactionsActive) {
                         final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
 
                         if (faction != null) {
                             if (this.containsTarget("FACTION:" + faction)) { return true; }
 
-                            if (this.hasTargetType(this.factionEnemies)) {
+                            if (this.hasTargetType(Target.FACTION_ENEMIES.level)) {
                                 for (final String s : this._factionEnemies) {
                                     if (FactionsUtil.isFactionEnemy(getMyEntity().getWorld().getName(), s, faction)) {
                                         return true;
@@ -343,21 +346,21 @@ public class SentryInstance {
                     }
                 }
 
-                if (this.hasTargetType(this.war)) {
+                if (this.hasTargetType(Target.WAR.level)) {
                     final String team = this.plugin.getWarTeam((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
                         if (this.containsTarget("WARTEAM:" + team)) { return true; }
                     }
                 }
-                if (this.hasTargetType(this.mcTeams)) {
+                if (this.hasTargetType(Target.MC_TEAMS.level)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
                         if (this.containsTarget("TEAM:" + team)) { return true; }
                     }
                 }
-                if (this.hasTargetType(this.clans)) {
+                if (this.hasTargetType(Target.CLANS.level)) {
                     final String clan = this.plugin.getClan((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (clan != null) {
@@ -369,7 +372,7 @@ public class SentryInstance {
 
         else if (net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasTargetType(this.npcs)) {
+            if (this.hasTargetType(Target.NPCS.level)) {
                 return true;
             }
 
@@ -377,11 +380,12 @@ public class SentryInstance {
 
             final String name = npc.getName();
 
-            if (this.hasTargetType(this.namedNpcs) && containsTarget("NPC:" + name)) { return true; }
+            if (this.hasTargetType(Target.NAMED_NPCS.level) && containsTarget("NPC:" + name)) { return true; }
 
-            if (this.hasTargetType(this.groups)) {
-
+            if (this.hasTargetType(Target.GROUPS.level)) {
+                @SuppressWarnings("deprecation")
                 final String[] groups1 = this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
+                @SuppressWarnings("deprecation")
                 final String[] groups2 = this.plugin.perms.getPlayerGroups((World) null, name); //global perms
                 //		String[] groups3 = plugin.perms.getPlayerGroups(aTarget.getWorld().getName(),name); // world perms
                 //	String[] groups4 = plugin.perms.getPlayerGroups((Player)aTarget); // world perms
@@ -401,9 +405,9 @@ public class SentryInstance {
                 }
             }
         }
-        else if (aTarget instanceof Monster && this.hasTargetType(this.monsters)) { return true; }
+        else if (aTarget instanceof Monster && this.hasTargetType(Target.MONSTERS.level)) { return true; }
 
-        else if (aTarget != null && hasTargetType(this.namedEntities)) {
+        else if (aTarget != null && hasTargetType(Target.NAMED_ENTITIES.level)) {
             if (this.containsTarget("ENTITY:" + aTarget.getType())) { return true; }
         }
         return false;
@@ -424,7 +428,7 @@ public class SentryInstance {
 
         this.sentryStatus = Status.DYING;
 
-        setTarget(null, false);
+        clearTarget();
         //		myNPC.getTrait(Waypoints.class).getCurrentProvider().setPaused(true);
 
         boolean handled = false;
@@ -455,8 +459,7 @@ public class SentryInstance {
                         killer = (Entity) ((Projectile) killer).getShooter();
                     }
 
-                    this.plugin.debug(
-                        "Running Denizen actions for " + this.myNPC.getName() + " with killer: " + killer.toString());
+                    this.plugin.debug(this.myNPC, "Running Denizen actions with killer: " + killer.toString());
 
                     if (killer instanceof org.bukkit.OfflinePlayer) {
                         DenizenHook.DenizenAction(this.myNPC, "death by player", (org.bukkit.OfflinePlayer) killer);
@@ -481,7 +484,7 @@ public class SentryInstance {
                          .setExperience(this.plugin.SentryEXP);
         }
 
-        final List<ItemStack> items = new java.util.LinkedList<ItemStack>();
+        final List<ItemStack> items = new java.util.LinkedList<>();
 
         if (getMyEntity() instanceof HumanEntity) {
             //get drop inventory.
@@ -563,20 +566,27 @@ public class SentryInstance {
     }
     public LivingEntity findTarget(int Range) {
         Range += this.warningRange;
-        final List<Entity> EntitiesWithinRange = getMyEntity().getNearbyEntities(Range, Range, Range);
+        final List<Entity> entitiesWithinRange = getMyEntity().getNearbyEntities(Range, Range, Range);
         LivingEntity theTarget = null;
-        double distanceToBeat = 99999.0;
+        double distanceToBeat = Integer.MAX_VALUE;
 
-        // plugin.getServer().broadcastMessage("Targets scanned : " +
-        // EntitiesWithinRange.toString());
+        final StringBuilder sb = new StringBuilder();
+        entitiesWithinRange.forEach(nb -> sb.append(nb).append(" "));
+        this.plugin.debug(this.myNPC, "Potential targets found nearby: " + sb.toString().trim());
 
-        for (final Entity aTarget : EntitiesWithinRange) {
+        for (final Entity aTarget : entitiesWithinRange) {
             if (!(aTarget instanceof LivingEntity)) { continue; }
 
+            final LivingEntity livingTarget = (LivingEntity) aTarget;
+
+            final boolean isItIgnored = isIgnored(livingTarget);
+            final boolean isItATarget = isTarget(livingTarget);
+
+            this.plugin.debug(this.myNPC,
+                              "Checking target " + livingTarget + " | target? " + isItATarget + " | ignored? " +
+                              isItIgnored);
             // find closest target
-
-            if (!isIgnored((LivingEntity) aTarget) && isTarget((LivingEntity) aTarget)) {
-
+            if (!isItIgnored && isItATarget) {
                 // can i see it?
                 // too dark?
                 double ll = aTarget.getLocation().getBlock().getLightLevel();
@@ -584,29 +594,31 @@ public class SentryInstance {
                 if (aTarget instanceof Player) { if (((Player) aTarget).isSneaking()) { ll /= 2; } }
 
                 // too dark?
-                if (ll >= (16 - this.nightVision)) {
+                final boolean canSeeTarget = ll >= (16 - this.nightVision);
+                this.plugin.debug(this.myNPC, "can npc see target " + livingTarget + " in the dark? " + canSeeTarget);
+                if (canSeeTarget) {
 
-                    final double dist = aTarget.getLocation().distance(getMyEntity().getLocation());
-
-                    if (hasLOS(aTarget)) {
-
+                    final boolean hasLOS = hasLOS(aTarget);
+                    this.plugin.debug(this.myNPC, "can npc see target " + livingTarget + "? " + hasLOS);
+                    if (hasLOS) {
+                        final double dist = aTarget.getLocation().distance(getMyEntity().getLocation());
                         if (this.warningRange > 0 && this.sentryStatus == Status.LOOKING && aTarget instanceof Player &&
                             dist > (Range - this.warningRange) &&
                             !net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget) &
                             !(this.warningMessage.isEmpty())) {
 
-                            if (!this.Warnings.containsKey(aTarget) ||
-                                System.currentTimeMillis() >= this.Warnings.get(aTarget) + 60 * 1000) {
+                            if (!this.warnings.containsKey(aTarget.getUniqueId()) ||
+                                System.currentTimeMillis() >= this.warnings.get(aTarget.getUniqueId()) + 60 * 1000) {
                                 aTarget.sendMessage(getWarningMessage((Player) aTarget));
                                 if (!getNavigator().isNavigating()) { faceEntity(getMyEntity(), aTarget); }
-                                this.Warnings.put((Player) aTarget, System.currentTimeMillis());
+                                this.warnings.put(aTarget.getUniqueId(), System.currentTimeMillis());
                             }
 
                         }
                         else if (dist < distanceToBeat) {
                             // now find closes mob
                             distanceToBeat = dist;
-                            theTarget = (LivingEntity) aTarget;
+                            theTarget = livingTarget;
                         }
                     }
 
@@ -615,17 +627,16 @@ public class SentryInstance {
             }
             else {
                 //not a target
-
                 if (this.warningRange > 0 && this.sentryStatus == Status.LOOKING && aTarget instanceof Player &&
                     !net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget) &&
                     !(this.greetingMessage.isEmpty())) {
                     final boolean LOS = getMyEntity().hasLineOfSight(aTarget);
                     if (LOS) {
-                        if (!this.Warnings.containsKey(aTarget) ||
-                            System.currentTimeMillis() >= this.Warnings.get(aTarget) + 60 * 1000) {
+                        if (!this.warnings.containsKey(aTarget.getUniqueId()) ||
+                            System.currentTimeMillis() >= this.warnings.get(aTarget.getUniqueId()) + 60 * 1000) {
                             aTarget.sendMessage(getGreetingMessage((Player) aTarget));
                             faceEntity(getMyEntity(), aTarget);
-                            this.Warnings.put((Player) aTarget, System.currentTimeMillis());
+                            this.warnings.put(aTarget.getUniqueId(), System.currentTimeMillis());
                         }
                     }
                 }
@@ -692,7 +703,7 @@ public class SentryInstance {
             // testAngle = Math.atan( ( 2*g*elev + Math.pow(v, 2)) / (2*g*elev +
             // 2*Math.pow(v,2))); //cant hit it where it is, try aiming as far
             // as you can.
-            setTarget(null, false);
+            clearTarget();
             // plugin.getServer().broadcastMessage("Can't hit test angle");
             return;
         }
@@ -719,7 +730,7 @@ public class SentryInstance {
 
         if (!hasLOS(theEntity)) {
             // target cant be seen..
-            setTarget(null, false);
+            clearTarget();
             // plugin.getServer().broadcastMessage("No LoS");
             return;
         }
@@ -733,7 +744,7 @@ public class SentryInstance {
             final Double launchAngle = Util.launchAngle(loc, to, v, elev, g);
             if (launchAngle == null) {
                 // target cant be hit
-                setTarget(null, false);
+                clearTarget();
                 // plugin.getServer().broadcastMessage("Can't hit lead");
                 return;
 
@@ -742,11 +753,11 @@ public class SentryInstance {
             //	plugin.getServer().broadcastMessage(anim.a + " " + anim.b + " " + anim.a() + " " +anim.);
             // Apply angle
             victor.setY(Math.tan(launchAngle) * dist);
-            Vector noise = Vector.getRandom();
+            final Vector noise = Vector.getRandom();
             // normalize vector
             victor = Util.normalizeVector(victor);
 
-            noise = noise.multiply(1 / 10.0);
+//            noise = noise.multiply(1 / 10.0);
 
             // victor = victor.add(noise);
 
@@ -770,7 +781,7 @@ public class SentryInstance {
         else {
             if (dist > this.sentryRange) {
                 // target cant be hit
-                setTarget(null, false);
+                clearTarget();
                 // plugin.getServer().broadcastMessage("Can't hit lead");
                 return;
 
@@ -792,7 +803,7 @@ public class SentryInstance {
         }
         else {
 
-            Projectile theArrow = null;
+            final Projectile theArrow;
 
             if (this.myProjectile == org.bukkit.entity.ThrownPotion.class) {
                 final net.minecraft.server.v1_8_R3.World nmsWorld = ((CraftWorld) getMyEntity().getWorld()).getHandle();
@@ -943,6 +954,7 @@ public class SentryInstance {
         return ChatColor.translateAlternateColorCodes('&', str);
 
     }
+
     void initialize() {
 
         // plugin.getServer().broadcastMessage("NPC " + npc.getName() +
@@ -974,7 +986,7 @@ public class SentryInstance {
             }
         }
 
-        //disable citizens respawning. Cause Sentry doesnt always raise EntityDeath
+        //disable citizens respawning. Cause Sentry doesn't always raise EntityDeath
         this.myNPC.data().set("respawn-delay", -1);
 
         setHealth(this.sentryHealth);
@@ -1017,9 +1029,10 @@ public class SentryInstance {
         processTargets();
 
         if (this.taskID == -1) {
-            this.taskID = this.plugin.getServer().getScheduler()
-                                     .scheduleSyncRepeatingTask(this.plugin, new SentryLogic(), 40 + this.myNPC.getId(),
-                                                                this.plugin.LogicTicks);
+            final int delay = 40 + this.random.nextInt(60); //Max 5 sec delay
+            this.plugin.debug(this.myNPC, "Starting logic ticking in " + delay + " ticks");
+            this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new SentryLogic(), delay,
+                                                                          this.plugin.LogicTicks);
         }
 
         this.mountCreated = false;
@@ -1084,6 +1097,7 @@ public class SentryInstance {
         if (this.invincible) { return; }
 
         if (this.plugin.IgnoreListInvincibility) {
+
             if (isIgnored(attacker)) { return; }
         }
 
@@ -1092,10 +1106,8 @@ public class SentryInstance {
             if (this.retaliate) {
                 if (!(event.getDamager() instanceof Projectile) ||
                     (net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(attacker) == null)) {
-                    // only retaliate to players or non-projectlies. Prevents stray sentry arrows from causing retaliation.
-
+                    // only retaliate to players or non-projectiles. Prevents stray sentry arrows from causing retaliation.
                     setTarget(attacker, true);
-
                 }
             }
         }
@@ -1206,7 +1218,8 @@ public class SentryInstance {
             else { getMyEntity().damage(finalDamage); }
         }
     }
-    public void onEnvironmentDamage(final EntityDamageEvent event) {
+    //called from SentryInstance no @EventHandler should be here
+    void onEnvironmentDamage(final EntityDamageEvent event) {
 
         if (this.sentryStatus == Status.DYING) { return; }
 
@@ -1254,7 +1267,6 @@ public class SentryInstance {
     }
     public void processTargets() {
         try {
-
             this.targets = 0;
             this.ignores = 0;
             this._ignoreTargets.clear();
@@ -1263,54 +1275,54 @@ public class SentryInstance {
             this._factionEnemies.clear();
 
             for (final String t : this.validTargets) {
-                if (t.contains("ENTITY:ALL")) { this.targets |= this.all; }
-                else if (t.contains("ENTITY:MONSTER")) { this.targets |= this.monsters; }
-                else if (t.contains("ENTITY:PLAYER")) { this.targets |= this.players; }
-                else if (t.contains("ENTITY:NPC")) { this.targets |= this.npcs; }
+                if (t.contains("ENTITY:ALL")) { this.targets |= Target.ALL.level; }
+                else if (t.contains("ENTITY:MONSTER")) { this.targets |= Target.MONSTERS.level; }
+                else if (t.contains("ENTITY:PLAYER")) { this.targets |= Target.PLAYERS.level; }
+                else if (t.contains("ENTITY:NPC")) { this.targets |= Target.NPCS.level; }
                 else {
                     this._validTargets.add(t);
-                    if (t.contains("NPC:")) { this.targets |= this.namedNpcs; }
+                    if (t.contains("NPC:")) { this.targets |= Target.NAMED_NPCS.level; }
                     else if (this.plugin.perms != null && this.plugin.perms.isEnabled() && t.contains("GROUP:")) {
-                        this.targets |= this.groups;
+                        this.targets |= Target.NAMED_NPCS.level;
                     }
-                    else if (t.contains("EVENT:")) { this.targets |= this.events; }
-                    else if (t.contains("PLAYER:")) { this.targets |= this.namedPlayers; }
-                    else if (t.contains("ENTITY:")) { this.targets |= this.namedEntities; }
-                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.targets |= this.faction; }
+                    else if (t.contains("EVENT:")) { this.targets |= Target.EVENTS.level; }
+                    else if (t.contains("PLAYER:")) { this.targets |= Target.NAMED_PLAYERS.level; }
+                    else if (t.contains("ENTITY:")) { this.targets |= Target.NAMED_ENTITIES.level; }
+                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.targets |= Target.FACTION.level; }
                     else if (Sentry.FactionsActive && t.contains("FACTIONENEMIES:")) {
-                        this.targets |= this.factionEnemies;
+                        this.targets |= Target.FACTION_ENEMIES.level;
                         this._factionEnemies.add(t.split(":")[1]);
                     }
-                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.targets |= this.towny; }
+                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.targets |= Target.TOWNY.level; }
                     else if (this.plugin.TownyActive && t.contains("NATIONENEMIES:")) {
-                        this.targets |= this.townyEnemies;
+                        this.targets |= Target.TOWNY_ENEMIES.level;
                         this._nationsEnemies.add(t.split(":")[1]);
                     }
-                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.targets |= this.towny; }
-                    else if (this.plugin.WarActive && t.contains("WARTEAM:")) { this.targets |= this.war; }
-                    else if (t.contains("TEAM:")) { this.targets |= this.mcTeams; }
-                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.targets |= this.clans; }
+                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.targets |= Target.TOWNY.level; }
+                    else if (this.plugin.WarActive && t.contains("WARTEAM:")) { this.targets |= Target.WAR.level; }
+                    else if (t.contains("TEAM:")) { this.targets |= Target.MC_TEAMS.level; }
+                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.targets |= Target.CLANS.level; }
                 }
             }
             for (final String t : this.ignoreTargets) {
-                if (t.contains("ENTITY:ALL")) { this.ignores |= this.all; }
-                else if (t.contains("ENTITY:MONSTER")) { this.ignores |= this.monsters; }
-                else if (t.contains("ENTITY:PLAYER")) { this.ignores |= this.players; }
-                else if (t.contains("ENTITY:NPC")) { this.ignores |= this.npcs; }
-                else if (t.contains("ENTITY:OWNER")) { this.ignores |= this.owner; }
+                if (t.contains("ENTITY:ALL")) { this.ignores |= Target.ALL.level; }
+                else if (t.contains("ENTITY:MONSTER")) { this.ignores |= Target.MONSTERS.level; }
+                else if (t.contains("ENTITY:PLAYER")) { this.ignores |= Target.PLAYERS.level; }
+                else if (t.contains("ENTITY:NPC")) { this.ignores |= Target.NPCS.level; }
+                else if (t.contains("ENTITY:OWNER")) { this.ignores |= Target.OWNER.level; }
                 else {
                     this._ignoreTargets.add(t);
                     if (this.plugin.perms != null && this.plugin.perms.isEnabled() && t.contains("GROUP:")) {
-                        this.ignores |= this.groups;
+                        this.ignores |= Target.NAMED_NPCS.level;
                     }
-                    else if (t.contains("NPC:")) { this.ignores |= this.namedNpcs; }
-                    else if (t.contains("PLAYER:")) { this.ignores |= this.namedPlayers; }
-                    else if (t.contains("ENTITY:")) { this.ignores |= this.namedEntities; }
-                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.ignores |= this.faction; }
-                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.ignores |= this.towny; }
-                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.ignores |= this.towny; }
-                    else if (this.plugin.WarActive && t.contains("TEAM:")) { this.ignores |= this.war; }
-                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.ignores |= this.clans; }
+                    else if (t.contains("NPC:")) { this.ignores |= Target.NAMED_NPCS.level; }
+                    else if (t.contains("PLAYER:")) { this.ignores |= Target.NAMED_PLAYERS.level; }
+                    else if (t.contains("ENTITY:")) { this.ignores |= Target.NAMED_ENTITIES.level; }
+                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.ignores |= Target.FACTION.level; }
+                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.ignores |= Target.TOWNY.level; }
+                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.ignores |= Target.TOWNY.level; }
+                    else if (this.plugin.WarActive && t.contains("TEAM:")) { this.ignores |= Target.WAR.level; }
+                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.ignores |= Target.CLANS.level; }
                 }
             }
         } catch (final Exception e) {
@@ -1330,7 +1342,7 @@ public class SentryInstance {
         if (entity == null) {
             this.guardEntity = null;
             this.guardTarget = null;
-            setTarget(null, false); // clear active hostile target
+            clearTarget(); // clear active hostile target
             return true;
         }
 
@@ -1346,7 +1358,7 @@ public class SentryInstance {
                     if (aTarget.getUniqueId().equals(entity.getUniqueId())) {
                         this.guardEntity = (LivingEntity) aTarget;
                         this.guardTarget = aTarget.getName();
-                        setTarget(null, false); // clear active hostile target
+                        clearTarget(); // clear active hostile target
                         return true;
                     }
                 }
@@ -1356,7 +1368,7 @@ public class SentryInstance {
                     if (ename.getUniqueId().equals(entity.getUniqueId())) {
                         this.guardEntity = (LivingEntity) aTarget;
                         this.guardTarget = ename.getCustomName();
-                        setTarget(null, false); // clear active hostile target
+                        clearTarget(); // clear active hostile target
                         return true;
                     }
                 }
@@ -1369,7 +1381,7 @@ public class SentryInstance {
                 if (loopPlayer.getUniqueId().equals(entity.getUniqueId())) {
                     this.guardEntity = loopPlayer;
                     this.guardTarget = loopPlayer.getName();
-                    setTarget(null, false); // clear active hostile target
+                    clearTarget(); // clear active hostile target
                     return true;
                 }
 
@@ -1456,34 +1468,43 @@ public class SentryInstance {
 
         return true; //ranged
     }
+    public void clearTarget() {
+        this.plugin.debug(this.myNPC, "Removing npcs target");
+        // this gets called while npc is dead, reset things.
+        this.sentryStatus = Status.LOOKING;
+        this.projectileTarget = null;
+        this.meleeTarget = null;
+        this._projTargetLostLoc = null;
+    }
+    public void setTarget(LivingEntity theEntity, final boolean isRetaliating) {
+        Preconditions
+            .checkNotNull(theEntity, "Cannot set a target to null! use clearTarget() to remove the target of the npc.");
 
-    public void setTarget(LivingEntity theEntity, final boolean isretaliation) {
 
-        if (getMyEntity() == null) { return; }
+        /* Ignore this call if the target is already the melee target or the projectile target */
+        if (theEntity == this.meleeTarget || theEntity == this.projectileTarget) {
+            //But update the status of this npc
+            if (isRetaliating) { this.sentryStatus = Status.RETALIATING; }
+            else { this.sentryStatus = Status.HOSTILE; }
+            return;
+        }
 
-        if (theEntity == getMyEntity()) {
-            return; //I don't care how you got here. No. just No.
+        /* Okay let's try an explain this...
+         * We must be able to get the entity of this npc (eg the npc must not be null and spawned)
+         * The target cannot be the entity it's guarding
+         * The target cannot be it self
+         */
+        if (getMyEntity() == null || !this.myNPC.isSpawned() || theEntity == this.guardEntity ||
+            theEntity == getMyEntity() || theEntity == this.meleeTarget || theEntity == this.projectileTarget) {
+            return;
         }
 
         if (this.guardTarget != null && this.guardEntity == null) {
-            theEntity = null; //dont go aggro when bodyguard target isnt around.
+            theEntity = null; //don't go aggro when bodyguard target isn't around.
         }
-
-        if (theEntity == null) {
-            this.plugin.debug(this.myNPC.getName() + "- Set Target Null");
-            // this gets called while npc is dead, reset things.
-            this.sentryStatus = Status.LOOKING;
-            this.projectileTarget = null;
-            this.meleeTarget = null;
-            this._projTargetLostLoc = null;
-        }
-
-        if (this.myNPC == null) { return; }
-        if (!this.myNPC.isSpawned()) { return; }
 
         if (theEntity == null) {
             // no hostile target
-
             Draw(false);
 
             //		plugin.getServer().broadcastMessage(myNPC.getNavigator().getTargetAsLocation().toString());
@@ -1556,19 +1577,16 @@ public class SentryInstance {
             getNavigator().getLocalParameters().stationaryTicks(5 * 20);
         }
     }
-
     protected net.citizensnpcs.api.ai.Navigator getNavigator() {
         NPC npc = getMountNPC();
-        if (npc == null || npc.isSpawned() == false) { npc = this.myNPC; }
+        if (npc == null || !npc.isSpawned()) { npc = this.myNPC; }
         return npc.getNavigator();
     }
-
     protected net.citizensnpcs.api.ai.GoalController getGoalController() {
         NPC npc = getMountNPC();
-        if (npc == null || npc.isSpawned() == false) { npc = this.myNPC; }
+        if (npc == null || !npc.isSpawned()) { npc = this.myNPC; }
         return npc.getDefaultGoalController();
     }
-
     public void dismount() {
         //get off and despawn the horse.
         if (this.myNPC.isSpawned()) {
@@ -1581,7 +1599,6 @@ public class SentryInstance {
             }
         }
     }
-
     public void mount() {
         if (this.myNPC.isSpawned()) {
             if (getMyEntity().isInsideVehicle()) { getMyEntity().getVehicle().setPassenger(null); }
@@ -1593,7 +1610,7 @@ public class SentryInstance {
 
             if (n != null) {
                 this.mountCreated = true;
-                if (n.isSpawned() == false) {
+                if (!n.isSpawned()) {
                     return; //dead mount
                 }
                 n.data().set(NPC.DEFAULT_PROTECTED_METADATA, false);
@@ -1611,13 +1628,12 @@ public class SentryInstance {
 
         }
     }
-
     public NPC createMount() {
-        this.plugin.debug("Creating mount for " + this.myNPC.getName());
+        this.plugin.debug(this.myNPC, "Creating mount");
 
         if (this.myNPC.isSpawned()) {
 
-            NPC horseNPC = null;
+            final NPC horseNPC;
 
             if (isMounted()) {
                 horseNPC = CitizensAPI.getNPCRegistry().getById(this.mountID);
@@ -1646,13 +1662,15 @@ public class SentryInstance {
             }
 
             //look at my horse, my horse is amazing.
-            horseNPC.spawn(getMyEntity().getLocation());
-            final Owner o = horseNPC.getTrait(Owner.class);
-            o.setOwner(this.myNPC.getTrait(Owner.class).getOwner());
-            //cant do this is screws up the pathfinding.
-            ((Horse) horseNPC.getEntity()).getInventory().setSaddle(new ItemStack(org.bukkit.Material.SADDLE));
+            if (horseNPC != null) {
+                horseNPC.spawn(getMyEntity().getLocation());
+                final Owner o = horseNPC.getTrait(Owner.class);
+                o.setOwner(this.myNPC.getTrait(Owner.class).getOwner());
+                //cant do this is screws up the pathfinding.
+                ((Horse) horseNPC.getEntity()).getInventory().setSaddle(new ItemStack(org.bukkit.Material.SADDLE));
 
-            this.mountID = horseNPC.getId();
+                this.mountID = horseNPC.getId();
+            }
 
             return horseNPC;
 
@@ -1660,25 +1678,28 @@ public class SentryInstance {
 
         return null;
     }
-
     public boolean hasLOS(final Entity other) {
-        if (!this.myNPC.isSpawned()) { return false; }
-        if (this.ignoreLOS) { return true; }
-        return getMyEntity().hasLineOfSight(other);
+        return this.myNPC.isSpawned() && (this.ignoreLOS || getMyEntity().hasLineOfSight(other));
     }
-
     public LivingEntity getMyEntity() {
-        if (this.myNPC == null) { return null; }
-        if (this.myNPC.getEntity() == null) { return null; }
-        if (this.myNPC.getEntity().isDead()) { return null; }
-        if (!(this.myNPC.getEntity() instanceof LivingEntity)) {
-            this.plugin.getServer().getLogger()
-                       .info("Sentry " + this.myNPC.getName() + " is not a living entity! Errors inbound....");
-            return null;
-        }
-        return (LivingEntity) this.myNPC.getEntity();
-    }
+//        if (this.myNPC == null) { return null; }
+//        if (this.myNPC.getEntity() == null) { return null; }
+//        if (this.myNPC.getEntity().isDead()) { return null; }
+//        if (!(this.myNPC.getEntity() instanceof LivingEntity)) {
+//             this.plugin.getServer().getLogger()
+//                       .info("Sentry " + this.myNPC.getName() + " is not a living entity! Errors inbound....");
+//            return null;
+//        }
+//        return (LivingEntity) this.myNPC.getEntity();
 
+        try {
+            final Entity entity = this.myNPC.getEntity();
+            return entity.isDead() ? null : (LivingEntity) this.myNPC.getEntity();
+        } catch (final NullPointerException | ClassCastException ex) {
+            // Ignore
+        }
+        return null;
+    }
     protected NPC getMountNPC() {
         if (this.isMounted() && net.citizensnpcs.api.CitizensAPI.hasImplementation()) {
 
@@ -1816,6 +1837,7 @@ public class SentryInstance {
     public LivingEntity getGuardEntity() {
         return this.guardEntity;
     }
+    @SuppressWarnings("SameParameterValue")
     public void setGuardEntity(final LivingEntity guardEntity) {
         this.guardEntity = guardEntity;
     }
@@ -1894,6 +1916,32 @@ public class SentryInstance {
     public boolean isMountCreated() {
         return this.mountCreated;
     }
+    private enum Target {
+        ALL(powTwo(0)),                 /* 1 */
+        PLAYERS(powTwo(1)),             /* 2 */
+        NPCS(powTwo(2)),                /* 4 */
+        MONSTERS(powTwo(3)),            /* 8 */
+        EVENTS(powTwo(4)),              /* 16 */
+        NAMED_ENTITIES(powTwo(5)),      /* 32 */
+        NAMED_PLAYERS(powTwo(6)),       /* 64 */
+        NAMED_NPCS(powTwo(7)),          /* 128 */
+        FACTION(powTwo(8)),             /* 256 */
+        TOWNY(powTwo(9)),               /* 512 */
+        WAR(powTwo(10)),                /* 1024 */
+        GROUPS(powTwo(11)),             /* 2048 */
+        OWNER(powTwo(12)),              /* 4098 */
+        CLANS(powTwo(13)),              /* 8196 */
+        TOWNY_ENEMIES(powTwo(14)),      /* 16384 */
+        FACTION_ENEMIES(powTwo(15)),    /* 32768 */
+        MC_TEAMS(powTwo(16));           /* 65536 */
+
+        private final int level;
+
+        Target(final int level) {
+            this.level = level;
+        }
+    }
+
     public enum HitType {
         BLOCK,
         DISEMBOWEL,
@@ -1926,20 +1974,20 @@ public class SentryInstance {
             if (UpdateWeapon()) {
                 //ranged
                 if (SentryInstance.this.meleeTarget != null) {
-                    SentryInstance.this.plugin.debug(SentryInstance.this.myNPC.getName() + " Switched to ranged");
+                    SentryInstance.this.plugin.debug(SentryInstance.this.myNPC, "Switched to ranged");
                     final LivingEntity meleeTarget = SentryInstance.this.meleeTarget;
                     final boolean ret = SentryInstance.this.sentryStatus == Status.RETALIATING;
-                    setTarget(null, false);
+                    clearTarget();
                     setTarget(meleeTarget, ret);
                 }
             }
             else {
                 //melee
                 if (SentryInstance.this.projectileTarget != null) {
-                    SentryInstance.this.plugin.debug(SentryInstance.this.myNPC.getName() + " Switched to melee");
+                    SentryInstance.this.plugin.debug(SentryInstance.this.myNPC, "Switched to melee");
                     final boolean ret = SentryInstance.this.sentryStatus == Status.RETALIATING;
                     final LivingEntity projectileTarget = SentryInstance.this.projectileTarget;
-                    setTarget(null, false);
+                    clearTarget();
                     setTarget(projectileTarget, ret);
                 }
             }
@@ -1979,7 +2027,7 @@ public class SentryInstance {
                     SentryInstance.this.Spawn.getBlockX() >> 4, SentryInstance.this.Spawn.getBlockZ() >> 4)) {
                 // Respawn
 
-                SentryInstance.this.plugin.debug("respawning" + SentryInstance.this.myNPC.getName());
+                SentryInstance.this.plugin.debug(SentryInstance.this.myNPC, "respawning npc");
                 if (SentryInstance.this.guardEntity == null) {
                     SentryInstance.this.myNPC.spawn(SentryInstance.this.Spawn.clone());
                     //	myNPC.teleport(Spawn,org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -1994,7 +2042,7 @@ public class SentryInstance {
                      SentryInstance.this.myNPC.isSpawned()) {
 
                 if (!isMyChunkLoaded()) {
-                    setTarget(null, false);
+                    clearTarget();
                     return;
                 }
 
@@ -2040,18 +2088,18 @@ public class SentryInstance {
                         // Did it get away?
                         if (dist > SentryInstance.this.sentryRange) {
                             // it got away...
-                            setTarget(null, false);
+                            clearTarget();
                         }
                     }
                     else {
-                        setTarget(null, false);
+                        clearTarget();
                     }
 
                 }
 
                 else {
                     // target died or null
-                    setTarget(null, false);
+                    clearTarget();
                 }
 
             }
@@ -2066,11 +2114,6 @@ public class SentryInstance {
                     if (!((Player) SentryInstance.this.guardEntity).isOnline()) {
                         SentryInstance.this.guardEntity = null;
                     }
-                }
-
-                if (SentryInstance.this.guardTarget != null && SentryInstance.this.guardEntity == null) {
-                    // daddy? where are u?
-                    setGuardTarget(SentryInstance.this.guardEntity, false);
                 }
 
                 if (SentryInstance.this.guardTarget != null && SentryInstance.this.guardEntity == null) {
@@ -2099,9 +2142,9 @@ public class SentryInstance {
                     }
                     else {
                         final double dist = npcLoc.distanceSquared(SentryInstance.this.guardEntity.getLocation());
-                        SentryInstance.this.plugin.debug(
-                            SentryInstance.this.myNPC.getName() + dist + getNavigator().isNavigating() + " " +
-                            getNavigator().getEntityTarget() + " ");
+                        SentryInstance.this.plugin.debug(SentryInstance.this.myNPC,
+                                                         dist + "" + getNavigator().isNavigating() + " " +
+                                                         getNavigator().getEntityTarget());
                         if (dist > 1024) {
                             SentryInstance.this.myNPC
                                 .teleport(SentryInstance.this.guardEntity.getLocation().add(1, 0, 1),

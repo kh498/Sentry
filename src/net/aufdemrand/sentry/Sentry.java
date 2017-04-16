@@ -27,37 +27,37 @@ import org.bukkit.scoreboard.Team;
 import java.util.*;
 import java.util.logging.Level;
 
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
 public class Sentry extends JavaPlugin {
+
     public static Sentry instance;
-    //FactionsSuport
+    //FactionsSupport
     static boolean FactionsActive = false;
-    public boolean debug = false;
-    public List<Material> Helmets = new LinkedList<Material>(java.util.Arrays.asList(Material.LEATHER_HELMET,
-                                                                                     Material.CHAINMAIL_HELMET,
-                                                                                     Material.IRON_HELMET,
-                                                                                     Material.DIAMOND_HELMET,
-                                                                                     Material.GOLD_HELMET,
-                                                                                     Material.JACK_O_LANTERN,
-                                                                                     Material.PUMPKIN));
-    public List<Material> Chestplates = new LinkedList<Material>(java.util.Arrays.asList(Material.LEATHER_CHESTPLATE,
-                                                                                         Material.CHAINMAIL_CHESTPLATE,
-                                                                                         Material.IRON_CHESTPLATE,
-                                                                                         Material.DIAMOND_CHESTPLATE,
-                                                                                         Material.GOLD_CHESTPLATE));
-    public List<Material> Leggings = new LinkedList<Material>(java.util.Arrays.asList(Material.LEATHER_LEGGINGS,
-                                                                                      Material.CHAINMAIL_LEGGINGS,
-                                                                                      Material.IRON_LEGGINGS,
-                                                                                      Material.DIAMOND_LEGGINGS,
-                                                                                      Material.GOLD_LEGGINGS));
-    public List<Material> Boots = new LinkedList<Material>(java.util.Arrays
-                                                               .asList(Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
-                                                                       Material.IRON_BOOTS, Material.DIAMOND_BOOTS,
-                                                                       Material.GOLD_BOOTS));
-    public Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<Material, List<PotionEffect>>();
-    public Map<Material, Double> SpeedBuffs = new HashMap<Material, Double>();
-    public Map<Material, Double> StrengthBuffs = new HashMap<Material, Double>();
-    public Map<Material, Double> ArmorBuffs = new HashMap<Material, Double>();
-    public Queue<Projectile> arrows = new LinkedList<Projectile>();
+    private static String LOG_PREFIX = "";
+    public List<Material> Helmets = new LinkedList<>(java.util.Arrays
+                                                         .asList(Material.LEATHER_HELMET, Material.CHAINMAIL_HELMET,
+                                                                 Material.IRON_HELMET, Material.DIAMOND_HELMET,
+                                                                 Material.GOLD_HELMET, Material.JACK_O_LANTERN,
+                                                                 Material.PUMPKIN));
+    public List<Material> Chestplates = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_CHESTPLATE,
+                                                                                 Material.CHAINMAIL_CHESTPLATE,
+                                                                                 Material.IRON_CHESTPLATE,
+                                                                                 Material.DIAMOND_CHESTPLATE,
+                                                                                 Material.GOLD_CHESTPLATE));
+    public List<Material> Leggings = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_LEGGINGS,
+                                                                              Material.CHAINMAIL_LEGGINGS,
+                                                                              Material.IRON_LEGGINGS,
+                                                                              Material.DIAMOND_LEGGINGS,
+                                                                              Material.GOLD_LEGGINGS));
+    public List<Material> Boots = new LinkedList<>(java.util.Arrays
+                                                       .asList(Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
+                                                               Material.IRON_BOOTS, Material.DIAMOND_BOOTS,
+                                                               Material.GOLD_BOOTS));
+    public Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<>();
+    public Map<Material, Double> SpeedBuffs = new HashMap<>();
+    public Map<Material, Double> StrengthBuffs = new HashMap<>();
+    public Map<Material, Double> ArmorBuffs = new HashMap<>();
+    public Queue<Projectile> arrows = new LinkedList<>();
     public int SentryEXP = 5;
     public int LogicTicks = 10;
     public int Crit1Chance;
@@ -98,7 +98,8 @@ public class Sentry extends JavaPlugin {
     //War sSuport
     boolean WarActive = false;
     boolean DenizenActive = false;
-    public final static Sentry getInstance() {
+    private boolean debug = false;
+    public static Sentry getInstance() {
         return instance;
     }
     private boolean checkPlugin(final String name) {
@@ -130,7 +131,7 @@ public class Sentry extends JavaPlugin {
                     this.perms = null;
                 }
                 else {
-                    getLogger().log(Level.INFO, "Registered sucessfully with Vault: " + Gr.length +
+                    getLogger().log(Level.INFO, "Registered successfully with Vault: " + Gr.length +
                                                 " groups found. The GROUP: target will function");
                 }
 
@@ -151,7 +152,7 @@ public class Sentry extends JavaPlugin {
      * @param npc      The NPC to equip
      * @param material the material of the item
      *
-     * @return true if the item was equiped succsessfully
+     * @return true if the item was equipped successfully
      */
     public boolean equip(final NPC npc, final Material material) {
         return equip(npc, material, 1);
@@ -167,6 +168,7 @@ public class Sentry extends JavaPlugin {
      *
      * @return true if the item was equiped succsessfully
      */
+    @SuppressWarnings("SameParameterValue")
     public boolean equip(final NPC npc, final Material material, final int amount) {
         return equip(npc, new ItemStack(material, amount));
     }
@@ -178,7 +180,7 @@ public class Sentry extends JavaPlugin {
      * @param npc  The NPC to equip
      * @param item The itemstack to equip
      *
-     * @return true if the item was equiped succsessfully
+     * @return true if the item was equipped successfully
      */
     public boolean equip(final NPC npc, final ItemStack item) {
         final Equipment trait = npc.getTrait(Equipment.class);
@@ -201,6 +203,7 @@ public class Sentry extends JavaPlugin {
                     try {
                         trait.set(i, null);
                     } catch (final Exception e) {
+                        //
                     }
                 }
             }
@@ -220,7 +223,7 @@ public class Sentry extends JavaPlugin {
 
     }
     public String getClan(final Player player) {
-        if (this.ClansActive == false) { return null; }
+        if (!this.ClansActive) { return null; }
         try {
             final net.sacredlabyrinth.phaed.simpleclans.Clan c =
                 net.sacredlabyrinth.phaed.simpleclans.SimpleClans.getInstance().getClanManager()
@@ -236,7 +239,7 @@ public class Sentry extends JavaPlugin {
         return str == null ? null : Material.getMaterial(str.toUpperCase());
     }
     public String getNationNameForLocation(final Location l) {
-        if (this.TownyActive == false) { return null; }
+        if (!this.TownyActive) { return null; }
         try {
             final TownBlock tb = com.palmergames.bukkit.towny.object.TownyUniverse.getTownBlock(l);
             if (tb != null) {
@@ -247,11 +250,11 @@ public class Sentry extends JavaPlugin {
         }
         return null;
     }
-    private PotionEffect getpotion(final String S) {
+    private PotionEffect getPotion(final String S) {
         if (S == null) { return null; }
         final String[] args = S.trim().split(":");
 
-        PotionEffectType type = null;
+        final PotionEffectType type;
 
         int dur = 10;
         int amp = 1;
@@ -274,6 +277,7 @@ public class Sentry extends JavaPlugin {
             try {
                 dur = Integer.parseInt(args[1]);
             } catch (final Exception e) {
+                //
             }
         }
 
@@ -281,6 +285,7 @@ public class Sentry extends JavaPlugin {
             try {
                 amp = Integer.parseInt(args[2]);
             } catch (final Exception e) {
+                //
             }
         }
 
@@ -289,7 +294,7 @@ public class Sentry extends JavaPlugin {
     public String[] getResidentTownyInfo(final Player player) {
         final String[] info = {null, null};
 
-        if (this.TownyActive == false) { return info; }
+        if (!this.TownyActive) { return info; }
 
         final com.palmergames.bukkit.towny.object.Resident resident;
         try {
@@ -324,7 +329,7 @@ public class Sentry extends JavaPlugin {
         return null;
     }
     public String getWarTeam(final Player player) {
-        if (this.WarActive == false) { return null; }
+        if (!this.WarActive) { return null; }
         try {
             final com.tommytony.war.Team t = com.tommytony.war.Team.getTeamByPlayerName(player.getName());
             if (t != null) { return t.getName(); }
@@ -335,6 +340,7 @@ public class Sentry extends JavaPlugin {
         return null;
     }
     public String getMCTeamName(final Player player) {
+        @SuppressWarnings("deprecation")
         final Team t = getServer().getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
         if (t != null) {
             return t.getName();
@@ -342,7 +348,7 @@ public class Sentry extends JavaPlugin {
         return null;
     }
     boolean isNationEnemy(final String Nation1, final String Nation2) {
-        if (this.TownyActive == false) { return false; }
+        if (!this.TownyActive) { return false; }
         if (Nation1.equalsIgnoreCase(Nation2)) { return false; }
         try {
 
@@ -384,6 +390,7 @@ public class Sentry extends JavaPlugin {
             try {
                 val = Double.parseDouble(args[1]);
             } catch (final Exception e) {
+                //
             }
 
             final Material item = getMaterial(args[0]);
@@ -393,19 +400,19 @@ public class Sentry extends JavaPlugin {
             }
         }
     }
-    private void loadpots(final String node, final Map<Material, List<PotionEffect>> map) {
+    private void loadPotions(final Map<Material, List<PotionEffect>> map) {
         map.clear();
-        for (final String s : getConfig().getStringList(node)) {
+        for (final String s : getConfig().getStringList("WeaponEffects")) {
             final String[] args = s.trim().split(" ");
 
             if (args.length < 2) { continue; }
 
             final Material item = getMaterial(args[0]);
 
-            final List<PotionEffect> list = new ArrayList<PotionEffect>();
+            final List<PotionEffect> list = new ArrayList<>();
 
             for (int i = 1; i < args.length; i++) {
-                final PotionEffect val = getpotion(args[i]);
+                final PotionEffect val = getPotion(args[i]);
                 if (val != null) { list.add(val); }
 
             }
@@ -423,8 +430,6 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        final CommandSender player = sender;
-
         int npcid = -1;
         int i = 0;
 
@@ -436,9 +441,7 @@ public class Sentry extends JavaPlugin {
 
         final String[] args = new String[inargs.length - i];
 
-        for (int j = i; j < inargs.length; j++) {
-            args[j - i] = inargs[j];
-        }
+        System.arraycopy(inargs, i, args, 0, inargs.length - i);
 
         if (args.length < 1) {
             sender.sendMessage(ChatColor.RED + "Use /sentry help for command reference.");
@@ -453,67 +456,67 @@ public class Sentry extends JavaPlugin {
 
         if (args[0].equalsIgnoreCase("help")) {
 
-            player.sendMessage(ChatColor.GOLD + "------- Sentry Commands -------");
-            player.sendMessage(ChatColor.GOLD +
+            sender.sendMessage(ChatColor.GOLD + "------- Sentry Commands -------");
+            sender.sendMessage(ChatColor.GOLD +
                                "You can use /sentry (id) [command] [args] to perform any of these commands on a sentry without having it selected.");
-            player.sendMessage(ChatColor.GOLD + "");
-            player.sendMessage(ChatColor.GOLD + "/sentry reload");
-            player.sendMessage(ChatColor.YELLOW + " reload the config.yml");
-            player.sendMessage(ChatColor.GOLD + "/sentry target [add|remove] [target]");
-            player.sendMessage(ChatColor.YELLOW + " Adds or removes a target to attack.");
-            player.sendMessage(ChatColor.GOLD + "/sentry target [list|clear]");
-            player.sendMessage(ChatColor.YELLOW + " View or clear the target list..");
-            player.sendMessage(ChatColor.GOLD + "/sentry ignore [add|remove] [target]");
-            player.sendMessage(ChatColor.YELLOW + " Adds or removes a target to ignore.");
-            player.sendMessage(ChatColor.GOLD + "/sentry ignore [list|clear]");
-            player.sendMessage(ChatColor.YELLOW + " View or clear the ignore list..");
-            player.sendMessage(ChatColor.GOLD + "/sentry info");
-            player.sendMessage(ChatColor.YELLOW + " View all Sentry attributes");
-            player.sendMessage(ChatColor.GOLD + "/sentry equip [item|none]");
-            player.sendMessage(ChatColor.YELLOW + " Equip an item on the Sentry, or remove all equipment.");
-            player.sendMessage(ChatColor.GOLD + "/sentry speed [0-1.5]");
-            player.sendMessage(ChatColor.YELLOW + " Sets speed of the Sentry when attacking.");
-            player.sendMessage(ChatColor.GOLD + "/sentry health [1-2000000]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the Sentry's Health .");
-            player.sendMessage(ChatColor.GOLD + "/sentry armor [0-2000000]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the Sentry's Armor.");
-            player.sendMessage(ChatColor.GOLD + "/sentry strength [0-2000000]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the Sentry's Strength.");
-            player.sendMessage(ChatColor.GOLD + "/sentry attackrate [0.0-30.0]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the time between the Sentry's projectile attacks.");
-            player.sendMessage(ChatColor.GOLD + "/sentry healrate [0.0-300.0]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the frequency the sentry will heal 1 point. 0 to disable.");
-            player.sendMessage(ChatColor.GOLD + "/sentry range [1-100]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the Sentry's detection range.");
-            player.sendMessage(ChatColor.GOLD + "/sentry warningrange [0-50]");
-            player.sendMessage(
+            sender.sendMessage(ChatColor.GOLD + "");
+            sender.sendMessage(ChatColor.GOLD + "/sentry reload");
+            sender.sendMessage(ChatColor.YELLOW + " reload the config.yml");
+            sender.sendMessage(ChatColor.GOLD + "/sentry target [add|remove] [target]");
+            sender.sendMessage(ChatColor.YELLOW + " Adds or removes a target to attack.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry target [list|clear]");
+            sender.sendMessage(ChatColor.YELLOW + " View or clear the target list..");
+            sender.sendMessage(ChatColor.GOLD + "/sentry ignore [add|remove] [target]");
+            sender.sendMessage(ChatColor.YELLOW + " Adds or removes a target to ignore.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry ignore [list|clear]");
+            sender.sendMessage(ChatColor.YELLOW + " View or clear the ignore list..");
+            sender.sendMessage(ChatColor.GOLD + "/sentry info");
+            sender.sendMessage(ChatColor.YELLOW + " View all Sentry attributes");
+            sender.sendMessage(ChatColor.GOLD + "/sentry equip [item|none]");
+            sender.sendMessage(ChatColor.YELLOW + " Equip an item on the Sentry, or remove all equipment.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry speed [0-1.5]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets speed of the Sentry when attacking.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry health [1-2000000]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the Sentry's Health .");
+            sender.sendMessage(ChatColor.GOLD + "/sentry armor [0-2000000]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the Sentry's Armor.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry strength [0-2000000]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the Sentry's Strength.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry attackrate [0.0-30.0]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the time between the Sentry's projectile attacks.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry healrate [0.0-300.0]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the frequency the sentry will heal 1 point. 0 to disable.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry range [1-100]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the Sentry's detection range.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry warningrange [0-50]");
+            sender.sendMessage(
                 ChatColor.YELLOW + " Sets the range, beyond the detection range, that the Sentry will warn targets.");
-            player.sendMessage(ChatColor.GOLD + "/sentry respawn [-1-2000000]");
-            player.sendMessage(ChatColor.YELLOW + " Sets the number of seconds after death the Sentry will respawn.");
-            player.sendMessage(ChatColor.GOLD + "/sentry follow [0-32]");
-            player
+            sender.sendMessage(ChatColor.GOLD + "/sentry respawn [-1-2000000]");
+            sender.sendMessage(ChatColor.YELLOW + " Sets the number of seconds after death the Sentry will respawn.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry follow [0-32]");
+            sender
                 .sendMessage(ChatColor.YELLOW + " Sets the number of block away a bodyguard will follow. Default is 4");
-            player.sendMessage(ChatColor.GOLD + "/sentry invincible");
-            player.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to take no damage or knockback.");
-            player.sendMessage(ChatColor.GOLD + "/sentry retaliate");
-            player.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to always attack an attacker.");
-            player.sendMessage(ChatColor.GOLD + "/sentry criticals");
-            player.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to take critical hits and misses");
-            player.sendMessage(ChatColor.GOLD + "/sentry drops");
-            player.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to drop equipped items on death");
-            player.sendMessage(ChatColor.GOLD + "/sentry killdrops");
-            player.sendMessage(ChatColor.YELLOW + " Toggle whether or not the sentry's victims drop items and exp");
-            player.sendMessage(ChatColor.GOLD + "/sentry mount");
-            player.sendMessage(ChatColor.YELLOW + " Toggle whether or not the sentry rides a mount");
-            player.sendMessage(ChatColor.GOLD + "/sentry targetable");
-            player.sendMessage(ChatColor.YELLOW + " Toggle whether or not the sentry is attacked by hostile mobs");
-            player.sendMessage(ChatColor.GOLD + "/sentry spawn");
-            player.sendMessage(ChatColor.YELLOW + " Set the sentry to respawn at its current location");
-            player.sendMessage(ChatColor.GOLD + "/sentry warning 'The Test to use'");
-            player.sendMessage(
+            sender.sendMessage(ChatColor.GOLD + "/sentry invincible");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to take no damage or knockback.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry retaliate");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to always attack an attacker.");
+            sender.sendMessage(ChatColor.GOLD + "/sentry criticals");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to take critical hits and misses");
+            sender.sendMessage(ChatColor.GOLD + "/sentry drops");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle the Sentry to drop equipped items on death");
+            sender.sendMessage(ChatColor.GOLD + "/sentry killdrops");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle whether or not the sentry's victims drop items and exp");
+            sender.sendMessage(ChatColor.GOLD + "/sentry mount");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle whether or not the sentry rides a mount");
+            sender.sendMessage(ChatColor.GOLD + "/sentry targetable");
+            sender.sendMessage(ChatColor.YELLOW + " Toggle whether or not the sentry is attacked by hostile mobs");
+            sender.sendMessage(ChatColor.GOLD + "/sentry spawn");
+            sender.sendMessage(ChatColor.YELLOW + " Set the sentry to respawn at its current location");
+            sender.sendMessage(ChatColor.GOLD + "/sentry warning 'The Test to use'");
+            sender.sendMessage(
                 ChatColor.YELLOW + " Change the warning text. <NPC> and <PLAYER> can be used as placeholders");
-            player.sendMessage(ChatColor.GOLD + "/sentry greeting 'The text to use'");
-            player.sendMessage(
+            sender.sendMessage(ChatColor.GOLD + "/sentry greeting 'The text to use'");
+            sender.sendMessage(
                 ChatColor.YELLOW + " Change the greeting text. <NPC> and <PLAYER> can be used as placeholders");
             return true;
         }
@@ -521,17 +524,17 @@ public class Sentry extends JavaPlugin {
 
             this.debug = !this.debug;
 
-            player.sendMessage(ChatColor.GREEN + "Debug now: " + this.debug);
+            sender.sendMessage(ChatColor.GREEN + "Debug now: " + this.debug);
             return true;
         }
         else if (args[0].equalsIgnoreCase("reload")) {
-            if (!player.hasPermission("sentry.reload")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.reload")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             this.reloadMyConfig();
-            player.sendMessage(ChatColor.GREEN + "reloaded Sentry/config.yml");
+            sender.sendMessage(ChatColor.GREEN + "reloaded Sentry/config.yml");
             return true;
         }
         NPC ThisNPC;
@@ -547,7 +550,7 @@ public class Sentry extends JavaPlugin {
             }
 
             else {
-                player.sendMessage(ChatColor.RED + "You must have a NPC selected to use this command");
+                sender.sendMessage(ChatColor.RED + "You must have a NPC selected to use this command");
                 return true;
             }
         }
@@ -555,32 +558,29 @@ public class Sentry extends JavaPlugin {
         ThisNPC = CitizensAPI.getNPCRegistry().getById(npcid);
 
         if (ThisNPC == null) {
-            player.sendMessage(ChatColor.RED + "NPC with id " + npcid + " not found");
+            sender.sendMessage(ChatColor.RED + "NPC with id " + npcid + " not found");
             return true;
         }
 
         if (!ThisNPC.hasTrait(SentryTrait.class)) {
-            player.sendMessage(ChatColor.RED + "That command must be performed on a Sentry!");
+            sender.sendMessage(ChatColor.RED + "That command must be performed on a Sentry!");
             return true;
         }
 
         if (sender instanceof Player && !CitizensAPI.getNPCRegistry().isNPC((Entity) sender)) {
 
-            if (ThisNPC.getTrait(Owner.class).getOwner().equalsIgnoreCase(player.getName())) {
-                //OK!
-            }
-            else {
+            if (!ThisNPC.getTrait(Owner.class).getOwner().equalsIgnoreCase(sender.getName())) {
                 //not player is owner
-                if (!((Player) sender).hasPermission("citizens.admin")) {
+                if (!sender.hasPermission("citizens.admin")) {
                     //no c2 admin.
-                    player.sendMessage(ChatColor.RED + "You must be the owner of this Sentry to execute commands.");
+                    sender.sendMessage(ChatColor.RED + "You must be the owner of this Sentry to execute commands.");
                     return true;
                 }
                 else {
                     //has citizens.admin
                     if (!ThisNPC.getTrait(Owner.class).getOwner().equalsIgnoreCase("server")) {
                         //not server-owned NPC
-                        player.sendMessage(ChatColor.RED +
+                        sender.sendMessage(ChatColor.RED +
                                            "You, or the server, must be the owner of this Sentry to execute commands.");
                         return true;
                     }
@@ -593,16 +593,16 @@ public class Sentry extends JavaPlugin {
         final SentryInstance inst = ThisNPC.getTrait(SentryTrait.class).getInstance();
 
         if (args[0].equalsIgnoreCase("spawn")) {
-            if (!player.hasPermission("sentry.spawn")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.spawn")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (ThisNPC.getEntity() == null) {
-                player.sendMessage(ChatColor.RED + "Cannot set spawn while " + ThisNPC.getName() + " is dead.");
+                sender.sendMessage(ChatColor.RED + "Cannot set spawn while " + ThisNPC.getName() + " is dead.");
                 return true;
             }
             inst.setSpawn(ThisNPC.getEntity().getLocation());
-            player.sendMessage(
+            sender.sendMessage(
                 ChatColor.GREEN + ThisNPC.getName() + " will respawn at its present location."); // Talk to the player.
             return true;
 
@@ -641,99 +641,99 @@ public class Sentry extends JavaPlugin {
         //		}
 
         else if (args[0].equalsIgnoreCase("invincible")) {
-            if (!player.hasPermission("sentry.options.invincible")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.invincible")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             inst.setInvincible(set == null ? !inst.isInvincible() : set);
 
             if (!inst.isInvincible()) {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " now takes damage.."); // Talk to the player.
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " now takes damage.."); // Talk to the player.
             }
             else {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " now INVINCIBLE."); // Talk to the player.
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " now INVINCIBLE."); // Talk to the player.
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("retaliate")) {
-            if (!player.hasPermission("sentry.options.retaliate")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.retaliate")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             inst.setRetaliate(set == null ? !inst.isRetaliate() : set);
 
             if (!inst.isRetaliate()) {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " will not retaliate."); // Talk to the player.
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " will not retaliate."); // Talk to the player.
             }
             else {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
                                    " will retalitate against all attackers."); // Talk to the player.
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("criticals")) {
-            if (!player.hasPermission("sentry.options.criticals")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.criticals")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             inst.setLuckyHits(set == null ? !inst.isLuckyHits() : set);
 
             if (!inst.isLuckyHits()) {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " will take normal damage."); // Talk to the player.
             }
             else {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " will take critical hits."); // Talk to the player.
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("drops")) {
-            if (!player.hasPermission("sentry.options.drops")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.drops")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             inst.setDropInventory(set == null ? !inst.isDropInventory() : set);
 
             if (inst.isDropInventory()) {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " will drop items"); // Talk to the player.
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " will drop items"); // Talk to the player.
             }
             else {
-                player
+                sender
                     .sendMessage(ChatColor.GREEN + ThisNPC.getName() + " will not drop items."); // Talk to the player.
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("killdrops")) {
-            if (!player.hasPermission("sentry.options.killdrops")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.killdrops")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             inst.setKillsDropInventory(set == null ? !inst.doesKillsDropInventory() : set);
 
             if (inst.doesKillsDropInventory()) {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + "'s kills will drop items or exp"); // Talk to the player.
             }
             else {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
                                    "'s kills will not drop items or exp."); // Talk to the player.
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("targetable")) {
-            if (!player.hasPermission("sentry.options.targetable")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.targetable")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
@@ -741,31 +741,31 @@ public class Sentry extends JavaPlugin {
             ThisNPC.data().set(NPC.TARGETABLE_METADATA, inst.isTargetable());
 
             if (inst.isTargetable()) {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " will be targeted by mobs"); // Talk to the player.
             }
             else {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " will not be targeted by mobs"); // Talk to the player.
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("mount")) {
-            if (!player.hasPermission("sentry.options.mount")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.options.mount")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             set = set == null ? !inst.isMounted() : set;
 
             if (set) {
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " is now Mounted"); // Talk to the player.
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " is now Mounted"); // Talk to the player.
                 inst.createMount();
                 inst.mount();
             }
             else {
-                player
+                sender
                     .sendMessage(ChatColor.GREEN + ThisNPC.getName() + " is no longer Mounted"); // Talk to the player.
                 if (inst.isMounted()) { Util.removeMount(inst.getMountID()); }
                 inst.setMountID(-1);
@@ -774,8 +774,8 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("guard")) {
-            if (!player.hasPermission("sentry.guard")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.guard")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
@@ -795,13 +795,14 @@ public class Sentry extends JavaPlugin {
                     localonly = true;
                 }
 
-                String arg = "";
+                StringBuilder arg = new StringBuilder();
                 for (i = start; i < args.length; i++) {
-                    arg += " " + args[i];
+                    arg.append(" ").append(args[i]);
                 }
-                arg = arg.trim();
+                arg = new StringBuilder(arg.toString().trim());
 
-                final LivingEntity et = Bukkit.getPlayer(arg);
+                @SuppressWarnings("deprecation")
+                final LivingEntity et = Bukkit.getPlayer(arg.toString());
 
                 boolean ok = false;
 
@@ -814,11 +815,11 @@ public class Sentry extends JavaPlugin {
                 }
 
                 if (ok) {
-                    player.sendMessage(
+                    sender.sendMessage(
                         ChatColor.GREEN + ThisNPC.getName() + " is now guarding " + arg); // Talk to the player.
                 }
                 else {
-                    player.sendMessage(
+                    sender.sendMessage(
                         ChatColor.RED + ThisNPC.getName() + " could not find " + arg + "."); // Talk to the player.
                 }
 
@@ -826,11 +827,11 @@ public class Sentry extends JavaPlugin {
 
             else {
                 if (inst.getGuardTarget() == null) {
-                    player.sendMessage(ChatColor.RED + ThisNPC.getName() +
+                    sender.sendMessage(ChatColor.RED + ThisNPC.getName() +
                                        " is already set to guard its immediate area"); // Talk to the player.
                 }
                 else {
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
                                        " is now guarding its immediate area. "); // Talk to the player.
                 }
                 inst.setGuardTarget(null, false);
@@ -840,14 +841,14 @@ public class Sentry extends JavaPlugin {
         }
 
         else if (args[0].equalsIgnoreCase("follow")) {
-            if (!player.hasPermission("sentry.stats.follow")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.follow")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GOLD + ThisNPC.getName() + "'s Follow Distance is " + inst.getFollowDistance());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry follow [#]. Default is 4. ");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry follow [#]. Default is 4. ");
             }
             else {
 
@@ -855,7 +856,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 32) { HPs = 32; }
                 if (HPs < 0) { HPs = 0; }
 
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " follow distance set to " + HPs +
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " follow distance set to " + HPs +
                                    "."); // Talk to the player.
                 inst.setFollowDistance(HPs * HPs);
 
@@ -865,14 +866,14 @@ public class Sentry extends JavaPlugin {
         }
 
         else if (args[0].equalsIgnoreCase("health")) {
-            if (!player.hasPermission("sentry.stats.health")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.health")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Health is " + inst.getSentryHealth());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry health [#]  note: Typically players");
-                player.sendMessage(ChatColor.GOLD + " have 20 HPs when fully healed");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Health is " + inst.getSentryHealth());
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry health [#]  note: Typically players");
+                sender.sendMessage(ChatColor.GOLD + " have 20 HPs when fully healed");
             }
             else {
 
@@ -880,7 +881,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 2000000) { HPs = 2000000; }
                 if (HPs < 1) { HPs = 1; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " health set to " + HPs + "."); // Talk to the player.
                 inst.setSentryHealth(HPs);
                 inst.setHealth(HPs);
@@ -890,13 +891,13 @@ public class Sentry extends JavaPlugin {
         }
 
         else if (args[0].equalsIgnoreCase("armor")) {
-            if (!player.hasPermission("sentry.stats.armor")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.armor")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Armor is " + inst.getArmor());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry armor [#] ");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Armor is " + inst.getArmor());
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry armor [#] ");
             }
             else {
 
@@ -904,7 +905,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 2000000) { HPs = 2000000; }
                 if (HPs < 0) { HPs = 0; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " armor set to " + HPs + "."); // Talk to the player.
                 inst.setArmor(HPs);
 
@@ -913,14 +914,14 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("strength")) {
-            if (!player.hasPermission("sentry.stats.strength")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.strength")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Strength is " + inst.getStrength());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry strength # ");
-                player.sendMessage(ChatColor.GOLD + "Note: At Strength 0 the Sentry will do no damamge. ");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Strength is " + inst.getStrength());
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry strength # ");
+                sender.sendMessage(ChatColor.GOLD + "Note: At Strength 0 the Sentry will do no damamge. ");
             }
             else {
 
@@ -928,7 +929,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 2000000) { HPs = 2000000; }
                 if (HPs < 0) { HPs = 0; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " strength set to " + HPs + "."); // Talk to the player.
                 inst.setStrength(HPs);
 
@@ -937,14 +938,14 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("nightvision")) {
-            if (!player.hasPermission("sentry.stats.nightvision")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.nightvision")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Night Vision is " + inst.getNightVision());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry nightvision [0-16] ");
-                player.sendMessage(ChatColor.GOLD + "Usage: 0 = See nothing, 16 = See everything. ");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Night Vision is " + inst.getNightVision());
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry nightvision [0-16] ");
+                sender.sendMessage(ChatColor.GOLD + "Usage: 0 = See nothing, 16 = See everything. ");
             }
             else {
 
@@ -952,7 +953,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 16) { HPs = 16; }
                 if (HPs < 0) { HPs = 0; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " Night Vision set to " + HPs + "."); // Talk to the player.
                 inst.setNightVision(HPs);
 
@@ -962,25 +963,25 @@ public class Sentry extends JavaPlugin {
         }
 
         else if (args[0].equalsIgnoreCase("respawn")) {
-            if (!player.hasPermission("sentry.stats.respawn")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.respawn")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
                 if (inst.getRespawnDelaySeconds() == 0) {
-                    player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + " will not automatically respawn.");
+                    sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + " will not automatically respawn.");
                 }
                 if (inst.getRespawnDelaySeconds() == -1) {
-                    player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + " will be deleted upon death");
+                    sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + " will be deleted upon death");
                 }
                 if (inst.getRespawnDelaySeconds() > 0) {
-                    player.sendMessage(
+                    sender.sendMessage(
                         ChatColor.GOLD + ThisNPC.getName() + " respawns after " + inst.getRespawnDelaySeconds() + "s");
                 }
 
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry respawn [-1 - 2000000] ");
-                player.sendMessage(ChatColor.GOLD + "Usage: set to 0 to prevent automatic respawn");
-                player.sendMessage(ChatColor.GOLD + "Usage: set to -1 to *permanently* delete the Sentry on death.");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry respawn [-1 - 2000000] ");
+                sender.sendMessage(ChatColor.GOLD + "Usage: set to 0 to prevent automatic respawn");
+                sender.sendMessage(ChatColor.GOLD + "Usage: set to -1 to *permanently* delete the Sentry on death.");
             }
             else {
 
@@ -988,7 +989,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 2000000) { HPs = 2000000; }
                 if (HPs < -1) { HPs = -1; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " now respawns after " + HPs + "s."); // Talk to the player.
                 inst.setRespawnDelaySeconds(HPs);
 
@@ -997,13 +998,13 @@ public class Sentry extends JavaPlugin {
         }
 
         else if (args[0].equalsIgnoreCase("speed")) {
-            if (!player.hasPermission("sentry.stats.speed")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.speed")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Speed is " + inst.getSentrySpeed());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry speed [0.0 - 2.0]");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Speed is " + inst.getSentrySpeed());
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry speed [0.0 - 2.0]");
             }
             else {
 
@@ -1011,7 +1012,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 2.0) { HPs = 2.0f; }
                 if (HPs < 0.0) { HPs = 0f; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " speed set to " + HPs + "."); // Talk to the player.
                 inst.setSentrySpeed(HPs);
 
@@ -1020,15 +1021,15 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("attackrate")) {
-            if (!player.hasPermission("sentry.stats.attackrate")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.attackrate")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GOLD + ThisNPC.getName() + "'s Projectile Attack Rate is " + inst.getAttackRateSeconds() +
                     "s between shots.");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry attackrate [0.0 - 30.0]");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry attackrate [0.0 - 30.0]");
             }
             else {
 
@@ -1036,7 +1037,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 30.0) { HPs = 30.0; }
                 if (HPs < 0.0) { HPs = 0.0; }
 
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Projectile Attack Rate set to " + HPs +
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Projectile Attack Rate set to " + HPs +
                                    "."); // Talk to the player.
                 inst.setAttackRateSeconds(HPs);
             }
@@ -1044,14 +1045,14 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("healrate")) {
-            if (!player.hasPermission("sentry.stats.healrate")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.healrate")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Heal Rate is " + inst.getHealRate() + "s");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry healrate [0.0 - 300.0]");
-                player.sendMessage(ChatColor.GOLD + "Usage: Set to 0 to disable healing");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Heal Rate is " + inst.getHealRate() + "s");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry healrate [0.0 - 300.0]");
+                sender.sendMessage(ChatColor.GOLD + "Usage: Set to 0 to disable healing");
             }
             else {
 
@@ -1059,7 +1060,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 300.0) { HPs = 300.0; }
                 if (HPs < 0.0) { HPs = 0.0; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " Heal Rate set to " + HPs + "."); // Talk to the player.
                 inst.setHealRate(HPs);
 
@@ -1068,14 +1069,14 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("range")) {
-            if (!player.hasPermission("sentry.stats.range")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.range")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             if (args.length <= 1) {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Range is " + inst.getSentryRange());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry range [1 - 100]");
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Range is " + inst.getSentryRange());
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry range [1 - 100]");
             }
 
             else {
@@ -1084,7 +1085,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 100) { HPs = 100; }
                 if (HPs < 1) { HPs = 1; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " range set to " + HPs + "."); // Talk to the player.
                 inst.setSentryRange(HPs);
 
@@ -1093,15 +1094,15 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("warningrange")) {
-            if (!player.hasPermission("sentry.stats.warningrange")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.stats.warningrange")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             if (args.length <= 1) {
-                player
+                sender
                     .sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Warning Range is " + inst.getWarningRange());
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry warningrangee [0 - 50]");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry warningrangee [0 - 50]");
             }
 
             else {
@@ -1110,7 +1111,7 @@ public class Sentry extends JavaPlugin {
                 if (HPs > 50) { HPs = 50; }
                 if (HPs < 0) { HPs = 0; }
 
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.GREEN + ThisNPC.getName() + " warning range set to " + HPs + "."); // Talk to the player.
                 inst.setWarningRange(HPs);
 
@@ -1119,13 +1120,13 @@ public class Sentry extends JavaPlugin {
             return true;
         }
         else if (args[0].equalsIgnoreCase("equip")) {
-            if (!player.hasPermission("sentry.equip")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.equip")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             if (args.length <= 1) {
-                player.sendMessage(
+                sender.sendMessage(
                     ChatColor.RED + "You must specify a Item ID or Name. or specify 'none' to remove all equipment.");
             }
 
@@ -1137,7 +1138,7 @@ public class Sentry extends JavaPlugin {
                         //remove equipment
                         equip(ThisNPC, Material.AIR);
                         inst.UpdateWeapon();
-                        player.sendMessage(ChatColor.YELLOW + ThisNPC.getName() + "'s equipment cleared.");
+                        sender.sendMessage(ChatColor.YELLOW + ThisNPC.getName() + "'s equipment cleared.");
                     }
                     else {
                         final Material mat = getMaterial(args[1]);
@@ -1145,150 +1146,152 @@ public class Sentry extends JavaPlugin {
                             final ItemStack is = new ItemStack(mat);
                             if (equip(ThisNPC, is)) {
                                 inst.UpdateWeapon();
-                                player.sendMessage(ChatColor.GREEN + " equipped " + is.getType().toString() + " on " +
+                                sender.sendMessage(ChatColor.GREEN + " equipped " + is.getType().toString() + " on " +
                                                    ThisNPC.getName());
                             }
-                            else { player.sendMessage(ChatColor.RED + " Could not equip: invalid mob type?"); }
+                            else { sender.sendMessage(ChatColor.RED + " Could not equip: invalid mob type?"); }
                         }
-                        else { player.sendMessage(ChatColor.RED + " Could not equip: unknown item name"); }
+                        else { sender.sendMessage(ChatColor.RED + " Could not equip: unknown item name"); }
                     }
                 }
-                else { player.sendMessage(ChatColor.RED + " Could not equip: must be Player or Enderman type"); }
+                else { sender.sendMessage(ChatColor.RED + " Could not equip: must be Player or Enderman type"); }
             }
 
             return true;
         }
         else if (args[0].equalsIgnoreCase("warning")) {
-            if (!player.hasPermission("sentry.warning")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.warning")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
             if (args.length >= 2) {
-                String arg = "";
+                StringBuilder arg = new StringBuilder();
                 for (i = 1; i < args.length; i++) {
-                    arg += " " + args[i];
+                    arg.append(" ").append(args[i]);
                 }
-                arg = arg.trim();
+                arg = new StringBuilder(arg.toString().trim());
 
-                final String str =
-                    arg.replaceAll("\"$", "").replaceAll("^\"", "").replaceAll("'$", "").replaceAll("^'", "");
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " warning message set to " + ChatColor.RESET +
+                final String str = arg.toString().replaceAll("\"$", "").replaceAll("^\"", "").replaceAll("'$", "")
+                                      .replaceAll("^'", "");
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " warning message set to " + ChatColor.RESET +
                                    ChatColor.translateAlternateColorCodes('&', str) + "."); // Talk to the player.
                 inst.setWarningMessage(str);
             }
             else {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Warning Message is: " + ChatColor.RESET +
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Warning Message is: " + ChatColor.RESET +
                                    ChatColor.translateAlternateColorCodes('&', inst.getWarningMessage()));
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry warning 'The Text to use'");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry warning 'The Text to use'");
             }
             return true;
         }
         else if (args[0].equalsIgnoreCase("greeting")) {
-            if (!player.hasPermission("sentry.greeting")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.greeting")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             if (args.length >= 2) {
 
-                String arg = "";
+                StringBuilder arg = new StringBuilder();
                 for (i = 1; i < args.length; i++) {
-                    arg += " " + args[i];
+                    arg.append(" ").append(args[i]);
                 }
-                arg = arg.trim();
+                arg = new StringBuilder(arg.toString().trim());
 
-                final String str =
-                    arg.replaceAll("\"$", "").replaceAll("^\"", "").replaceAll("'$", "").replaceAll("^'", "");
-                player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Greeting message set to " + ChatColor.RESET +
+                final String str = arg.toString().replaceAll("\"$", "").replaceAll("^\"", "").replaceAll("'$", "")
+                                      .replaceAll("^'", "");
+                sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Greeting message set to " + ChatColor.RESET +
                                    ChatColor.translateAlternateColorCodes('&', str) + "."); // Talk to the player.
                 inst.setGreetingMessage(str);
             }
             else {
-                player.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Greeting Message is: " + ChatColor.RESET +
+                sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Greeting Message is: " + ChatColor.RESET +
                                    ChatColor.translateAlternateColorCodes('&', inst.getGreetingMessage()));
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry greeting 'The Text to use'");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry greeting 'The Text to use'");
             }
             return true;
         }
 
         else if (args[0].equalsIgnoreCase("info")) {
-            if (!player.hasPermission("sentry.info")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.info")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
-            player.sendMessage(
+            sender.sendMessage(
                 ChatColor.GOLD + "------- Sentry Info for (" + ThisNPC.getId() + ") " + ThisNPC.getName() + "------");
-            player.sendMessage(ChatColor.GREEN + inst.getStats());
-            player.sendMessage(
+            sender.sendMessage(ChatColor.GREEN + inst.getStats());
+            sender.sendMessage(
                 ChatColor.GREEN + "Invincible: " + inst.isInvincible() + " Retaliate: " + inst.isRetaliate());
-            player.sendMessage(
+            sender.sendMessage(
                 ChatColor.GREEN + "Drops Items: " + inst.isDropInventory() + " Critical Hits: " + inst.isLuckyHits());
-            player.sendMessage(
+            sender.sendMessage(
                 ChatColor.GREEN + "Kills Drop Items: " + inst.doesKillsDropInventory() + " Respawn Delay: " +
                 inst.getRespawnDelaySeconds() + "s");
-            player.sendMessage(ChatColor.BLUE + "Status: " + inst.getSentryStatus());
+            sender.sendMessage(ChatColor.BLUE + "Status: " + inst.getSentryStatus());
             if (inst.getMeleeTarget() == null) {
-                if (inst.getProjectileTarget() == null) { player.sendMessage(ChatColor.BLUE + "Target: Nothing"); }
-                else { player.sendMessage(ChatColor.BLUE + "Target: " + inst.getProjectileTarget().toString()); }
+                if (inst.getProjectileTarget() == null) { sender.sendMessage(ChatColor.BLUE + "Target: Nothing"); }
+                else { sender.sendMessage(ChatColor.BLUE + "Target: " + inst.getProjectileTarget().toString()); }
             }
-            else { player.sendMessage(ChatColor.BLUE + "Target: " + inst.getMeleeTarget().toString()); }
+            else { sender.sendMessage(ChatColor.BLUE + "Target: " + inst.getMeleeTarget().toString()); }
 
-            if (inst.getGuardTarget() == null) { player.sendMessage(ChatColor.BLUE + "Guarding: My Surroundings"); }
-            else { player.sendMessage(ChatColor.BLUE + "Guarding: " + inst.getGuardTarget()); }
+            if (inst.getGuardTarget() == null) { sender.sendMessage(ChatColor.BLUE + "Guarding: My Surroundings"); }
+            else { sender.sendMessage(ChatColor.BLUE + "Guarding: " + inst.getGuardTarget()); }
 
             return true;
         }
 
         else if (args[0].equalsIgnoreCase("target")) {
-            if (!player.hasPermission("sentry.target")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.target")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             if (args.length < 2) {
-                player.sendMessage(ChatColor.GOLD +
+                sender.sendMessage(ChatColor.GOLD +
                                    "Usage: /sentry target add [entity:Name] or [player:Name] or [group:Name] or [entity:monster] or [entity:player]");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry target remove [target]");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry target clear");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry target list");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target remove [target]");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target clear");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target list");
                 return true;
             }
 
             else {
 
-                String arg = "";
+                StringBuilder arg = new StringBuilder();
                 for (i = 2; i < args.length; i++) {
-                    arg += " " + args[i];
+                    arg.append(" ").append(args[i]);
                 }
-                arg = arg.trim();
+                arg = new StringBuilder(arg.toString().trim());
 
-                if (arg.equalsIgnoreCase("nationenemies") && inst.myNPC.isSpawned()) {
+                if (arg.toString().equalsIgnoreCase("nationenemies") && inst.myNPC.isSpawned()) {
                     final String natname = getNationNameForLocation(inst.myNPC.getEntity().getLocation());
                     if (natname != null) {
-                        arg += ":" + natname;
+                        arg.append(":").append(natname);
                     }
                     else {
-                        player.sendMessage(ChatColor.RED + "Could not get Nation for this NPC's location");
+                        sender.sendMessage(ChatColor.RED + "Could not get Nation for this NPC's location");
                         return true;
                     }
                 }
 
-                if (args[1].equals("add") && arg.length() > 0 && arg.split(":").length > 1) {
+                if (args[1].equals("add") && arg.length() > 0 && arg.toString().split(":").length > 1) {
 
-                    if (!inst.containsTarget(arg.toUpperCase())) { inst.getValidTargets().add(arg.toUpperCase()); }
+                    if (!inst.containsTarget(arg.toString().toUpperCase())) {
+                        inst.getValidTargets().add(arg.toString().toUpperCase());
+                    }
                     inst.processTargets();
-                    inst.setTarget(null, false);
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Target added. Now targeting " +
+                    inst.clearTarget();
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Target added. Now targeting " +
                                        inst.getValidTargets().toString());
                     return true;
                 }
 
-                else if (args[1].equals("remove") && arg.length() > 0 && arg.split(":").length > 1) {
+                else if (args[1].equals("remove") && arg.length() > 0 && arg.toString().split(":").length > 1) {
 
-                    inst.getValidTargets().remove(arg.toUpperCase());
+                    inst.getValidTargets().remove(arg.toString().toUpperCase());
                     inst.processTargets();
-                    inst.setTarget(null, false);
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Targets removed. Now targeting " +
+                    inst.clearTarget();
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Targets removed. Now targeting " +
                                        inst.getValidTargets().toString());
                     return true;
                 }
@@ -1297,21 +1300,21 @@ public class Sentry extends JavaPlugin {
 
                     inst.getValidTargets().clear();
                     inst.processTargets();
-                    inst.setTarget(null, false);
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Targets cleared.");
+                    inst.clearTarget();
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Targets cleared.");
                     return true;
                 }
                 else if (args[1].equals("list")) {
-                    player.sendMessage(ChatColor.GREEN + "Targets: " + inst.getValidTargets().toString());
+                    sender.sendMessage(ChatColor.GREEN + "Targets: " + inst.getValidTargets().toString());
                     return true;
                 }
 
                 else {
-                    player.sendMessage(ChatColor.GOLD + "Usage: /sentry target list");
-                    player.sendMessage(ChatColor.GOLD + "Usage: /sentry target clear");
-                    player.sendMessage(ChatColor.GOLD + "Usage: /sentry target add type:name");
-                    player.sendMessage(ChatColor.GOLD + "Usage: /sentry target remove type:name");
-                    player.sendMessage(ChatColor.GOLD +
+                    sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target list");
+                    sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target clear");
+                    sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target add type:name");
+                    sender.sendMessage(ChatColor.GOLD + "Usage: /sentry target remove type:name");
+                    sender.sendMessage(ChatColor.GOLD +
                                        "type:name can be any of the following: entity:MobName entity:monster entity:player entity:all player:PlayerName group:GroupName town:TownName nation:NationName faction:FactionName");
 
                     return true;
@@ -1320,17 +1323,17 @@ public class Sentry extends JavaPlugin {
         }
 
         else if (args[0].equalsIgnoreCase("ignore")) {
-            if (!player.hasPermission("sentry.ignore")) {
-                player.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
+            if (!sender.hasPermission("sentry.ignore")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
             }
 
             if (args.length < 2) {
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore list");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore clear");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore add type:name");
-                player.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore remove type:name");
-                player.sendMessage(ChatColor.GOLD +
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore list");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore clear");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore add type:name");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore remove type:name");
+                sender.sendMessage(ChatColor.GOLD +
                                    "type:name can be any of the following: entity:MobName entity:monster entity:player entity:all player:PlayerName group:GroupName town:TownName nation:NationName faction:FactionName");
 
                 return true;
@@ -1338,27 +1341,29 @@ public class Sentry extends JavaPlugin {
 
             else {
 
-                String arg = "";
+                StringBuilder arg = new StringBuilder();
                 for (i = 2; i < args.length; i++) {
-                    arg += " " + args[i];
+                    arg.append(" ").append(args[i]);
                 }
-                arg = arg.trim();
+                arg = new StringBuilder(arg.toString().trim());
 
-                if (args[1].equals("add") && arg.length() > 0 && arg.split(":").length > 1) {
-                    if (!inst.containsIgnore(arg.toUpperCase())) { inst.getIgnoreTargets().add(arg.toUpperCase()); }
+                if (args[1].equals("add") && arg.length() > 0 && arg.toString().split(":").length > 1) {
+                    if (!inst.containsIgnore(arg.toString().toUpperCase())) {
+                        inst.getIgnoreTargets().add(arg.toString().toUpperCase());
+                    }
                     inst.processTargets();
-                    inst.setTarget(null, false);
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore added. Now ignoring " +
+                    inst.clearTarget();
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore added. Now ignoring " +
                                        inst.getIgnoreTargets().toString());
                     return true;
                 }
 
-                else if (args[1].equals("remove") && arg.length() > 0 && arg.split(":").length > 1) {
+                else if (args[1].equals("remove") && arg.length() > 0 && arg.toString().split(":").length > 1) {
 
-                    inst.getIgnoreTargets().remove(arg.toUpperCase());
+                    inst.getIgnoreTargets().remove(arg.toString().toUpperCase());
                     inst.processTargets();
-                    inst.setTarget(null, false);
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore removed. Now ignoring " +
+                    inst.clearTarget();
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore removed. Now ignoring " +
                                        inst.getIgnoreTargets().toString());
                     return true;
                 }
@@ -1367,24 +1372,24 @@ public class Sentry extends JavaPlugin {
 
                     inst.getIgnoreTargets().clear();
                     inst.processTargets();
-                    inst.setTarget(null, false);
-                    player.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore cleared.");
+                    inst.clearTarget();
+                    sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore cleared.");
                     return true;
                 }
                 else if (args[1].equals("list")) {
 
-                    player.sendMessage(ChatColor.GREEN + "Ignores: " + inst.getIgnoreTargets().toString());
+                    sender.sendMessage(ChatColor.GREEN + "Ignores: " + inst.getIgnoreTargets().toString());
                     return true;
                 }
 
                 else {
 
-                    player.sendMessage(ChatColor.GOLD +
+                    sender.sendMessage(ChatColor.GOLD +
                                        "Usage: /sentry ignore add [ENTITY:Name] or [PLAYER:Name] or [GROUP:Name] or [ENTITY:MONSTER]");
-                    player.sendMessage(ChatColor.GOLD +
+                    sender.sendMessage(ChatColor.GOLD +
                                        "Usage: /sentry ignore remove [ENTITY:Name] or [PLAYER:Name] or [GROUP:Name] or [ENTITY:MONSTER]");
-                    player.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore clear");
-                    player.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore list");
+                    sender.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore clear");
+                    sender.sendMessage(ChatColor.GOLD + "Usage: /sentry ignore list");
                     return true;
                 }
             }
@@ -1400,6 +1405,7 @@ public class Sentry extends JavaPlugin {
     }
     @Override
     public void onEnable() {
+        LOG_PREFIX = "[" + getName() + "] [DEBUG] ";
         if (getServer().getPluginManager().getPlugin("Citizens") == null ||
             !getServer().getPluginManager().getPlugin("Citizens").isEnabled()) {
             getLogger().log(Level.SEVERE, "Citizens 2.0 not found or not enabled");
@@ -1488,7 +1494,7 @@ public class Sentry extends JavaPlugin {
         loadmap("ArmorBuffs", this.ArmorBuffs);
         loadmap("StrengthBuffs", this.StrengthBuffs);
         loadmap("SpeedBuffs", this.SpeedBuffs);
-        loadpots("WeaponEffects", this.WeaponEffects);
+        loadPotions(this.WeaponEffects);
         loaditemlist("Helmets", this.Helmets);
         loaditemlist("Chestplates", this.Chestplates);
         loaditemlist("Leggings", this.Leggings);
@@ -1529,7 +1535,7 @@ public class Sentry extends JavaPlugin {
         try {
 
             if (getServer().getPluginManager().getPlugin("Vault") == null ||
-                getServer().getPluginManager().getPlugin("Vault").isEnabled() == false) {
+                !getServer().getPluginManager().getPlugin("Vault").isEnabled()) {
                 return false;
             }
 
@@ -1549,11 +1555,11 @@ public class Sentry extends JavaPlugin {
     }
     private boolean tryParseInt(final String value) {
         try {
+            //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(value);
             return true;
         } catch (final NumberFormatException nfe) {
             return false;
         }
     }
-
 }

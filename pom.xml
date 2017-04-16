@@ -7,7 +7,7 @@
     <groupId>net.aufdemrand</groupId>
     <artifactId>sentry</artifactId>
     <packaging>jar</packaging>
-    <version>1.11.0</version>
+    <version>2.0.0</version>
     <name>sentry</name>
     <description>Armed Citizens</description>
 
@@ -147,13 +147,13 @@
         </resources>
         <plugins>
             <plugin>
+                <version>3.1</version>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <showDeprecation>false</showDeprecation>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <optimize>true</optimize>
                 </configuration>
             </plugin>
             <plugin>

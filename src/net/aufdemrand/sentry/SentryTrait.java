@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 
 import java.util.List;
 
+@SuppressWarnings("WeakerAccess")
 public class SentryTrait extends Trait implements Toggleable {
 
     private Sentry plugin = null;
@@ -22,132 +23,134 @@ public class SentryTrait extends Trait implements Toggleable {
 
     public SentryTrait() {
         super("sentry");
-        plugin = (Sentry) Bukkit.getServer().getPluginManager().getPlugin("Sentry");
+        this.plugin = (Sentry) Bukkit.getServer().getPluginManager().getPlugin("Sentry");
     }
     @SuppressWarnings("unchecked")
     @Override
     public void load(DataKey key) throws NPCLoadException {
-        plugin.debug(npc.getName() + " Load");
+        this.plugin.debug(this.npc, "Load");
         ensureInst();
 
         if (key.keyExists("traits")) { key = key.getRelative("traits"); }
 
-        isToggled = key.getBoolean("toggled", isToggled());
-        thisInstance
-            .setRetaliate(key.getBoolean("Retaliate", plugin.getConfig().getBoolean("DefaultOptions.Retaliate", true)));
-        thisInstance.setInvincible(
-            key.getBoolean("Invincinble", plugin.getConfig().getBoolean("DefaultOptions.Invincible", false)));
-        thisInstance.setDropInventory(
-            key.getBoolean("DropInventory", plugin.getConfig().getBoolean("DefaultOptions.Drops", false)));
-        thisInstance.setLuckyHits(
-            key.getBoolean("CriticalHits", plugin.getConfig().getBoolean("DefaultOptions.Criticals", true)));
-        thisInstance.setSentryHealth(key.getDouble("Health", plugin.getConfig().getInt("DefaultStats.Health", 20)));
-        thisInstance.setSentryRange(key.getInt("Range", plugin.getConfig().getInt("DefaultStats.Range", 10)));
-        thisInstance
-            .setRespawnDelaySeconds(key.getInt("RespawnDelay", plugin.getConfig().getInt("DefaultStats.Respawn", 10)));
-        thisInstance
-            .setSentrySpeed((float) (key.getDouble("Speed", plugin.getConfig().getDouble("DefaultStats.Speed", 1.0))));
-        thisInstance.setSentryWeight(key.getDouble("Weight", plugin.getConfig().getDouble("DefaultStats.Weight", 1.0)));
-        thisInstance.setArmor(key.getInt("Armor", plugin.getConfig().getInt("DefaultStats.Armor", 0)));
-        thisInstance.setStrength(key.getInt("Strength", plugin.getConfig().getInt("DefaultStats.Strength", 1)));
-        thisInstance.setFollowDistance(
-            key.getInt("FollowDistance", plugin.getConfig().getInt("DefaultStats.FollowDistance", 4)));
-        thisInstance.setGuardTarget(key.getString("GuardTarget", null));
-        thisInstance.setGreetingMessage(key.getString("Greeting", plugin.getConfig().getString("DefaultTexts.Greeting",
-                                                                                               "'" +
-                                                                                               ChatColor.COLOR_CHAR +
-                                                                                               "b<NPC> says Welcome, <PLAYER>'")));
-        thisInstance.setWarningMessage(key.getString("Warning", plugin.getConfig().getString("DefaultTexts.Warning",
+        this.isToggled = key.getBoolean("toggled", isToggled());
+        this.thisInstance.setRetaliate(
+            key.getBoolean("Retaliate", this.plugin.getConfig().getBoolean("DefaultOptions.Retaliate", true)));
+        this.thisInstance.setInvincible(
+            key.getBoolean("Invincinble", this.plugin.getConfig().getBoolean("DefaultOptions.Invincible", false)));
+        this.thisInstance.setDropInventory(
+            key.getBoolean("DropInventory", this.plugin.getConfig().getBoolean("DefaultOptions.Drops", false)));
+        this.thisInstance.setLuckyHits(
+            key.getBoolean("CriticalHits", this.plugin.getConfig().getBoolean("DefaultOptions.Criticals", true)));
+        this.thisInstance
+            .setSentryHealth(key.getDouble("Health", this.plugin.getConfig().getInt("DefaultStats.Health", 20)));
+        this.thisInstance.setSentryRange(key.getInt("Range", this.plugin.getConfig().getInt("DefaultStats.Range", 10)));
+        this.thisInstance.setRespawnDelaySeconds(
+            key.getInt("RespawnDelay", this.plugin.getConfig().getInt("DefaultStats.Respawn", 10)));
+        this.thisInstance.setSentrySpeed(
+            (float) (key.getDouble("Speed", this.plugin.getConfig().getDouble("DefaultStats.Speed", 1.0))));
+        this.thisInstance
+            .setSentryWeight(key.getDouble("Weight", this.plugin.getConfig().getDouble("DefaultStats.Weight", 1.0)));
+        this.thisInstance.setArmor(key.getInt("Armor", this.plugin.getConfig().getInt("DefaultStats.Armor", 0)));
+        this.thisInstance
+            .setStrength(key.getInt("Strength", this.plugin.getConfig().getInt("DefaultStats.Strength", 1)));
+        this.thisInstance.setFollowDistance(
+            key.getInt("FollowDistance", this.plugin.getConfig().getInt("DefaultStats.FollowDistance", 4)));
+        this.thisInstance.setGuardTarget(key.getString("GuardTarget", null));
+        this.thisInstance.setGreetingMessage(key.getString("Greeting", this.plugin.getConfig()
+                                                                                  .getString("DefaultTexts.Greeting",
                                                                                              "'" +
                                                                                              ChatColor.COLOR_CHAR +
-                                                                                             "c<NPC> says Halt! Come no closer!'")));
-        thisInstance
-            .setWarningRange(key.getInt("WarningRange", plugin.getConfig().getInt("DefaultStats.WarningRange", 0)));
-        thisInstance.setAttackRateSeconds(
-            key.getDouble("AttackRate", plugin.getConfig().getDouble("DefaultStats.AttackRate", 2.0)));
-        thisInstance.setHealRate(key.getDouble("HealRate", plugin.getConfig().getDouble("DefaultStats.HealRate", 0.0)));
-        thisInstance
-            .setNightVision(key.getInt("NightVision", plugin.getConfig().getInt("DefaultStats.NightVision", 16)));
-        thisInstance.setKillsDropInventory(
-            key.getBoolean("KillDrops", plugin.getConfig().getBoolean("DefaultOptions.KillDrops", true)));
-        thisInstance.setIgnoreLOS(
-            key.getBoolean("IgnoreLOS", plugin.getConfig().getBoolean("DefaultOptions.IgnoreLOS", false)));
-        thisInstance.setMountID(key.getInt("MountID", -1));
-        thisInstance.setTargetable(
-            key.getBoolean("Targetable", plugin.getConfig().getBoolean("DefaultOptions.Targetable", true)));
+                                                                                             "b<NPC> says Welcome, <PLAYER>'")));
+        this.thisInstance.setWarningMessage(key.getString("Warning", this.plugin.getConfig()
+                                                                                .getString("DefaultTexts.Warning",
+                                                                                           "'" + ChatColor.COLOR_CHAR +
+                                                                                           "c<NPC> says Halt! Come no closer!'")));
+        this.thisInstance.setWarningRange(
+            key.getInt("WarningRange", this.plugin.getConfig().getInt("DefaultStats.WarningRange", 0)));
+        this.thisInstance.setAttackRateSeconds(
+            key.getDouble("AttackRate", this.plugin.getConfig().getDouble("DefaultStats.AttackRate", 2.0)));
+        this.thisInstance
+            .setHealRate(key.getDouble("HealRate", this.plugin.getConfig().getDouble("DefaultStats.HealRate", 0.0)));
+        this.thisInstance
+            .setNightVision(key.getInt("NightVision", this.plugin.getConfig().getInt("DefaultStats.NightVision", 16)));
+        this.thisInstance.setKillsDropInventory(
+            key.getBoolean("KillDrops", this.plugin.getConfig().getBoolean("DefaultOptions.KillDrops", true)));
+        this.thisInstance.setIgnoreLOS(
+            key.getBoolean("IgnoreLOS", this.plugin.getConfig().getBoolean("DefaultOptions.IgnoreLOS", false)));
+        this.thisInstance.setMountID(key.getInt("MountID", -1));
+        this.thisInstance.setTargetable(
+            key.getBoolean("Targetable", this.plugin.getConfig().getBoolean("DefaultOptions.Targetable", true)));
 
         if (key.keyExists("getSpawn()")) {
             try {
-                thisInstance.setSpawn(new Location(plugin.getServer().getWorld(key.getString("getSpawn().world")),
-                                                   key.getDouble("getSpawn().x"), key.getDouble("getSpawn().y"),
-                                                   key.getDouble("getSpawn().z"),
-                                                   (float) key.getDouble("getSpawn().yaw"),
-                                                   (float) key.getDouble("getSpawn().pitch")));
-            } catch (Exception e) {
+                this.thisInstance.setSpawn(
+                    new Location(this.plugin.getServer().getWorld(key.getString("getSpawn().world")),
+                                 key.getDouble("getSpawn().x"), key.getDouble("getSpawn().y"),
+                                 key.getDouble("getSpawn().z"), (float) key.getDouble("getSpawn().yaw"),
+                                 (float) key.getDouble("getSpawn().pitch")));
+            } catch (final Exception e) {
                 e.printStackTrace();
-                thisInstance.setSpawn(null);
+                this.thisInstance.setSpawn(null);
             }
 
-            if (thisInstance.getSpawn().getWorld() == null) { thisInstance.setSpawn(null); }
+            if (this.thisInstance.getSpawn().getWorld() == null) { this.thisInstance.setSpawn(null); }
         }
 
-        if (thisInstance.getGuardEntity() != null && thisInstance.getGuardEntity().isEmpty()) {
-            thisInstance.setGuardEntity(null);
+        if (this.thisInstance.getGuardEntity() != null && this.thisInstance.getGuardEntity().isEmpty()) {
+            this.thisInstance.setGuardEntity(null);
         }
 
-        List<String> targetTemp;
-        List<String> ignoreTemp;
+        final List<String> targetTemp;
+        final List<String> ignoreTemp;
 
-        Object targets = key.getRaw("Targets");
+        final Object targets = key.getRaw("Targets");
         if (targets != null) { targetTemp = (List<String>) key.getRaw("Targets"); }
-        else { targetTemp = plugin.getConfig().getStringList("DefaultTargets"); }
+        else { targetTemp = this.plugin.getConfig().getStringList("DefaultTargets"); }
 
-        Object ignores = key.getRaw("Ignores");
+        final Object ignores = key.getRaw("Ignores");
         if (ignores != null) { ignoreTemp = (List<String>) key.getRaw("Ignores"); }
-        else { ignoreTemp = plugin.getConfig().getStringList("DefaultIgnores"); }
+        else { ignoreTemp = this.plugin.getConfig().getStringList("DefaultIgnores"); }
 
-        for (String string : targetTemp) {
-            if (!thisInstance.getValidTargets().contains(string.toUpperCase())) {
-                thisInstance.getValidTargets().add(string.toUpperCase());
+        for (final String string : targetTemp) {
+            if (!this.thisInstance.getValidTargets().contains(string.toUpperCase())) {
+                this.thisInstance.getValidTargets().add(string.toUpperCase());
             }
         }
 
-        for (String string : ignoreTemp) {
-            if (!thisInstance.getIgnoreTargets().contains(string.toUpperCase())) {
-                thisInstance.getIgnoreTargets().add(string.toUpperCase());
+        for (final String string : ignoreTemp) {
+            if (!this.thisInstance.getIgnoreTargets().contains(string.toUpperCase())) {
+                this.thisInstance.getIgnoreTargets().add(string.toUpperCase());
             }
 
         }
 
-        thisInstance.loaded = true;
+        this.thisInstance.loaded = true;
 
-        thisInstance.processTargets();
+        this.thisInstance.processTargets();
 
     }
     @Override
     public void onAttach() {
-        plugin.debug(npc.getName() + ":" + npc.getId() + " onAttach");
-        isToggled = true;
+        this.plugin.debug(this.npc, "onAttach");
+        this.isToggled = true;
     }
     @Override
     public void onCopy() {
-        plugin.debug(npc.getName() + ":" + npc.getId() + " onCopy");
-        if (thisInstance != null) {
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    thisInstance.setSpawn(npc.getEntity().getLocation().clone());
-                }
-            }, 10);
+        this.plugin.debug(this.npc, "onCopy");
+        if (this.thisInstance != null) {
+            this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.thisInstance
+                .setSpawn(this.npc.getEntity().getLocation().clone()), 10);
         }
     }
     @Override
     public void onDespawn() {
-        plugin.debug(npc.getName() + ":" + npc.getId() + " onDespawn");
-        if (thisInstance != null) {
-            thisInstance.isRespawnable = System.currentTimeMillis() + thisInstance.getRespawnDelaySeconds() * 1000;
-            thisInstance.setSentryStatus(Status.DEAD);
-            thisInstance.dismount();
+        this.plugin.debug(this.npc, "onDespawn");
+        if (this.thisInstance != null) {
+            this.thisInstance.isRespawnable =
+                System.currentTimeMillis() + this.thisInstance.getRespawnDelaySeconds() * 1000;
+            this.thisInstance.setSentryStatus(Status.DEAD);
+            this.thisInstance.dismount();
         }
     }
     @Override
@@ -155,108 +158,110 @@ public class SentryTrait extends Trait implements Toggleable {
 
         //	plugin = (Sentry) Bukkit.getPluginManager().getPlugin("Sentry");
 
-        if (thisInstance != null) {
+        if (this.thisInstance != null) {
             //	plugin.getServer().broadcastMessage("onRemove");
-            thisInstance.cancelRunnable();
+            this.thisInstance.cancelRunnable();
         }
 
-        plugin.debug(npc.getName() + " onRemove");
+        this.plugin.debug(this.npc, "onRemove");
 
-        thisInstance = null;
-        isToggled = false;
+        this.thisInstance = null;
+        this.isToggled = false;
     }
     @Override
     public void onSpawn() {
-        plugin.debug(npc.getName() + ":" + npc.getId() + " getSpawn()");
+        this.plugin.debug(this.npc, "getSpawn()");
         ensureInst();
 
-        if (!thisInstance.loaded) {
+        if (!this.thisInstance.loaded) {
             try {
-                plugin.debug(npc.getName() + " getSpawn() call load");
+                this.plugin.debug(this.npc, "getSpawn() call load");
                 load(new net.citizensnpcs.api.util.MemoryDataKey());
-            } catch (NPCLoadException e) {
-                plugin.debug(npc.getName() + " getSpawn() failed to load");
+            } catch (final NPCLoadException e) {
+                this.plugin.debug(this.npc, "getSpawn() failed to load");
             }
         }
 
-        if (!plugin.GroupsChecked) {
-            plugin.doGroups(); // lazy checking for lazy vault.
+        if (!this.plugin.GroupsChecked) {
+            this.plugin.doGroups(); // lazy checking for lazy vault.
         }
 
-        thisInstance.initialize();
+        this.thisInstance.initialize();
 
     }
     @Override
-    public void save(DataKey key) {
-        if (thisInstance == null) { return; }
-        key.setBoolean("toggled", isToggled);
-        key.setBoolean("Retaliate", thisInstance.isRetaliate());
-        key.setBoolean("Invincinble", thisInstance.isInvincible());
-        key.setBoolean("DropInventory", thisInstance.isDropInventory());
-        key.setBoolean("KillDrops", thisInstance.doesKillsDropInventory());
-        key.setBoolean("Targetable", thisInstance.isTargetable());
+    public void save(final DataKey key) {
+        if (this.thisInstance == null) { return; }
+        key.setBoolean("toggled", this.isToggled);
+        key.setBoolean("Retaliate", this.thisInstance.isRetaliate());
+        key.setBoolean("Invincible", this.thisInstance.isInvincible());
+        key.setBoolean("DropInventory", this.thisInstance.isDropInventory());
+        key.setBoolean("KillDrops", this.thisInstance.doesKillsDropInventory());
+        key.setBoolean("Targetable", this.thisInstance.isTargetable());
 
-        key.setInt("MountID", thisInstance.getMountID());
+        key.setInt("MountID", this.thisInstance.getMountID());
 
-        key.setBoolean("CriticalHits", thisInstance.isLuckyHits());
-        key.setBoolean("IgnoreLOS", thisInstance.isIgnoreLOS());
-        key.setRaw("Targets", thisInstance.getValidTargets());
-        key.setRaw("Ignores", thisInstance.getIgnoreTargets());
+        key.setBoolean("CriticalHits", this.thisInstance.isLuckyHits());
+        key.setBoolean("IgnoreLOS", this.thisInstance.isIgnoreLOS());
+        key.setRaw("Targets", this.thisInstance.getValidTargets());
+        key.setRaw("Ignores", this.thisInstance.getIgnoreTargets());
 
-        if (thisInstance.getSpawn() != null) {
-            key.setDouble("getSpawn().x", thisInstance.getSpawn().getX());
-            key.setDouble("getSpawn().y", thisInstance.getSpawn().getY());
-            key.setDouble("getSpawn().z", thisInstance.getSpawn().getZ());
-            key.setString("getSpawn().world", thisInstance.getSpawn().getWorld().getName());
-            key.setDouble("getSpawn().yaw", thisInstance.getSpawn().getYaw());
-            key.setDouble("getSpawn().pitch", thisInstance.getSpawn().getPitch());
+        if (this.thisInstance.getSpawn() != null) {
+            key.setDouble("getSpawn().x", this.thisInstance.getSpawn().getX());
+            key.setDouble("getSpawn().y", this.thisInstance.getSpawn().getY());
+            key.setDouble("getSpawn().z", this.thisInstance.getSpawn().getZ());
+            key.setString("getSpawn().world", this.thisInstance.getSpawn().getWorld().getName());
+            key.setDouble("getSpawn().yaw", this.thisInstance.getSpawn().getYaw());
+            key.setDouble("getSpawn().pitch", this.thisInstance.getSpawn().getPitch());
         }
 
-        key.setDouble("Health", thisInstance.getSentryHealth());
-        key.setInt("Range", thisInstance.getSentryRange());
-        key.setInt("RespawnDelay", thisInstance.getRespawnDelaySeconds());
-        key.setDouble("Speed", thisInstance.getSentrySpeed());
-        key.setDouble("Weight", thisInstance.getSentryWeight());
-        key.setDouble("HealRate", thisInstance.getHealRate());
-        key.setInt("Armor", thisInstance.getArmor());
-        key.setInt("Strength", thisInstance.getStrength());
-        key.setInt("WarningRange", thisInstance.getWarningRange());
-        key.setDouble("AttackRate", thisInstance.getAttackRateSeconds());
-        key.setInt("NightVision", thisInstance.getNightVision());
-        key.setInt("FollowDistance", thisInstance.getFollowDistance());
+        key.setDouble("Health", this.thisInstance.getSentryHealth());
+        key.setInt("Range", this.thisInstance.getSentryRange());
+        key.setInt("RespawnDelay", this.thisInstance.getRespawnDelaySeconds());
+        key.setDouble("Speed", this.thisInstance.getSentrySpeed());
+        key.setDouble("Weight", this.thisInstance.getSentryWeight());
+        key.setDouble("HealRate", this.thisInstance.getHealRate());
+        key.setInt("Armor", this.thisInstance.getArmor());
+        key.setInt("Strength", this.thisInstance.getStrength());
+        key.setInt("WarningRange", this.thisInstance.getWarningRange());
+        key.setDouble("AttackRate", this.thisInstance.getAttackRateSeconds());
+        key.setInt("NightVision", this.thisInstance.getNightVision());
+        key.setInt("FollowDistance", this.thisInstance.getFollowDistance());
 
-        if (thisInstance.getGuardTarget() != null) { key.setString("GuardTarget", thisInstance.getGuardTarget()); }
+        if (this.thisInstance.getGuardTarget() != null) {
+            key.setString("GuardTarget", this.thisInstance.getGuardTarget());
+        }
         else if (key.keyExists("GuardTarget")) { key.removeKey("GuardTarget"); }
 
-        key.setString("Warning", thisInstance.getWarningMessage());
-        key.setString("Greeting", thisInstance.getGreetingMessage());
+        key.setString("Warning", this.thisInstance.getWarningMessage());
+        key.setString("Greeting", this.thisInstance.getGreetingMessage());
     }
     public SentryInstance getInstance() {
-        return thisInstance;
+        return this.thisInstance;
     }
     private void ensureInst() {
-        if (thisInstance == null) {
-            thisInstance = new SentryInstance(plugin);
-            thisInstance.myNPC = npc;
-            thisInstance.myTrait = this;
+        if (this.thisInstance == null) {
+            this.thisInstance = new SentryInstance(this.plugin);
+            this.thisInstance.myNPC = this.npc;
+            this.thisInstance.myTrait = this;
         }
     }
     @EventHandler
-    public void onCitReload(CitizensReloadEvent event) {
-        if (thisInstance != null) {
-            thisInstance.cancelRunnable();
+    public void onCitReload(final CitizensReloadEvent event) {
+        if (this.thisInstance != null) {
+            this.thisInstance.cancelRunnable();
         }
-        thisInstance = null;
-        isToggled = false;
+        this.thisInstance = null;
+        this.isToggled = false;
     }
     @Override
     public boolean toggle() {
-        isToggled = !isToggled;
-        return isToggled;
+        this.isToggled = !this.isToggled;
+        return this.isToggled;
     }
 
     public boolean isToggled() {
-        return isToggled;
+        return this.isToggled;
     }
 
 }
