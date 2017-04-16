@@ -285,25 +285,8 @@ public class SentryInstance {
                 if (this.containsTarget("ENTITY:OWNER") &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                if (hasTargetType(Target.NAMED_NPCS.level)) {
-
-                    final String[] groups1 =
-                        this.plugin.perms.getPlayerGroups(aTarget.getWorld().getName(), player); // world perms
-                    final String[] groups2 = this.plugin.perms.getPlayerGroups(null, player); //global perms
-
-                    if (groups1 != null) {
-                        for (final String aGroups1 : groups1) {
-                            //			plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (this.containsTarget("GROUP:" + aGroups1)) { return true; }
-                        }
-                    }
-
-                    if (groups2 != null) {
-                        for (final String aGroups2 : groups2) {
-                            //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (this.containsTarget("GROUP:" + aGroups2)) { return true; }
-                        }
-                    }
+                if (hasTargetType(Target.NAMED_NPCS.level) && this.containsTarget("NPC:" + aTarget.getName())) {
+                    return true;
                 }
 
                 if (this.hasTargetType(Target.TOWNY.level) || (this.hasTargetType(Target.TOWNY_ENEMIES.level))) {
