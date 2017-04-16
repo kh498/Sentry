@@ -1479,6 +1479,8 @@ public class SentryInstance {
         this.projectileTarget = null;
         this.meleeTarget = null;
         this._projTargetLostLoc = null;
+        this.myNPC.getNavigator().cancelNavigation();
+        this.myNPC.getDefaultGoalController().setPaused(false);
     }
     public void setTarget(LivingEntity theEntity, final boolean isRetaliating) {
         if (theEntity == null) {
