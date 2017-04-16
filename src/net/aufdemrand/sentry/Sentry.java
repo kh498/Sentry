@@ -109,9 +109,15 @@ public class Sentry extends JavaPlugin {
         }
         return false;
     }
+
     public void debug(final String s) {
-        if (this.debug) { this.getServer().getLogger().info(s); }
+        if (this.debug) { this.getServer().getLogger().info(LOG_PREFIX + s); }
     }
+
+    public void debug(final NPC npc, final String s) {
+        debug(npc.getFullName() + ":" + npc.getId() + " " + s);
+    }
+
     public void doGroups() {
         if (!setupPermissions()) {
             getLogger().log(Level.WARNING, "Could not register with Vault! the GROUP target will not function.");
