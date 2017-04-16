@@ -1,6 +1,5 @@
 package net.aufdemrand.sentry;
 
-import com.google.common.base.Preconditions;
 import net.aufdemrand.sentry.events.SentryTargetEntityEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
@@ -1477,9 +1476,12 @@ public class SentryInstance {
         this._projTargetLostLoc = null;
     }
     public void setTarget(LivingEntity theEntity, final boolean isRetaliating) {
-        Preconditions
-            .checkNotNull(theEntity, "Cannot set a target to null! use clearTarget() to remove the target of the npc.");
-
+        if (theEntity == null) {
+            this.plugin
+                .debug(this.myNPC, "Tried to set target to null! This is discouraged, use clearTarget() instead.");
+            clearTarget();
+            return;
+        }
 
         /* Ignore this call if the target is already the melee target or the projectile target */
         if (theEntity == this.meleeTarget || theEntity == this.projectileTarget) {
