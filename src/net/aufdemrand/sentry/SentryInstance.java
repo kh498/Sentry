@@ -1515,31 +1515,35 @@ public class SentryInstance {
                 getNavigator().cancelNavigation();
 
                 faceForward();
-
                 if (getGoalController().isPaused()) { getGoalController().setPaused(false); }
             }
             return;
         }
 
-        if (theEntity == this.guardEntity) {
-            return; // dont attack my dude.
-        }
 
-        if (isretaliation) { this.sentryStatus = Status.RETALIATING; }
-        else { this.sentryStatus = Status.HOSTILE; }
+        //Now we're targeting!!
+        final SentryTargetEntityEvent targetEntityEvent =
+            new SentryTargetEntityEvent(this.myNPC, theEntity, isRetaliating);
+        Bukkit.getServer().getPluginManager().callEvent(targetEntityEvent);
+        if (targetEntityEvent.isCancelled()) {
+            return;
+        }
 
         if (!getNavigator().isNavigating()) { faceEntity(getMyEntity(), theEntity); }
 
+        if (isRetaliating) { this.sentryStatus = Status.RETALIATING; }
+        else { this.sentryStatus = Status.HOSTILE; }
+
         if (UpdateWeapon()) {
             //ranged
-            this.plugin.debug(this.myNPC.getName() + "- Set Target projectile");
+            this.plugin.debug(this.myNPC, "Set Target projectile");
             this.projectileTarget = theEntity;
             this.meleeTarget = null;
         }
         else {
             //melee
             // Manual Attack
-            this.plugin.debug(this.myNPC.getName() + "- Set Target melee");
+            this.plugin.debug(this.myNPC, "Set Target melee");
             this.meleeTarget = theEntity;
             this.projectileTarget = null;
             if (getNavigator().getEntityTarget() != null && getNavigator().getEntityTarget().getTarget() == theEntity) {
