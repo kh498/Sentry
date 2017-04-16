@@ -2107,7 +2107,7 @@ public class SentryInstance {
             }
 
             else if (SentryInstance.this.sentryStatus == Status.LOOKING && SentryInstance.this.myNPC.isSpawned()) {
-
+                SentryInstance.this.myNPC.getDefaultGoalController().setPaused(false);
                 if (getMyEntity().isInsideVehicle()) {
                     faceAlignWithVehicle(); //sync the rider with the vehicle.
                 }
