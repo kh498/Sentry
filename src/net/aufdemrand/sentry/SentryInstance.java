@@ -1168,31 +1168,36 @@ public class SentryInstance {
 
             this._myDamagers.add((Player) attacker);
             String msg = null;
-            // Messages
+
             switch (hit) {
-                case NORMAL:
-                    msg = this.plugin.HitMessage;
-                    break;
                 case MISS:
                     msg = this.plugin.MissMessage;
                     break;
                 case BLOCK:
                     msg = this.plugin.BlockMessage;
                     break;
-                case MAIN:
-                    msg = this.plugin.Crit2Message;
-                    break;
-                case DISEMBOWEL:
-                    msg = this.plugin.Crit3Message;
-                    break;
-                case INJURE:
-                    msg = this.plugin.Crit1Message;
-                    break;
-                case GLANCE:
-                    msg = this.plugin.GlanceMessage;
-                    break;
             }
 
+            if (this.plugin.debug) {
+                // Messages
+                switch (hit) {
+                    case NORMAL:
+                        msg = this.plugin.HitMessage;
+                        break;
+                    case MAIN:
+                        msg = this.plugin.Crit2Message;
+                        break;
+                    case DISEMBOWEL:
+                        msg = this.plugin.Crit3Message;
+                        break;
+                    case INJURE:
+                        msg = this.plugin.Crit1Message;
+                        break;
+                    case GLANCE:
+                        msg = this.plugin.GlanceMessage;
+                        break;
+                }
+            }
             if (msg != null && !msg.isEmpty()) {
                 attacker.sendMessage(
                     Util.format(msg, npc, attacker, ((Player) attacker).getItemInHand().getType(), finalDamage + ""));

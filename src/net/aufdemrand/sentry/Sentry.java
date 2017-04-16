@@ -98,7 +98,7 @@ public class Sentry extends JavaPlugin {
     //War sSuport
     boolean WarActive = false;
     boolean DenizenActive = false;
-    private boolean debug = false;
+    public boolean debug = false;
     public static Sentry getInstance() {
         return instance;
     }
