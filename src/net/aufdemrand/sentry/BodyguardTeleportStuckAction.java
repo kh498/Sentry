@@ -12,16 +12,16 @@ public class BodyguardTeleportStuckAction implements StuckAction {
     SentryInstance inst = null;
     Sentry plugin = null;
 
-    BodyguardTeleportStuckAction(SentryInstance inst, Sentry plugin) {
+    BodyguardTeleportStuckAction(final SentryInstance inst, final Sentry plugin) {
         this.inst = inst;
         this.plugin = plugin;
     }
     @Override
-    public boolean run(final NPC npc, Navigator navigator) {
+    public boolean run(final NPC npc, final Navigator navigator) {
 
         if (!npc.isSpawned()) { return false; }
 
-        Location base = navigator.getTargetAsLocation();
+        final Location base = navigator.getTargetAsLocation();
 
         if (base.getWorld() == npc.getEntity().getLocation().getWorld()) {
             if (npc.getEntity().getLocation().distanceSquared(base) <= 4)
@@ -30,7 +30,7 @@ public class BodyguardTeleportStuckAction implements StuckAction {
         }
         else {
             //do nothing, next logic tick will clear the entity.
-            if (inst.getGuardEntity() == null || !Util.CanWarp(inst.getGuardEntity(), npc)) { return true; }
+            if (this.inst.getGuardEntity() == null || !Util.CanWarp(this.inst.getGuardEntity(), npc)) { return true; }
         }
 
         Block block = base.getBlock();
@@ -43,14 +43,8 @@ public class BodyguardTeleportStuckAction implements StuckAction {
 
         final Location loc = block.getLocation();
 
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-            @Override
-            public void run() {
-                npc.teleport(loc, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
-            }
-
-        }, 2);
+        this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> npc
+            .teleport(loc, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN), 2);
 
         return false;
     }

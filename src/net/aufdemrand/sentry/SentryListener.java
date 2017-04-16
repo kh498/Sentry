@@ -345,20 +345,20 @@ public class SentryListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDeath(final net.citizensnpcs.api.event.NPCDeathEvent event) {
-        final NPC hnpc = event.getNPC();
+        final NPC eventNPC = event.getNPC();
         //if the mount dies carry aggression over.
         for (final NPC npc : CitizensAPI.getNPCRegistry()) {
             final SentryInstance inst = this.plugin.getSentry(npc);
             if (inst == null || !npc.isSpawned() || !inst.isMounted()) {
                 continue; //not a sentry, dead, or not mounted
             }
-            if (hnpc.getId() == inst.getMountID()) {
+            if (eventNPC.getId() == inst.getMountID()) {
                 ///nooooo butterstuff!
 
-                Entity killer = ((LivingEntity) hnpc.getEntity()).getKiller();
+                Entity killer = ((LivingEntity) eventNPC.getEntity()).getKiller();
                 if (killer == null) {
                     //might have been a projectile.
-                    final EntityDamageEvent ev = hnpc.getEntity().getLastDamageCause();
+                    final EntityDamageEvent ev = eventNPC.getEntity().getLastDamageCause();
                     if (ev != null && ev instanceof EntityDamageByEntityEvent) {
                         killer = ((EntityDamageByEntityEvent) ev).getDamager();
                         if (killer instanceof Projectile && ((Projectile) killer).getShooter() instanceof Entity) {

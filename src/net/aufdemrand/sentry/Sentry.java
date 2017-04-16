@@ -1472,16 +1472,13 @@ public class Sentry extends JavaPlugin {
 
         this.getServer().getPluginManager().registerEvents(new SentryListener(this), this);
 
-        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
-            public void run() {
-                //Unloaded chunk arrow cleanup
-                while (Sentry.this.arrows.size() > 200) {
-                    final Projectile a = Sentry.this.arrows.remove();
-                    if (a != null) {
-                        a.remove();
-                        //	x++;
-                    }
+        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            //Unloaded chunk arrow cleanup
+            while (Sentry.this.arrows.size() > 200) {
+                final Projectile a = Sentry.this.arrows.remove();
+                if (a != null) {
+                    a.remove();
+                    //	x++;
                 }
             }
         }, 40, 20 * 120);
