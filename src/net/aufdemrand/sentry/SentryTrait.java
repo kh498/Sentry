@@ -1,6 +1,6 @@
 package net.aufdemrand.sentry;
 
-import net.aufdemrand.sentry.SentryInstance.Status;
+import net.aufdemrand.sentry.enums.Status;
 import net.citizensnpcs.api.event.CitizensReloadEvent;
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.trait.Trait;

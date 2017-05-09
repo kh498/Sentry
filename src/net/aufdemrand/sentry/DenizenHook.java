@@ -13,6 +13,7 @@ import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
 import net.aufdemrand.denizencore.scripts.ScriptEntry;
 import net.aufdemrand.denizencore.scripts.commands.AbstractCommand;
 import net.aufdemrand.denizencore.utilities.debugging.dB.DebugElement;
+import net.aufdemrand.sentry.enums.Status;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -100,7 +101,7 @@ class DenizenHook {
                     dB.log(db);
 
                     if (inst != null) {
-                        inst.setSentryStatus(net.aufdemrand.sentry.SentryInstance.Status.LOOKING);
+                        inst.setSentryStatus(Status.LOOKING);
                         if (removeAggression) { inst.clearTarget(); }
                     }
                 }
