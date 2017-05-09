@@ -34,27 +34,36 @@ public class Sentry extends JavaPlugin {
     //FactionsSupport
     static boolean FactionsActive = false;
     private static String LOG_PREFIX = "";
-    public final List<Material> Helmets = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_HELMET,
-                                                                                   Material.CHAINMAIL_HELMET,
-                                                                                   Material.IRON_HELMET,
-                                                                                   Material.DIAMOND_HELMET,
-                                                                                   Material.GOLD_HELMET,
-                                                                                   Material.JACK_O_LANTERN,
-                                                                                   Material.PUMPKIN));
-    public final List<Material> Chestplates = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_CHESTPLATE,
-                                                                                       Material.CHAINMAIL_CHESTPLATE,
-                                                                                       Material.IRON_CHESTPLATE,
-                                                                                       Material.DIAMOND_CHESTPLATE,
-                                                                                       Material.GOLD_CHESTPLATE));
-    public final List<Material> Leggings = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_LEGGINGS,
-                                                                                    Material.CHAINMAIL_LEGGINGS,
-                                                                                    Material.IRON_LEGGINGS,
-                                                                                    Material.DIAMOND_LEGGINGS,
-                                                                                    Material.GOLD_LEGGINGS));
-    public final List<Material> Boots = new LinkedList<>(java.util.Arrays
-                                                             .asList(Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
-                                                                     Material.IRON_BOOTS, Material.DIAMOND_BOOTS,
-                                                                     Material.GOLD_BOOTS));
+    public final List<Material> Helmets = new LinkedList<Material>() {{
+        add(Material.LEATHER_HELMET);
+        add(Material.CHAINMAIL_HELMET);
+        add(Material.IRON_HELMET);
+        add(Material.DIAMOND_HELMET);
+        add(Material.GOLD_HELMET);
+        add(Material.JACK_O_LANTERN);
+        add(Material.PUMPKIN);
+    }};
+    public final List<Material> Chestplates = new LinkedList<Material>() {{
+        add(Material.LEATHER_CHESTPLATE);
+        add(Material.CHAINMAIL_CHESTPLATE);
+        add(Material.IRON_CHESTPLATE);
+        add(Material.DIAMOND_CHESTPLATE);
+        add(Material.GOLD_CHESTPLATE);
+    }};
+    public final List<Material> Leggings = new LinkedList<Material>() {{
+        add(Material.LEATHER_LEGGINGS);
+        add(Material.CHAINMAIL_LEGGINGS);
+        add(Material.IRON_LEGGINGS);
+        add(Material.DIAMOND_LEGGINGS);
+        add(Material.GOLD_LEGGINGS);
+    }};
+    public final List<Material> Boots = new LinkedList<Material>() {{
+        add(Material.LEATHER_BOOTS);
+        add(Material.CHAINMAIL_BOOTS);
+        add(Material.IRON_BOOTS);
+        add(Material.DIAMOND_BOOTS);
+        add(Material.GOLD_BOOTS);
+    }};
     public final Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<>();
     public final Map<Material, Double> SpeedBuffs = new HashMap<>();
     public final Map<Material, Double> StrengthBuffs = new HashMap<>();
