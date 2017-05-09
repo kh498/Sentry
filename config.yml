@@ -45,16 +45,13 @@ DefaultTexts:
  
 #Default target list for new Sentries. 
 DefaultTargets:
- - "entity:monster"
  - "event:PvP"
  - "event:PvE"
  - "event:PvNPC"
  - "event:PvSentry"
- 
 
 #Default ignore list for new Sentries
-DefaultIgnores:
- - "entity:player"
+DefaultIgnores: []
 
 
 #Configurable messages used by all Sentries. You can use <NPC>, <PLAYER>, <ITEM>, and <AMOUNT> as placeholders. Remove a message or set it to "" to prevent it from displaying at all.
