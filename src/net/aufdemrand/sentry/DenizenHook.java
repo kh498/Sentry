@@ -6,6 +6,7 @@ import net.aufdemrand.denizen.npc.traits.TriggerTrait;
 import net.aufdemrand.denizen.objects.dNPC;
 import net.aufdemrand.denizen.objects.dPlayer;
 import net.aufdemrand.denizen.scripts.containers.core.InteractScriptContainer;
+import net.aufdemrand.denizen.scripts.triggers.AbstractTrigger;
 import net.aufdemrand.denizen.utilities.debugging.dB;
 import net.aufdemrand.denizencore.exceptions.CommandExecutionException;
 import net.aufdemrand.denizencore.exceptions.InvalidArgumentsException;
@@ -19,28 +20,27 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
 
-public class DenizenHook {
+class DenizenHook {
 
-    static boolean DenizenActive = false;
+    private static boolean DenizenActive = false;
     static Plugin DenizenPlugin;
-    static Sentry SentryPlugin;
 
-    public static boolean SentryDeath(final Set<Player> _myDamagers, final NPC npc) {
+    static boolean SentryDeath(final Set<Player> _myDamagers, final NPC npc) {
         if (!DenizenActive) { return false; }
 
         try {
             boolean a = false;
-            final boolean b = false;
             boolean c = false;
 
-            final net.aufdemrand.denizen.Denizen d = (Denizen) DenizenPlugin;
+            final net.aufdemrand.denizen.Denizen denizen = (Denizen) DenizenPlugin;
 
-            final NpcdeathTrigger npcd = d.getTriggerRegistry().get(NpcdeathTrigger.class);
-            final NpcdeathTriggerOwner npcdo = d.getTriggerRegistry().get(NpcdeathTriggerOwner.class);
+            final NpcDeathTrigger npcDeathTrigger = denizen.getTriggerRegistry().get(NpcDeathTrigger.class);
+            final NpcDeathTriggerOwner npcDeathTriggerOwner =
+                denizen.getTriggerRegistry().get(NpcDeathTriggerOwner.class);
 
-            if (npc != null) { a = npcd.Die(_myDamagers, npc); }
-            if (npc != null) { c = npcdo.Die(npc); }
-            return (a || b || c);
+            if (npc != null) { a = npcDeathTrigger.Die(_myDamagers, npc); }
+            if (npc != null) { c = npcDeathTriggerOwner.Die(npc); }
+            return (a || c);
         } catch (final Exception e) {
             e.printStackTrace();
             return false;
@@ -49,10 +49,11 @@ public class DenizenHook {
 
     static void setupDenizenHook() {
 
+        //noinspection InstantiationOfUtilityClass
         final DenizenHook me = new DenizenHook();
 
-        me.new NpcdeathTriggerOwner().activate().as("Npcdeathowner");
-        me.new NpcdeathTrigger().activate().as("Npcdeath");
+        me.new NpcDeathTriggerOwner().activate().as("Npcdeathowner");
+        me.new NpcDeathTrigger().activate().as("Npcdeath");
 
         final DieCommand dc = me.new DieCommand();
         final LiveCommand lc = me.new LiveCommand();
@@ -63,14 +64,14 @@ public class DenizenHook {
         DenizenActive = true;
     }
 
-    public static void DenizenAction(final NPC npc, final String action, final org.bukkit.OfflinePlayer player) {
+    static void DenizenAction(final NPC npc, final String action, final org.bukkit.OfflinePlayer player) {
         if (DenizenActive) {
             final dNPC dnpc = dNPC.mirrorCitizensNPC(npc);
             if (dnpc != null) {
                 try {
                     dnpc.action(action, dPlayer.mirrorBukkitPlayer(player));
                 } catch (final Exception e) {
-
+                    //ignore
                 }
             }
         }
@@ -88,19 +89,19 @@ public class DenizenHook {
 
             if (ent != null) {
                 if (((BukkitScriptEntryData) theEntry.entryData).getNPC().getCitizen().hasTrait(SentryTrait.class)) {
-                    boolean deaggro = false;
+                    boolean removeAggression = false;
 
                     for (final String arg : theEntry.getArguments()) {
-                        if (arg.equalsIgnoreCase("peace")) { deaggro = true; }
+                        if (arg.equalsIgnoreCase("peace")) { removeAggression = true; }
                     }
 
                     String db = "RISE! " + ((BukkitScriptEntryData) theEntry.entryData).getNPC().getName() + "!";
-                    if (deaggro) { db += " ..And fight no more!"; }
+                    if (removeAggression) { db += " ..And fight no more!"; }
                     dB.log(db);
 
                     if (inst != null) {
                         inst.setSentryStatus(net.aufdemrand.sentry.SentryInstance.Status.LOOKING);
-                        if (deaggro) { inst.clearTarget(); }
+                        if (removeAggression) { inst.clearTarget(); }
                     }
                 }
             }
@@ -144,7 +145,7 @@ public class DenizenHook {
         }
     }
 
-    private class NpcdeathTriggerOwner extends net.aufdemrand.denizen.scripts.triggers.AbstractTrigger {
+    private class NpcDeathTriggerOwner extends net.aufdemrand.denizen.scripts.triggers.AbstractTrigger {
 
         @Override
         public void onEnable() {
@@ -182,9 +183,9 @@ public class DenizenHook {
 
     }
 
-    private class NpcdeathTrigger extends net.aufdemrand.denizen.scripts.triggers.AbstractTrigger {
+    private class NpcDeathTrigger extends AbstractTrigger {
 
-        public boolean Die(final Set<Player> _myDamagers, final NPC npc) {
+        boolean Die(final Set<Player> _myDamagers, final NPC npc) {
 
             // Check if NPC has triggers.
             if (!npc.hasTrait(TriggerTrait.class)) { return false; }
@@ -198,7 +199,7 @@ public class DenizenHook {
 
             dB.echoDebug(null, DebugElement.Header, "Parsing NPCDeath/Killers Trigger");
 
-            boolean founone = false;
+            boolean foundOne = false;
 
             for (final Player thePlayer : _myDamagers) {
 
@@ -210,10 +211,10 @@ public class DenizenHook {
                 final InteractScriptContainer script =
                     theDenizen.getInteractScriptQuietly(dPlayer.mirrorBukkitPlayer(thePlayer), this.getClass());
 
-                if (parse(theDenizen, dPlayer.mirrorBukkitPlayer(thePlayer), script)) { founone = true; }
+                if (parse(theDenizen, dPlayer.mirrorBukkitPlayer(thePlayer), script)) { foundOne = true; }
             }
 
-            return founone;
+            return foundOne;
         }
         @Override
         public void onEnable() {

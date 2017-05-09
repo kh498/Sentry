@@ -6,12 +6,12 @@ Server:
  DieLikePlayers: false
  #The amount of EXP sentries drop. Only works if Drops is turned on.
  ExpValue: 5
- #This is how often, in ticks, the Sentry performs his interal logic looking for targets, etc. Increasing this value may lighten server load, 
+ #This is how often, in ticks, the Sentry performs his internal logic looking for targets, etc. Increasing this value may lighten server load,
  #but will decrease Sentries responsiveness and maximum rate of fire.
  LogicTicks: 10
  #Whether or not Sentries in bodyguard mode always deal damage regardless of other protection plugins.
  BodyguardsObeyProtection: true
- #Whether or not Sentries are immune to damage from entites on their ignore list. Immunity to damage also prevents retaliation.
+ #Whether or not Sentries are immune to damage from entities on their ignore list. Immunity to damage also prevents retaliation.
  IgnoreListInvincibility: true
  
 #Default stats for new Sentries
@@ -65,7 +65,7 @@ GlobalTexts:
  Crit3: "&c*** You DISEMBOWEL <NPC> with your <ITEM> for <AMOUNT> damage."
  Glance: "&7*** Your blow glances off <NPC> for <AMOUNT> damage."
  
-#These are the percentage chancees of doing a certain damage to a Sentry if Criticals is turned on. Whole numbers only. Remove or Set to 0 to disable a hit type.
+#These are the percentage chances of doing a certain damage to a Sentry if criticals is turned on. Whole numbers only. Remove or Set to 0 to disable a hit type.
 HitChances:
  Miss: 4
  Glance: 4
@@ -91,7 +91,7 @@ AttackTypes:
  Warlock2: SKULL_ITEM
 
 #The following items will ADD to the sentry's base armor. 
-#Decimals are allowed but all minecraft damge is in integers. 
+#Decimals are allowed but all minecraft damage is in integers.
 #You would need 2 items of 0.3 Armor buff to add 1 point of armor.
 ArmorBuffs:
  #- IRON_HELMET 1.0

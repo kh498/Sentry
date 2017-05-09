@@ -3,22 +3,23 @@ package net.aufdemrand.sentry;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
+
+import static org.bukkit.Effect.ENDER_SIGNAL;
 
 @SuppressWarnings("WeakerAccess")
 public class SentryListener implements Listener {
 
-    public Sentry plugin;
+    public final Sentry plugin;
 
     public SentryListener(final Sentry sentry) {
         this.plugin = sentry;
@@ -65,7 +66,7 @@ public class SentryListener implements Listener {
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
     public void entityTeleportEvent(final org.bukkit.event.entity.EntityTeleportEvent event) {
         final SentryInstance sentry = this.plugin.getSentry(event.getEntity());
-        if (sentry != null && sentry.getEpcount() != 0 && sentry.isWarlock1()) {
+        if (sentry != null && sentry.getEpCount() != 0 && sentry.isWarlock1()) {
             event.setCancelled(true);
         }
     }
@@ -74,28 +75,26 @@ public class SentryListener implements Listener {
     public void entityTeleportEvent(final org.bukkit.event.player.PlayerTeleportEvent event) {
         final SentryInstance sentry = this.plugin.getSentry(event.getPlayer());
         if (sentry != null) {
-            if (sentry.getEpcount() != 0 && sentry.isWarlock1() &&
+            if (sentry.getEpCount() != 0 && sentry.isWarlock1() &&
                 event.getCause() == org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
                 event.setCancelled(true);
             }
         }
     }
 
-    @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR)
-    public void projectilehit(final org.bukkit.event.entity.ProjectileHitEvent event) {
-        if (event.getEntity() instanceof org.bukkit.entity.EnderPearl &&
-            event.getEntity().getShooter() instanceof Entity) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void projectileHit(final ProjectileHitEvent event) {
+        if (event.getEntity() instanceof EnderPearl && event.getEntity().getShooter() instanceof Entity) {
             final SentryInstance sentry = this.plugin.getSentry((Entity) event.getEntity().getShooter());
             if (sentry != null) {
-                sentry.setEpcount(sentry.getEpcount() - 1);
-                if (sentry.getEpcount() < 0) { sentry.setEpcount(0); }
+                sentry.setEpCount(sentry.getEpCount() - 1);
+                if (sentry.getEpCount() < 0) { sentry.setEpCount(0); }
                 event.getEntity().getLocation().getWorld()
-                     .playEffect(event.getEntity().getLocation(), org.bukkit.Effect.ENDER_SIGNAL, 1, 100);
-                //ender pearl from a sentry
+                     .playEffect(event.getEntity().getLocation(), ENDER_SIGNAL, 1, 100);
+                //enderpearl from a sentry
             }
         }
-        else if (event.getEntity() instanceof org.bukkit.entity.SmallFireball &&
-                 event.getEntity().getShooter() instanceof Entity) {
+        else if (event.getEntity() instanceof SmallFireball && event.getEntity().getShooter() instanceof Entity) {
             final org.bukkit.block.Block block = event.getEntity().getLocation().getBlock();
             final SentryInstance sentry = this.plugin.getSentry((Entity) event.getEntity().getShooter());
 
@@ -116,18 +115,9 @@ public class SentryListener implements Listener {
         }
     }
 
-//	@EventHandler(ignoreCancelled = true, priority =org.bukkit.event.EventPriority.HIGH)
-//	public void tarsdfget(EntityTargetEvent event) {
-//		SentryInstance inst = plugin.getSentry(event.getTarget());
-//		if(inst!=null){
-//			event.setCancelled(false); //inst.myNPC.data().get(NPC.DEFAULT_PROTECTED_METADATA, false));
-//		}
-//	}
-
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
     public void EnvDamage(final EntityDamageEvent event) {
-
-        if (event instanceof EntityDamageByEntityEvent) { return; }
+        if (event instanceof EntityDamageByEntityEvent || event.isCancelled()) { return; }
 
         final SentryInstance inst = this.plugin.getSentry(event.getEntity());
         if (inst == null) { return; }
@@ -167,81 +157,82 @@ public class SentryListener implements Listener {
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST) //highest for worldguard...
-    public void onDamage(final org.bukkit.event.entity.EntityDamageByEntityEvent event) {
+    public void onDamage(final EntityDamageByEntityEvent event) {
 
-        Entity entfrom = event.getDamager();
-        final Entity entto = event.getEntity();
+        Entity attacker = event.getDamager();
+        final Entity defender = event.getEntity();
 
-        if (entfrom instanceof org.bukkit.entity.Projectile && entfrom instanceof Entity) {
-            final ProjectileSource source = ((Projectile) entfrom).getShooter();
+        if (attacker instanceof Projectile) {
+            final ProjectileSource source = ((Projectile) attacker).getShooter();
             if (source instanceof Entity) {
-                entfrom = (Entity) ((org.bukkit.entity.Projectile) entfrom).getShooter();
+                attacker = (Entity) ((org.bukkit.entity.Projectile) attacker).getShooter();
             }
         }
 
-        final SentryInstance from = this.plugin.getSentry(entfrom);
-        final SentryInstance to = this.plugin.getSentry(entto);
+        final SentryInstance sentryAttacker = this.plugin.getSentry(attacker);
+        final SentryInstance sentryDefender = this.plugin.getSentry(defender);
 
         this.plugin.debug(
-            "start: from: " + entfrom + " to " + entto + " cancelled " + event.isCancelled() + " damage " +
+            "start: from: " + attacker + " to " + defender + " cancelled " + event.isCancelled() + " damage " +
             event.getDamage() + " cause " + event.getCause());
 
-        if (from != null) {
-
-            //projectiles go thru ignore targets.
+        if (sentryAttacker != null) {
+            //projectiles go through ignore targets.
             if (event.getDamager() instanceof org.bukkit.entity.Projectile) {
-                if (entto instanceof LivingEntity && from.isIgnored((LivingEntity) entto)) {
+                if (defender instanceof LivingEntity && sentryAttacker.isIgnored((LivingEntity) defender)) {
                     event.setCancelled(true);
                     event.getDamager().remove();
-                    final Projectile newProjectile = (Projectile) (entfrom.getWorld().spawnEntity(
+                    final Projectile newProjectile = (Projectile) (attacker.getWorld().spawnEntity(
                         event.getDamager().getLocation().add(event.getDamager().getVelocity()),
                         event.getDamager().getType()));
                     newProjectile.setVelocity(event.getDamager().getVelocity());
-                    newProjectile.setShooter((LivingEntity) entfrom);
+                    newProjectile.setShooter((LivingEntity) attacker);
                     newProjectile.setTicksLived(event.getDamager().getTicksLived());
                     return;
                 }
             }
 
             //from a sentry
-            event.setDamage(from.getStrength());
+            event.setDamage(sentryAttacker.getStrength());
 
-            //uncancel if not bodyguard.
-            if (from.getGuardTarget() == null || !this.plugin.BodyguardsObeyProtection) { event.setCancelled(false); }
+            //un-cancel if not bodyguard.
+            if (sentryAttacker.getGuardTarget() == null || !this.plugin.bodyguardsObeyProtection) {
+                event.setCancelled(false);
+            }
 
             //cancel if invulnerable non-sentry npc
-            if (to == null) {
-                final NPC n = CitizensAPI.getNPCRegistry().getNPC(entto);
-                if (n != null) {
-                    final boolean isProtected = n.data().get(NPC.DEFAULT_PROTECTED_METADATA, true);
+            if (sentryDefender == null) {
+                final NPC npcDamaged = CitizensAPI.getNPCRegistry().getNPC(defender);
+                if (npcDamaged != null) {
+                    final boolean isProtected = npcDamaged.data().get(NPC.DEFAULT_PROTECTED_METADATA, true);
                     event.setCancelled(isProtected);
                 }
             }
 
             //don't hurt guard target.
-            if (entto == from.getGuardEntity()) { event.setCancelled(true); }
+            if (defender == sentryAttacker.getGuardEntity()) { event.setCancelled(true); }
 
-            //stop hittin' yourself.
-            if (entfrom == entto) { event.setCancelled(true); }
+            //stop hitting yourself.
+            if (attacker == defender) { event.setCancelled(true); }
 
             //apply potion effects
-            if (from.getPotionEffects() != null && !event.isCancelled()) {
-                ((LivingEntity) entto).addPotionEffects(from.getPotionEffects());
+            if (sentryAttacker.getPotionEffects() != null && !event.isCancelled() && defender instanceof LivingEntity) {
+                ((LivingEntity) defender).addPotionEffects(sentryAttacker.getPotionEffects());
             }
 
-            if (from.isWarlock1()) {
+            if (sentryAttacker.isWarlock1()) {
                 if (!event.isCancelled()) {
-                    if (to == null) {
+                    if (sentryDefender == null) {
                         event.setCancelled(
-                            true); //warlock 1 should not do direct damamge, except to other sentries which take no fall damage.
+                            true); //warlock 1 should not do direct damage, except to other sentries which take no fall damage.
                     }
 
-                    final double h = from.getStrength() + 3;
+                    final double h = sentryAttacker.getStrength() + 3;
                     double v = 7.7 * Math.sqrt(h) + .2;
                     if (h <= 3) { v -= 2; }
                     if (v > 150) { v = 150; }
 
-                    entto.setVelocity(new Vector(0, v / 20, 0));
+                    defender.setVelocity(new Vector(0, v / 20, 0));
 
                 }
 
@@ -249,30 +240,30 @@ public class SentryListener implements Listener {
 
         }
 
-        boolean ok = false; //When you try your best but you don't succeeeeed :,(
+        boolean ok = false; //When you try your best but you don't succeeded :,(
 
-        if (to != null) {
+        if (sentryDefender != null) {
             //to a sentry
 
-            //stop hittin yourself.
-            if (entfrom == entto) { return; }
+            //stop hitting yourself.
+            if (attacker == defender) { return; }
 
             //innate protections
-            if (event.getCause() == DamageCause.LIGHTNING && to.isStormcaller()) { return; }
+            if (event.getCause() == DamageCause.LIGHTNING && sentryDefender.isStormcaller()) { return; }
             if ((event.getCause() == DamageCause.FIRE || event.getCause() == DamageCause.FIRE_TICK) &&
-                (to.isPyromancer() || to.isStormcaller())) { return; }
+                (sentryDefender.isPyromancer() || sentryDefender.isStormcaller())) { return; }
 
             //only bodyguards obey pvp-protection
-            if (to.getGuardTarget() == null) { event.setCancelled(false); }
+            if (sentryDefender.getGuardTarget() == null) { event.setCancelled(false); }
 
             //don't take damage from guard entity.
-            if (entfrom == to.getGuardEntity()) { event.setCancelled(true); }
+            if (attacker == sentryDefender.getGuardEntity()) { event.setCancelled(true); }
 
-            if (entfrom != null) {
-                final NPC npc = net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(entfrom);
-                if (npc != null && npc.hasTrait(SentryTrait.class) && to.getGuardEntity() != null) {
+            if (attacker != null) {
+                final NPC npc = net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(attacker);
+                if (npc != null && npc.hasTrait(SentryTrait.class) && sentryDefender.getGuardEntity() != null) {
                     if (npc.getTrait(SentryTrait.class).getInstance().getGuardEntity() ==
-                        to.getGuardEntity()) { //don't take damage from co-guards.
+                        sentryDefender.getGuardEntity()) { //don't take damage from co-guards.
                         event.setCancelled(true);
                     }
                 }
@@ -281,7 +272,7 @@ public class SentryListener implements Listener {
             //process event
             if (!event.isCancelled()) {
                 ok = true;
-                to.onDamage(event);
+                sentryDefender.onDamage(event);
             }
 
             //Damage to a sentry cannot be handled by the server. Always cancel the event here.
@@ -289,51 +280,58 @@ public class SentryListener implements Listener {
         }
 
         //process this event on each sentry to check for respondable events.
-        if ((!event.isCancelled() || ok) && entfrom != entto && event.getDamage() > 0) {
-            for (final NPC npc : CitizensAPI.getNPCRegistry()) {
-                final SentryInstance inst = this.plugin.getSentry(npc);
+        if ((!event.isCancelled() || ok) && attacker != defender && event.getDamage() > 0) {
+            checkForEvents(defender, attacker, event);
+        }
+    }
 
-                if (inst == null || !npc.isSpawned() || npc.getEntity().getWorld() != entto.getWorld()) {
-                    continue; //not a sentry, or not this world, or dead.
+    private void checkForEvents(final Entity defender, final Entity attacker, final EntityDamageByEntityEvent event) {
+        for (final NPC npc : CitizensAPI.getNPCRegistry()) {
+            final SentryInstance sentryInst = this.plugin.getSentry(npc);
+
+            if (sentryInst == null || !npc.isSpawned() || npc.getEntity().getWorld() != defender.getWorld()) {
+                continue; //not a sentry, or not this world, or dead.
+            }
+
+            if (sentryInst.getGuardEntity() == defender) {
+                if (sentryInst.isRetaliate() && attacker instanceof LivingEntity) {
+                    sentryInst.setTarget((LivingEntity) attacker, true);
                 }
+            }
 
-                if (inst.getGuardEntity() == entto) {
-                    if (inst.isRetaliate() && entfrom instanceof LivingEntity) {
-                        inst.setTarget((LivingEntity) entfrom, true);
-                    }
+            //are u attacking mai horse?
+            if (sentryInst.getMountNPC() != null && sentryInst.getMountNPC().getEntity() == defender) {
+                if (attacker == sentryInst.getGuardEntity()) {
+                    event.setCancelled(true);
                 }
-
-                //are u attacking mai horse?
-                if (inst.getMountNPC() != null && inst.getMountNPC().getEntity() == entto) {
-                    if (entfrom == inst.getGuardEntity()) { event.setCancelled(true); }
-                    else if (inst.isRetaliate() && entfrom instanceof LivingEntity) {
-                        inst.setTarget((LivingEntity) entfrom, true);
-                    }
-
+                else if (sentryInst.isRetaliate() && attacker instanceof LivingEntity) {
+                    sentryInst.setTarget((LivingEntity) attacker, true);
                 }
+            }
 
-                if (inst.hasTargetType(16) &&
-                    inst.getSentryStatus() == net.aufdemrand.sentry.SentryInstance.Status.LOOKING &&
-                    entfrom instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(entfrom)) {
-                    //pv-something event.
-                    if (npc.getEntity().getLocation().distance(entto.getLocation()) <= inst.getSentryRange() ||
-                        npc.getEntity().getLocation().distance(entfrom.getLocation()) <= inst.getSentryRange()) {
-                        // in range
-                        if (inst.getNightVision() >= entfrom.getLocation().getBlock().getLightLevel() ||
-                            inst.getNightVision() >= entto.getLocation().getBlock().getLightLevel()) {
-                            //can see
-                            if (inst.hasLOS(entfrom) || inst.hasLOS(entto)) {
-                                //have los
-                                if ((!(entto instanceof Player) && inst.containsTarget("event:pve")) ||
-                                    (entto instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(entto) &&
-                                     inst.containsTarget("event:pvp")) ||
-                                    (CitizensAPI.getNPCRegistry().isNPC(entto) && inst.containsTarget("event:pvnpc")) ||
-                                    (to != null && inst.containsTarget("event:pvsentry"))) {
-                                    //Valid event, attack
-                                    if (!inst.isIgnored((LivingEntity) entfrom)) {
-                                        this.plugin.debug("");
-                                        inst.setTarget((LivingEntity) entfrom, true); //attack the aggressor
-                                    }
+            //TODO use enum
+            if (sentryInst.hasTargetType(16) && sentryInst.getSentryStatus() == SentryInstance.Status.LOOKING &&
+                attacker instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(attacker)) {
+                //pv-something event.
+                if (npc.getEntity().getLocation().distance(defender.getLocation()) <= sentryInst.getSentryRange() ||
+                    npc.getEntity().getLocation().distance(attacker.getLocation()) <= sentryInst.getSentryRange()) {
+                    // in range
+                    if (sentryInst.getNightVision() >= attacker.getLocation().getBlock().getLightLevel() ||
+                        sentryInst.getNightVision() >= defender.getLocation().getBlock().getLightLevel()) {
+                        //can see
+                        if (sentryInst.hasLOS(attacker) || sentryInst.hasLOS(defender)) {
+                            //have los
+                            if (!(defender instanceof Player) && sentryInst.containsTarget("event:pve") ||
+                                defender instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(defender) &&
+                                sentryInst.containsTarget("event:pvp") ||
+                                CitizensAPI.getNPCRegistry().isNPC(defender) &&
+                                sentryInst.containsTarget("event:pvnpc") ||
+                                sentryInst.containsTarget("event:pvsentry")) {
+
+                                //Valid event, attack
+                                if (!sentryInst.isIgnored((LivingEntity) attacker)) {
+                                    this.plugin.debug("");
+                                    sentryInst.setTarget((LivingEntity) attacker, true); //attack the aggressor
                                 }
                             }
                         }
@@ -367,18 +365,19 @@ public class SentryListener implements Listener {
                     }
                 }
 
-                final LivingEntity perp = killer instanceof LivingEntity ? (LivingEntity) killer : null;
+                final LivingEntity livingKiller = killer instanceof LivingEntity ? (LivingEntity) killer : null;
 
                 if (this.plugin.DenizenActive) {
-                    DenizenHook.DenizenAction(npc, "mount death", (perp instanceof Player ? (Player) perp : null));
+                    DenizenHook.DenizenAction(npc, "mount death",
+                                              (livingKiller instanceof Player ? (Player) livingKiller : null));
                 }
 
-                if (perp == null) { return; }
-                if (inst.isIgnored(perp)) { return; }
+                if (livingKiller == null) { return; }
+                if (inst.isIgnored(livingKiller)) { return; }
 
                 //delay so the mount is gone.
                 this.plugin.getServer().getScheduler()
-                           .scheduleSyncDelayedTask(this.plugin, () -> inst.setTarget(perp, true), 2);
+                           .scheduleSyncDelayedTask(this.plugin, () -> inst.setTarget(livingKiller, true), 2);
 
                 return;
             }

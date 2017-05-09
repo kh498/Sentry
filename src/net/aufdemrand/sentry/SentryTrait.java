@@ -182,7 +182,7 @@ public class SentryTrait extends Trait implements Toggleable {
             }
         }
 
-        if (!this.plugin.GroupsChecked) {
+        if (!this.plugin.groupsChecked) {
             this.plugin.doGroups(); // lazy checking for lazy vault.
         }
 

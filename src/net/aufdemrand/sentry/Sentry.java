@@ -34,47 +34,49 @@ public class Sentry extends JavaPlugin {
     //FactionsSupport
     static boolean FactionsActive = false;
     private static String LOG_PREFIX = "";
-    public List<Material> Helmets = new LinkedList<>(java.util.Arrays
-                                                         .asList(Material.LEATHER_HELMET, Material.CHAINMAIL_HELMET,
-                                                                 Material.IRON_HELMET, Material.DIAMOND_HELMET,
-                                                                 Material.GOLD_HELMET, Material.JACK_O_LANTERN,
-                                                                 Material.PUMPKIN));
-    public List<Material> Chestplates = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_CHESTPLATE,
-                                                                                 Material.CHAINMAIL_CHESTPLATE,
-                                                                                 Material.IRON_CHESTPLATE,
-                                                                                 Material.DIAMOND_CHESTPLATE,
-                                                                                 Material.GOLD_CHESTPLATE));
-    public List<Material> Leggings = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_LEGGINGS,
-                                                                              Material.CHAINMAIL_LEGGINGS,
-                                                                              Material.IRON_LEGGINGS,
-                                                                              Material.DIAMOND_LEGGINGS,
-                                                                              Material.GOLD_LEGGINGS));
-    public List<Material> Boots = new LinkedList<>(java.util.Arrays
-                                                       .asList(Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
-                                                               Material.IRON_BOOTS, Material.DIAMOND_BOOTS,
-                                                               Material.GOLD_BOOTS));
-    public Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<>();
-    public Map<Material, Double> SpeedBuffs = new HashMap<>();
-    public Map<Material, Double> StrengthBuffs = new HashMap<>();
-    public Map<Material, Double> ArmorBuffs = new HashMap<>();
-    public Queue<Projectile> arrows = new LinkedList<>();
-    public int SentryEXP = 5;
-    public int LogicTicks = 10;
-    public int Crit1Chance;
-    public int Crit2Chance;
-    public int Crit3Chance;
-    public int MissChance;
-    public int GlanceChance;
-    public String Crit1Message = "";
-    public String Crit2Message = "";
-    public String Crit3Message = "";
-    public String GlanceMessage = "";
-    public String HitMessage = "";
-    public String MissMessage = "";
-    public String BlockMessage = "";
-    public boolean BodyguardsObeyProtection = true;
-    public boolean IgnoreListInvincibility = true;
-    public boolean GroupsChecked = false;
+    public final List<Material> Helmets = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_HELMET,
+                                                                                   Material.CHAINMAIL_HELMET,
+                                                                                   Material.IRON_HELMET,
+                                                                                   Material.DIAMOND_HELMET,
+                                                                                   Material.GOLD_HELMET,
+                                                                                   Material.JACK_O_LANTERN,
+                                                                                   Material.PUMPKIN));
+    public final List<Material> Chestplates = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_CHESTPLATE,
+                                                                                       Material.CHAINMAIL_CHESTPLATE,
+                                                                                       Material.IRON_CHESTPLATE,
+                                                                                       Material.DIAMOND_CHESTPLATE,
+                                                                                       Material.GOLD_CHESTPLATE));
+    public final List<Material> Leggings = new LinkedList<>(java.util.Arrays.asList(Material.LEATHER_LEGGINGS,
+                                                                                    Material.CHAINMAIL_LEGGINGS,
+                                                                                    Material.IRON_LEGGINGS,
+                                                                                    Material.DIAMOND_LEGGINGS,
+                                                                                    Material.GOLD_LEGGINGS));
+    public final List<Material> Boots = new LinkedList<>(java.util.Arrays
+                                                             .asList(Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS,
+                                                                     Material.IRON_BOOTS, Material.DIAMOND_BOOTS,
+                                                                     Material.GOLD_BOOTS));
+    public final Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<>();
+    public final Map<Material, Double> SpeedBuffs = new HashMap<>();
+    public final Map<Material, Double> StrengthBuffs = new HashMap<>();
+    public final Map<Material, Double> ArmorBuffs = new HashMap<>();
+    public final Queue<Projectile> arrows = new LinkedList<>();
+    public int sentryEXP = 5;
+    public int logicTicks = 10;
+    public int critical1Chance;
+    public int critical2Chance;
+    public int critical3Chance;
+    public int missChance;
+    public int glanceChance;
+    public String critical1Message = "";
+    public String criticalMessage = "";
+    public String critical3Message = "";
+    public String glanceMessage = "";
+    public String hitMessage = "";
+    public String missMessage = "";
+    public String blockMessage = "";
+    public boolean bodyguardsObeyProtection = true;
+    public boolean ignoreListInvincibility = true;
+    public boolean groupsChecked = false;
     public net.milkbowl.vault.permission.Permission perms = null;
     public Material archer;
     public Material pyro1;
@@ -91,11 +93,11 @@ public class Sentry extends JavaPlugin {
     public Material bombardier;
     //Denizen Hook
     public boolean DieLikePlayers = false;
-    //SimpleClans sSuport
+    //SimpleClans sSupport
     boolean ClansActive = false;
     //TownySupport
     boolean TownyActive = false;
-    //War sSuport
+    //War sSupport
     boolean WarActive = false;
     boolean DenizenActive = false;
     public boolean debug = false;
@@ -141,7 +143,7 @@ public class Sentry extends JavaPlugin {
             }
         }
 
-        this.GroupsChecked = true;
+        this.groupsChecked = true;
 
     }
     /**
@@ -166,7 +168,7 @@ public class Sentry extends JavaPlugin {
      * @param material the material of the item
      * @param amount   the amount of material
      *
-     * @return true if the item was equiped succsessfully
+     * @return true if the item was equipped successfully
      */
     @SuppressWarnings("SameParameterValue")
     public boolean equip(final NPC npc, final Material material, final int amount) {
@@ -260,16 +262,6 @@ public class Sentry extends JavaPlugin {
         int amp = 1;
 
         type = PotionEffectType.getByName((args[0]));
-
-//		if (type == null)
-//		{
-//			try
-//			{
-//				type = PotionEffectType.getByName (args[0])//getById (Integer.parseInt (args[0]));
-//			} catch (Exception e)
-//			{
-//			}
-//		}
 
         if (type == null) { return null; }
 
@@ -368,18 +360,17 @@ public class Sentry extends JavaPlugin {
 
         return false;
     }
-    public void loaditemlist(final String key, final List<Material> list) {
-        final List<String> strs = getConfig().getStringList(key);
+    public void loadItemList(final String key, final List<Material> list) {
+        final List<String> stringList = getConfig().getStringList(key);
 
-        if (strs.size() > 0) { list.clear(); }
+        if (stringList.size() > 0) { list.clear(); }
 
         for (final String s : getConfig().getStringList(key)) {
-//			Material item = ;
             list.add(getMaterial(s.trim()));
         }
 
     }
-    private void loadmap(final String node, final Map<Material, Double> map) {
+    private void loadMap(final String node, final Map<Material, Double> map) {
         map.clear();
         for (final String s : getConfig().getStringList(node)) {
             final String[] args = s.trim().split(" ");
@@ -430,12 +421,12 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        int npcid = -1;
+        int npcID = -1;
         int i = 0;
 
         //did player specify a id?
         if (tryParseInt(inargs[0])) {
-            npcid = Integer.parseInt(inargs[0]);
+            npcID = Integer.parseInt(inargs[0]);
             i = 1;
         }
 
@@ -533,20 +524,20 @@ public class Sentry extends JavaPlugin {
                 return true;
             }
 
-            this.reloadMyConfig();
+            this.reloadPluginConfig();
             sender.sendMessage(ChatColor.GREEN + "reloaded Sentry/config.yml");
             return true;
         }
         NPC ThisNPC;
 
-        if (npcid == -1) {
+        if (npcID == -1) {
 
             ThisNPC = ((Citizens) this.getServer().getPluginManager().getPlugin("Citizens")).getNPCSelector()
                                                                                             .getSelected(sender);
 
             if (ThisNPC != null) {
                 // Gets NPC Selected
-                npcid = ThisNPC.getId();
+                npcID = ThisNPC.getId();
             }
 
             else {
@@ -555,10 +546,10 @@ public class Sentry extends JavaPlugin {
             }
         }
 
-        ThisNPC = CitizensAPI.getNPCRegistry().getById(npcid);
+        ThisNPC = CitizensAPI.getNPCRegistry().getById(npcID);
 
         if (ThisNPC == null) {
-            sender.sendMessage(ChatColor.RED + "NPC with id " + npcid + " not found");
+            sender.sendMessage(ChatColor.RED + "NPC with id " + npcID + " not found");
             return true;
         }
 
@@ -605,40 +596,7 @@ public class Sentry extends JavaPlugin {
             sender.sendMessage(
                 ChatColor.GREEN + ThisNPC.getName() + " will respawn at its present location."); // Talk to the player.
             return true;
-
         }
-        //		if (args[0].equalsIgnoreCase("derp")) {
-        //			org.bukkit.inventory.PlayerInventory inv = ((Player)sender).getInventory();
-        //
-        //			for (org.bukkit.inventory.ItemStack ii:inv.getContents()){
-        //				if (ii ==null) {
-        //					player.sendMessage("item null");
-        //					continue;
-        //				}
-        //				player.sendMessage(ii.getTypeId() + ":" + ii.getData());  // Talk to the player.
-        //
-        //			}
-        //
-        //			org.bukkit.inventory.ItemStack is = new org.bukkit.inventory.ItemStack(358,1,(short)0,(byte)2);
-        //			player.sendMessage(is.getData().toString());
-        //			//Prints MAP(2), OK!
-        //
-        //			org.bukkit.inventory.ItemStack is2 = new org.bukkit.inventory.ItemStack(358);
-        //			is2.setDurability((short)2);
-        //			player.sendMessage(is2.getData().toString());
-        //			//Prints MAP(2), OK!
-        //
-        //			org.bukkit.inventory.ItemStack is3 = new org.bukkit.inventory.ItemStack(358);
-        //			is3.setData(new org.bukkit.material.MaterialData(358,(byte)2));
-        //			player.sendMessage(is3.getData().toString());
-        //			//Prints MAP(0), WHY???
-        //
-        //
-        //			HashMap<Integer, ItemStack> poop = inv.removeItem(is);
-        //
-        //			return true;
-        //
-        //		}
 
         else if (args[0].equalsIgnoreCase("invincible")) {
             if (!sender.hasPermission("sentry.options.invincible")) {
@@ -670,7 +628,7 @@ public class Sentry extends JavaPlugin {
             }
             else {
                 sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() +
-                                   " will retalitate against all attackers."); // Talk to the player.
+                                   " will retaliate against all attackers."); // Talk to the player.
             }
 
             return true;
@@ -779,20 +737,20 @@ public class Sentry extends JavaPlugin {
                 return true;
             }
 
-            boolean localonly = false;
-            boolean playersonly = false;
+            boolean localOnly = false;
+            boolean playersOnly = false;
             int start = 1;
 
             if (args.length > 1) {
 
                 if (args[1].equalsIgnoreCase("-p")) {
                     start = 2;
-                    playersonly = true;
+                    playersOnly = true;
                 }
 
                 if (args[1].equalsIgnoreCase("-l")) {
                     start = 2;
-                    localonly = true;
+                    localOnly = true;
                 }
 
                 StringBuilder arg = new StringBuilder();
@@ -806,11 +764,11 @@ public class Sentry extends JavaPlugin {
 
                 boolean ok = false;
 
-                if (!playersonly) {
+                if (!playersOnly) {
                     ok = inst.setGuardTarget(et, false);
                 }
 
-                if (!localonly) {
+                if (!localOnly) {
                     ok = inst.setGuardTarget(et, true);
                 }
 
@@ -921,7 +879,7 @@ public class Sentry extends JavaPlugin {
             if (args.length <= 1) {
                 sender.sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Strength is " + inst.getStrength());
                 sender.sendMessage(ChatColor.GOLD + "Usage: /sentry strength # ");
-                sender.sendMessage(ChatColor.GOLD + "Note: At Strength 0 the Sentry will do no damamge. ");
+                sender.sendMessage(ChatColor.GOLD + "Note: At Strength 0 the Sentry will do no damage.");
             }
             else {
 
@@ -1102,7 +1060,7 @@ public class Sentry extends JavaPlugin {
             if (args.length <= 1) {
                 sender
                     .sendMessage(ChatColor.GOLD + ThisNPC.getName() + "'s Warning Range is " + inst.getWarningRange());
-                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry warningrangee [0 - 50]");
+                sender.sendMessage(ChatColor.GOLD + "Usage: /sentry warningrange [0 - 50]");
             }
 
             else {
@@ -1264,9 +1222,9 @@ public class Sentry extends JavaPlugin {
                 arg = new StringBuilder(arg.toString().trim());
 
                 if (arg.toString().equalsIgnoreCase("nationenemies") && inst.myNPC.isSpawned()) {
-                    final String natname = getNationNameForLocation(inst.myNPC.getEntity().getLocation());
-                    if (natname != null) {
-                        arg.append(":").append(natname);
+                    final String nationName = getNationNameForLocation(inst.myNPC.getEntity().getLocation());
+                    if (nationName != null) {
+                        arg.append(":").append(nationName);
                     }
                     else {
                         sender.sendMessage(ChatColor.RED + "Could not get Nation for this NPC's location");
@@ -1398,7 +1356,6 @@ public class Sentry extends JavaPlugin {
     }
     @Override
     public void onDisable() {
-
         getLogger().log(Level.INFO, " v" + getDescription().getVersion() + " disabled.");
         Bukkit.getServer().getScheduler().cancelTasks(this);
 
@@ -1416,12 +1373,12 @@ public class Sentry extends JavaPlugin {
         try {
 
             if (checkPlugin("Denizen")) {
-                final String vers = getServer().getPluginManager().getPlugin("Denizen").getDescription().getVersion();
-                if (vers.startsWith("0.7") || vers.startsWith("0.8")) {
+                final String denizenVersion =
+                    getServer().getPluginManager().getPlugin("Denizen").getDescription().getVersion();
+                if (denizenVersion.startsWith("0.7") || denizenVersion.startsWith("0.8")) {
                     getLogger().log(Level.WARNING, "Sentry is not compatible with Denizen .7 or .8");
                 }
-                else if (vers.startsWith("0.9")) {
-                    DenizenHook.SentryPlugin = this;
+                else if (denizenVersion.startsWith("0.9")) {
                     DenizenHook.DenizenPlugin = getServer().getPluginManager().getPlugin("Denizen");
                     DenizenHook.setupDenizenHook();
                     this.DenizenActive = true;
@@ -1430,38 +1387,36 @@ public class Sentry extends JavaPlugin {
                     getLogger().log(Level.WARNING, "Unknown version of Denizen");
                 }
             }
-        } catch (final NoClassDefFoundError e) {
-            getLogger().log(Level.WARNING, "An error occured attempting to register with Denizen " + e.getMessage());
-        } catch (final Exception e) {
-            getLogger().log(Level.WARNING, "An error occured attempting to register with Denizen " + e.getMessage());
+        } catch (final NoClassDefFoundError | Exception e) {
+            getLogger().log(Level.WARNING, "An error occurred attempting to register with Denizen " + e.getMessage());
         }
 
         if (this.DenizenActive) {
-            getLogger().log(Level.INFO, "NPCDeath Triggers and DIE/LIVE command registered sucessfully with Denizen");
+            getLogger().log(Level.INFO, "NPCDeath Triggers and DIE/LIVE command registered successfully with Denizen");
         }
         else { getLogger().log(Level.INFO, "Could not register with Denizen"); }
 
         if (checkPlugin("Towny")) {
             getLogger()
-                .log(Level.INFO, "Registered with Towny sucessfully. the TOWN: and NATION: targets will function");
+                .log(Level.INFO, "Registered with Towny successfully. the TOWN: and NATION: targets will function");
             this.TownyActive = true;
         }
         else { getLogger().log(Level.INFO, "Could not find or register with Towny"); }
 
         if (checkPlugin("Factions")) {
-            getLogger().log(Level.INFO, "Registered with Factions sucessfully. the FACTION: target will function");
+            getLogger().log(Level.INFO, "Registered with Factions successfully. the FACTION: target will function");
             FactionsActive = true;
         }
         else { getLogger().log(Level.INFO, "Could not find or register with Factions."); }
 
         if (checkPlugin("War")) {
-            getLogger().log(Level.INFO, "Registered with War sucessfully. The TEAM: target will function");
+            getLogger().log(Level.INFO, "Registered with War successfully. The TEAM: target will function");
             this.WarActive = true;
         }
         else { getLogger().log(Level.INFO, "Could not find or register with War. "); }
 
         if (checkPlugin("SimpleClans")) {
-            getLogger().log(Level.INFO, "Registered with SimpleClans sucessfully. The CLAN: target will function");
+            getLogger().log(Level.INFO, "Registered with SimpleClans successfully. The CLAN: target will function");
             this.ClansActive = true;
         }
         else { getLogger().log(Level.INFO, "Could not find or register with SimpleClans. "); }
@@ -1475,27 +1430,27 @@ public class Sentry extends JavaPlugin {
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             //Unloaded chunk arrow cleanup
             while (Sentry.this.arrows.size() > 200) {
-                final Projectile a = Sentry.this.arrows.remove();
-                if (a != null) {
-                    a.remove();
+                final Projectile projectile = Sentry.this.arrows.remove();
+                if (projectile != null) {
+                    projectile.remove();
                     //	x++;
                 }
             }
         }, 40, 20 * 120);
 
-        reloadMyConfig();
+        reloadPluginConfig();
     }
-    private void reloadMyConfig() {
+    private void reloadPluginConfig() {
         this.saveDefaultConfig();
         this.reloadConfig();
-        loadmap("ArmorBuffs", this.ArmorBuffs);
-        loadmap("StrengthBuffs", this.StrengthBuffs);
-        loadmap("SpeedBuffs", this.SpeedBuffs);
+        loadMap("ArmorBuffs", this.ArmorBuffs);
+        loadMap("StrengthBuffs", this.StrengthBuffs);
+        loadMap("SpeedBuffs", this.SpeedBuffs);
         loadPotions(this.WeaponEffects);
-        loaditemlist("Helmets", this.Helmets);
-        loaditemlist("Chestplates", this.Chestplates);
-        loaditemlist("Leggings", this.Leggings);
-        loaditemlist("Boots", this.Boots);
+        loadItemList("Helmets", this.Helmets);
+        loadItemList("Chestplates", this.Chestplates);
+        loadItemList("Leggings", this.Leggings);
+        loadItemList("Boots", this.Boots);
         this.archer = getMaterial(getConfig().getString("AttackTypes.Archer", null));
         this.pyro1 = getMaterial(getConfig().getString("AttackTypes.Pyro1", null));
         this.pyro2 = getMaterial(getConfig().getString("AttackTypes.Pyro2", null));
@@ -1510,22 +1465,22 @@ public class Sentry extends JavaPlugin {
         this.warlock2 = getMaterial(getConfig().getString("AttackTypes.Warlock2", null));
         this.warlock3 = getMaterial(getConfig().getString("AttackTypes.Warlock3", null));
         this.DieLikePlayers = getConfig().getBoolean("Server.DieLikePlayers", false);
-        this.BodyguardsObeyProtection = getConfig().getBoolean("Server.BodyguardsObeyProtection", true);
-        this.IgnoreListInvincibility = getConfig().getBoolean("Server.IgnoreListInvincibility", true);
-        this.LogicTicks = getConfig().getInt("Server.LogicTicks", 10);
-        this.SentryEXP = getConfig().getInt("Server.ExpValue", 5);
-        this.MissMessage = getConfig().getString("GlobalTexts.Miss", null);
-        this.HitMessage = getConfig().getString("GlobalTexts.Hit", null);
-        this.BlockMessage = getConfig().getString("GlobalTexts.Block", null);
-        this.Crit1Message = getConfig().getString("GlobalTexts.Crit1", null);
-        this.Crit2Message = getConfig().getString("GlobalTexts.Crit2", null);
-        this.Crit3Message = getConfig().getString("GlobalTexts.Crit3", null);
-        this.GlanceMessage = getConfig().getString("GlobalTexts.Glance", null);
-        this.MissChance = getConfig().getInt("HitChances.Miss", 0);
-        this.GlanceChance = getConfig().getInt("HitChances.Glance", 0);
-        this.Crit1Chance = getConfig().getInt("HitChances.Crit1", 0);
-        this.Crit2Chance = getConfig().getInt("HitChances.Crit2", 0);
-        this.Crit3Chance = getConfig().getInt("HitChances.Crit3", 0);
+        this.bodyguardsObeyProtection = getConfig().getBoolean("Server.bodyguardsObeyProtection", true);
+        this.ignoreListInvincibility = getConfig().getBoolean("Server.ignoreListInvincibility", true);
+        this.logicTicks = getConfig().getInt("Server.logicTicks", 10);
+        this.sentryEXP = getConfig().getInt("Server.ExpValue", 5);
+        this.missMessage = getConfig().getString("GlobalTexts.Miss", null);
+        this.hitMessage = getConfig().getString("GlobalTexts.Hit", null);
+        this.blockMessage = getConfig().getString("GlobalTexts.Block", null);
+        this.critical1Message = getConfig().getString("GlobalTexts.Crit1", null);
+        this.criticalMessage = getConfig().getString("GlobalTexts.Crit2", null);
+        this.critical3Message = getConfig().getString("GlobalTexts.Crit3", null);
+        this.glanceMessage = getConfig().getString("GlobalTexts.Glance", null);
+        this.missChance = getConfig().getInt("HitChances.Miss", 0);
+        this.glanceChance = getConfig().getInt("HitChances.Glance", 0);
+        this.critical1Chance = getConfig().getInt("HitChances.Crit1", 0);
+        this.critical2Chance = getConfig().getInt("HitChances.Crit2", 0);
+        this.critical3Chance = getConfig().getInt("HitChances.Crit3", 0);
 
     }
     private boolean setupPermissions() {

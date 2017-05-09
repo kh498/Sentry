@@ -6,26 +6,26 @@ import org.bukkit.entity.LivingEntity;
 
 import java.util.Random;
 
-public class SpiderAttackStrategy implements net.citizensnpcs.api.ai.AttackStrategy {
-    Sentry plugin = null;
-    private Random random = new Random();
+class SpiderAttackStrategy implements net.citizensnpcs.api.ai.AttackStrategy {
+    private Sentry plugin = null;
+    private final Random random = new Random();
 
-    public SpiderAttackStrategy(Sentry plugin) {
+    public SpiderAttackStrategy(final Sentry plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public boolean handle(LivingEntity arg0, LivingEntity arg1) {
+    public boolean handle(final LivingEntity arg0, final LivingEntity arg1) {
 
-        plugin.debug("Spider ATTACK!");
+        this.plugin.debug("Spider ATTACK!");
 
-        Entity entity = ((CraftEntity) arg1).getHandle();
-        Entity me = ((CraftEntity) arg0).getHandle();
+        final Entity entity = ((CraftEntity) arg1).getHandle();
+        final Entity me = ((CraftEntity) arg0).getHandle();
 
         if (this.random.nextInt(20) == 0) {
-            double d0 = entity.locX - me.locX;
-            double d1 = entity.locZ - me.locZ;
-            double f2 = Math.sqrt(d0 * d0 + d1 * d1);
+            final double d0 = entity.locX - me.locX;
+            final double d1 = entity.locZ - me.locZ;
+            final double f2 = Math.sqrt(d0 * d0 + d1 * d1);
 
             me.motX = d0 / f2 * 0.5D * 0.800000011920929D + me.motX * 0.20000000298023224D;
             me.motZ = d1 / f2 * 0.5D * 0.800000011920929D + me.motZ * 0.20000000298023224D;

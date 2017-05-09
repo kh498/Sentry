@@ -44,8 +44,7 @@ public class Util {
         }
     }
 
-    public static boolean CanWarp(final Entity player, final NPC bodyguyard) {
-
+    public static boolean CanWarp(final Entity player) {
         if (player instanceof Player) {
 
             if (player.hasPermission("sentry.bodyguard.*")) {
@@ -86,7 +85,7 @@ public class Util {
         }
     }
 
-    public static double hangtime(final double launchAngle, final double v, final double elev, final double g) {
+    public static double hangTime(final double launchAngle, final double v, final double elev, final double g) {
 
         final double a = v * Math.sin(launchAngle);
         final double b = -2 * g * elev;
@@ -120,7 +119,7 @@ public class Util {
 
         final double derp = g * (g * Math.pow(dist, 2) + 2 * elev * v2);
 
-        //Check unhittable.
+        //Check if hittable.
         if (v4 < derp) {
             //target unreachable
             // use this to fire at optimal max angle launchAngle = Math.atan( ( 2*g*elev + v2) / (2*g*elev + 2*v2));
@@ -150,6 +149,8 @@ public class Util {
         if (mag != 0) { return victor.multiply(1 / mag); }
         return victor.multiply(0);
     }
+
+
 }
 
 

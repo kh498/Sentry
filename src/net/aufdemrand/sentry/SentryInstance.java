@@ -72,7 +72,8 @@ public class SentryInstance {
     private int lightningLevel = 0;
     private boolean incendiary = false;
     private int mountID = -1;
-    private int epcount = 0;
+    //Enderpearl count
+    private int epCount = 0;
     private String greetingMessage = "&a<NPC> says: Welcome, <PLAYER>!";
     private String warningMessage = "&a<NPC> says: Halt! Come no further!";
     private LivingEntity guardEntity = null;
@@ -150,38 +151,19 @@ public class SentryInstance {
                 if (this.hasIgnoreType(Target.OWNER.level) &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                else if (this.hasIgnoreType(Target.NAMED_NPCS.level)) {
-
-                    final String[] groups1 =
-                        this.plugin.perms.getPlayerGroups(aTarget.getWorld().getName(), player); // world perms
-                    final String[] groups2 = this.plugin.perms.getPlayerGroups(null, player); //global perms
-                    //		String[] groups3 = plugin.perms.getPlayerGroups(aTarget.getWorld().getName(),name); // world perms
-                    //	String[] groups4 = plugin.perms.getPlayerGroups((Player)aTarget); // world perms
-
-                    if (groups1 != null) {
-                        for (final String aGroups1 : groups1) {
-                            //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + aGroups1)) { return true; }
-                        }
-                    }
-
-                    if (groups2 != null) {
-                        for (final String aGroups2 : groups2) {
-                            //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + aGroups2)) { return true; }
-                        }
-                    }
+                if (hasTargetType(Target.NAMED_NPCS.level) && containsIgnore("NPC:" + aTarget.getName())) {
+                    return true;
                 }
 
                 if (this.hasIgnoreType(Target.TOWNY.level)) {
                     final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
 
                     if (info[1] != null) {
-                        if (this.containsIgnore("TOWN:" + info[1])) { return true; }
+                        if (containsIgnore("TOWN:" + info[1])) { return true; }
                     }
 
                     if (info[0] != null) {
-                        if (this.containsIgnore("NATION:" + info[0])) { return true; }
+                        if (containsIgnore("NATION:" + info[0])) { return true; }
                     }
                 }
 
@@ -189,28 +171,28 @@ public class SentryInstance {
                     final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (faction != null) {
-                        if (this.containsIgnore("FACTION:" + faction)) { return true; }
+                        if (containsIgnore("FACTION:" + faction)) { return true; }
                     }
                 }
                 if (this.hasIgnoreType(Target.WAR.level)) {
                     final String team = this.plugin.getWarTeam((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
-                        if (this.containsIgnore("WARTEAM:" + team)) { return true; }
+                        if (containsIgnore("WARTEAM:" + team)) { return true; }
                     }
                 }
                 if (this.hasIgnoreType(Target.MC_TEAMS.level)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
-                        if (this.containsIgnore("TEAM:" + team)) { return true; }
+                        if (containsIgnore("TEAM:" + team)) { return true; }
                     }
                 }
                 if (this.hasIgnoreType(Target.CLANS.level)) {
                     final String clan = this.plugin.getClan((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (clan != null) {
-                        if (this.containsIgnore("CLAN:" + clan)) { return true; }
+                        if (containsIgnore("CLAN:" + clan)) { return true; }
                     }
                 }
             }
@@ -228,9 +210,9 @@ public class SentryInstance {
 
                 final String name = npc.getName();
 
-                if (this.hasIgnoreType(Target.NAMED_NPCS.level) && this.containsIgnore("NPC:" + name)) { return true; }
+                if (this.hasIgnoreType(Target.NAMED_NPCS.level) && containsIgnore("NPC:" + name)) { return true; }
 
-                else if (hasIgnoreType(Target.NAMED_NPCS.level)) {
+                else if (hasIgnoreType(Target.GROUPS.level)) {
                     @SuppressWarnings("deprecation")
                     final String[] groups1 = this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
                     @SuppressWarnings("deprecation")
@@ -239,14 +221,14 @@ public class SentryInstance {
                     if (groups1 != null) {
                         for (final String aGroups1 : groups1) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + aGroups1)) { return true; }
+                            if (containsIgnore("GROUP:" + aGroups1)) { return true; }
                         }
                     }
 
                     if (groups2 != null) {
                         for (final String aGroups2 : groups2) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (this.containsIgnore("GROUP:" + aGroups2)) { return true; }
+                            if (containsIgnore("GROUP:" + aGroups2)) { return true; }
                         }
                     }
                 }
@@ -256,7 +238,7 @@ public class SentryInstance {
         else if (aTarget instanceof Monster && hasIgnoreType(Target.MONSTERS.level)) { return true; }
 
         else if (aTarget != null && hasIgnoreType(Target.NAMED_ENTITIES.level)) {
-            if (this.containsIgnore("ENTITY:" + aTarget.getType())) { return true; }
+            if (containsIgnore("ENTITY:" + aTarget.getType())) { return true; }
         }
 
         //not ignored, ok!
@@ -319,7 +301,7 @@ public class SentryInstance {
 
                             if (this.hasTargetType(Target.FACTION_ENEMIES.level)) {
                                 for (final String s : this._factionEnemies) {
-                                    if (FactionsUtil.isFactionEnemy(getMyEntity().getWorld().getName(), s, faction)) {
+                                    if (FactionsUtil.isFactionEnemy(s, faction)) {
                                         return true;
                                     }
                                 }
@@ -405,17 +387,16 @@ public class SentryInstance {
     public void deactivate() {
         this.plugin.getServer().getScheduler().cancelTask(this.taskID);
     }
-    public void die(final boolean runscripts, final org.bukkit.event.entity.EntityDamageEvent.DamageCause cause) {
+    public void die(final boolean runScripts, final org.bukkit.event.entity.EntityDamageEvent.DamageCause cause) {
         if (this.sentryStatus == Status.DYING || this.sentryStatus == Status.DEAD || getMyEntity() == null) { return; }
 
         this.sentryStatus = Status.DYING;
 
         clearTarget();
-        //		myNPC.getTrait(Waypoints.class).getCurrentProvider().setPaused(true);
 
         boolean handled = false;
 
-        if (runscripts && this.plugin.DenizenActive) {
+        if (runScripts && this.plugin.DenizenActive) {
             handled = DenizenHook.SentryDeath(this._myDamagers, this.myNPC);
         }
         if (handled) { return; }
@@ -463,7 +444,7 @@ public class SentryInstance {
 
         if (this.dropInventory) {
             getMyEntity().getLocation().getWorld().spawn(getMyEntity().getLocation(), ExperienceOrb.class)
-                         .setExperience(this.plugin.SentryEXP);
+                         .setExperience(this.plugin.sentryEXP);
         }
 
         final List<ItemStack> items = new java.util.LinkedList<>();
@@ -682,28 +663,17 @@ public class SentryInstance {
         final Double testAngle = Util.launchAngle(loc, targetsHeart, v, elev, g);
 
         if (testAngle == null) {
-            // testAngle = Math.atan( ( 2*g*elev + Math.pow(v, 2)) / (2*g*elev +
-            // 2*Math.pow(v,2))); //cant hit it where it is, try aiming as far
-            // as you can.
             clearTarget();
-            // plugin.getServer().broadcastMessage("Can't hit test angle");
             return;
         }
 
-        // plugin.getServer().broadcastMessage("ta " + testAngle.toString());
-
-        final double hangtime = Util.hangtime(testAngle, v, elev, g);
-        // plugin.getServer().broadcastMessage("ht " + hangtime.toString());
-
+        final double hangTime = Util.hangTime(testAngle, v, elev, g);
         final Vector targetVelocity = theEntity.getLocation().subtract(this._projTargetLostLoc).toVector();
-        // plugin.getServer().broadcastMessage("tv" + targetVelocity);
+        targetVelocity.multiply(20 / this.plugin.logicTicks);
 
-        targetVelocity.multiply(20 / this.plugin.LogicTicks);
+        final Location to = Util.leadLocation(targetsHeart, targetVelocity, hangTime);
 
-        final Location to = Util.leadLocation(targetsHeart, targetVelocity, hangtime);
-        // plugin.getServer().broadcastMessage("to " + to);
         // Calc range
-
         Vector victor = to.clone().subtract(loc).toVector();
 
         final double dist = Math.sqrt(Math.pow(victor.getX(), 2) + Math.pow(victor.getZ(), 2));
@@ -713,26 +683,17 @@ public class SentryInstance {
         if (!hasLOS(theEntity)) {
             // target cant be seen..
             clearTarget();
-            // plugin.getServer().broadcastMessage("No LoS");
             return;
         }
-
-        // plugin.getServer().broadcastMessage("delta " + victor);
-
-        // plugin.getServer().broadcastMessage("ld " +
-        // to.clone().subtract(theEntity.getEyeLocation()));
 
         if (ballistics) {
             final Double launchAngle = Util.launchAngle(loc, to, v, elev, g);
             if (launchAngle == null) {
                 // target cant be hit
                 clearTarget();
-                // plugin.getServer().broadcastMessage("Can't hit lead");
                 return;
-
             }
 
-            //	plugin.getServer().broadcastMessage(anim.a + " " + anim.b + " " + anim.a() + " " +anim.);
             // Apply angle
             victor.setY(Math.tan(launchAngle) * dist);
             final Vector noise = Vector.getRandom();
@@ -740,14 +701,14 @@ public class SentryInstance {
             victor = Util.normalizeVector(victor);
 
 //            noise = noise.multiply(1 / 10.0);
-
-            // victor = victor.add(noise);
+            //TODO fix noise
+            victor = victor.add(noise);
 
             if (this.myProjectile == Arrow.class || this.myProjectile == org.bukkit.entity.ThrownPotion.class) {
-                v += (1.188 * Math.pow(hangtime, 2));
+                v += (1.188 * Math.pow(hangTime, 2));
             }
             else {
-                v += (.5 * Math.pow(hangtime, 2));
+                v += (.5 * Math.pow(hangTime, 2));
             }
 
             v += (this.random.nextDouble() - .8) / 2;
@@ -764,7 +725,6 @@ public class SentryInstance {
             if (dist > this.sentryRange) {
                 // target cant be hit
                 clearTarget();
-                // plugin.getServer().broadcastMessage("Can't hit lead");
                 return;
 
             }
@@ -805,11 +765,9 @@ public class SentryInstance {
             }
 
             if (this.myProjectile == Fireball.class || this.myProjectile == org.bukkit.entity.WitherSkull.class) {
-                //TODO find an explanation for this magic number
                 victor = victor.multiply(1 / 1000000000);
             }
             else if (this.myProjectile == SmallFireball.class) {
-                //TODO find an explanation for this magic number
                 victor = victor.multiply(1 / 1000000000);
                 ((SmallFireball) theArrow).setIsIncendiary(this.incendiary);
                 if (!this.incendiary) {
@@ -818,9 +776,9 @@ public class SentryInstance {
                 }
             }
             else if (this.myProjectile == org.bukkit.entity.EnderPearl.class) {
-                this.epcount++;
-                if (this.epcount > Integer.MAX_VALUE - 1) { this.epcount = 0; }
-                this.plugin.debug(this.epcount + "");
+                this.epCount++;
+                if (this.epCount > Integer.MAX_VALUE - 1) { this.epCount = 0; }
+                this.plugin.debug(this.epCount + "");
             }
 
             this.plugin.arrows.add(theArrow);
@@ -834,14 +792,16 @@ public class SentryInstance {
 
         if (this.myProjectile == Arrow.class) {
             Draw(false);
+            //TODO add a draw bow effect here
         }
         else {
             if (getMyEntity() instanceof org.bukkit.entity.Player) {
                 net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) getMyEntity(), 64);
             }
         }
-
     }
+
+
     public int getArmor() {
 
         double mod = 0;
@@ -995,11 +955,8 @@ public class SentryInstance {
         this.myNPC.data().set(NPC.TARGETABLE_METADATA, this.targetable);
 
         this.myNPC.getNavigator().getDefaultParameters().range(pf);
-        this.myNPC.getNavigator().getDefaultParameters().stationaryTicks(5 * 20); // so 100?
+        this.myNPC.getNavigator().getDefaultParameters().stationaryTicks(5 * 20);
         this.myNPC.getNavigator().getDefaultParameters().useNewPathfinder(false);
-        //	myNPC.getNavigator().getDefaultParameters().stuckAction(new BodyguardTeleportStuckAction(this, this.plugin));
-
-        // plugin.getServer().broadcastMessage("NPC GUARDING!");
 
         if (getMyEntity() instanceof org.bukkit.entity.Creeper) {
             this.myNPC.getNavigator().getDefaultParameters().attackStrategy(new CreeperAttackStrategy());
@@ -1011,10 +968,10 @@ public class SentryInstance {
         processTargets();
 
         if (this.taskID == -1) {
-            final int delay = 40 + this.random.nextInt(60); //Max 5 sec delay
+            final int delay = 40 + this.random.nextInt(5 * 20); //Max 5 sec delay
             this.plugin.debug(this.myNPC, "Starting logic ticking in " + delay + " ticks");
             this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new SentryLogic(), delay,
-                                                                          this.plugin.LogicTicks);
+                                                                          this.plugin.logicTicks);
         }
 
         this.mountCreated = false;
@@ -1078,7 +1035,7 @@ public class SentryInstance {
 
         if (this.invincible) { return; }
 
-        if (this.plugin.IgnoreListInvincibility) {
+        if (this.plugin.ignoreListInvincibility) {
 
             if (isIgnored(attacker)) { return; }
         }
@@ -1100,25 +1057,28 @@ public class SentryInstance {
 
             final int luckyHit = this.random.nextInt(100);
 
-            if (luckyHit < this.plugin.Crit3Chance) {
+            if (luckyHit < this.plugin.critical3Chance) {
                 damageModifier = damageModifier * 2.00;
                 hit = HitType.DISEMBOWEL;
             }
-            else if (luckyHit < this.plugin.Crit3Chance + this.plugin.Crit2Chance) {
+            else if (luckyHit < this.plugin.critical3Chance + this.plugin.critical2Chance) {
                 damageModifier = damageModifier * 1.75;
                 hit = HitType.MAIN;
             }
-            else if (luckyHit < this.plugin.Crit3Chance + this.plugin.Crit2Chance + this.plugin.Crit1Chance) {
+            else if (luckyHit <
+                     this.plugin.critical3Chance + this.plugin.critical2Chance + this.plugin.critical1Chance) {
                 damageModifier = damageModifier * 1.50;
                 hit = HitType.INJURE;
             }
-            else if (luckyHit < this.plugin.Crit3Chance + this.plugin.Crit2Chance + this.plugin.Crit1Chance +
-                                this.plugin.GlanceChance) {
+            else if (luckyHit <
+                     this.plugin.critical3Chance + this.plugin.critical2Chance + this.plugin.critical1Chance +
+                     this.plugin.glanceChance) {
                 damageModifier = damageModifier * 0.50;
                 hit = HitType.GLANCE;
             }
-            else if (luckyHit < this.plugin.Crit3Chance + this.plugin.Crit2Chance + this.plugin.Crit1Chance +
-                                this.plugin.GlanceChance + this.plugin.MissChance) {
+            else if (luckyHit <
+                     this.plugin.critical3Chance + this.plugin.critical2Chance + this.plugin.critical1Chance +
+                     this.plugin.glanceChance + this.plugin.missChance) {
                 damageModifier = 0;
                 hit = HitType.MISS;
             }
@@ -1154,10 +1114,10 @@ public class SentryInstance {
 
             switch (hit) {
                 case MISS:
-                    msg = this.plugin.MissMessage;
+                    msg = this.plugin.missMessage;
                     break;
                 case BLOCK:
-                    msg = this.plugin.BlockMessage;
+                    msg = this.plugin.blockMessage;
                     break;
             }
 
@@ -1165,19 +1125,19 @@ public class SentryInstance {
                 // Messages
                 switch (hit) {
                     case NORMAL:
-                        msg = this.plugin.HitMessage;
+                        msg = this.plugin.hitMessage;
                         break;
                     case MAIN:
-                        msg = this.plugin.Crit2Message;
+                        msg = this.plugin.criticalMessage;
                         break;
                     case DISEMBOWEL:
-                        msg = this.plugin.Crit3Message;
+                        msg = this.plugin.critical3Message;
                         break;
                     case INJURE:
-                        msg = this.plugin.Crit1Message;
+                        msg = this.plugin.critical1Message;
                         break;
                     case GLANCE:
-                        msg = this.plugin.GlanceMessage;
+                        msg = this.plugin.glanceMessage;
                         break;
                 }
             }
@@ -1465,6 +1425,7 @@ public class SentryInstance {
         this.myNPC.getNavigator().cancelNavigation();
         this.myNPC.getDefaultGoalController().setPaused(false);
     }
+
     public void setTarget(LivingEntity theEntity, final boolean isRetaliating) {
         if (theEntity == null) {
             this.plugin
@@ -1484,7 +1445,7 @@ public class SentryInstance {
         /* Okay let's try an explain this...
          * We must be able to get the entity of this npc (eg the npc must not be null and spawned)
          * The target cannot be the entity it's guarding
-         * The target cannot be it self
+         * The target cannot be itself
          */
         if (getMyEntity() == null || !this.myNPC.isSpawned() || theEntity == this.guardEntity ||
             theEntity == getMyEntity() || theEntity == this.meleeTarget || theEntity == this.projectileTarget) {
@@ -1506,7 +1467,6 @@ public class SentryInstance {
                 // yarr... im a guarrrd.
 
                 getGoalController().setPaused(true);
-                //	if (!myNPC.getTrait(Waypoints.class).getCurrentProvider().isPaused())  myNPC.getTrait(Waypoints.class).getCurrentProvider().setPaused(true);
 
                 if (getNavigator().getEntityTarget() == null || (getNavigator().getEntityTarget() != null &&
                                                                  getNavigator().getEntityTarget().getTarget() !=
@@ -1808,11 +1768,11 @@ public class SentryInstance {
     public void setMountID(final int mountID) {
         this.mountID = mountID;
     }
-    public int getEpcount() {
-        return this.epcount;
+    public int getEpCount() {
+        return this.epCount;
     }
-    public void setEpcount(final int epcount) {
-        this.epcount = epcount;
+    public void setEpCount(final int epCount) {
+        this.epCount = epCount;
     }
     public String getGreetingMessage() {
         return this.greetingMessage;
@@ -1899,7 +1859,7 @@ public class SentryInstance {
     public long getOkToHeal() {
         return this.okToHeal;
     }
-    public long getOkToReasses() {
+    public long getOkToReassess() {
         return this.okToReasses;
     }
     public long getOkToTakeDamage() {
@@ -2119,7 +2079,7 @@ public class SentryInstance {
 
                     if (SentryInstance.this.guardEntity.getLocation().getWorld() != npcLoc.getWorld() ||
                         !isMyChunkLoaded()) {
-                        if (Util.CanWarp(SentryInstance.this.guardEntity, SentryInstance.this.myNPC)) {
+                        if (Util.CanWarp(SentryInstance.this.guardEntity)) {
                             SentryInstance.this.myNPC.despawn();
                             SentryInstance.this.myNPC
                                 .spawn((SentryInstance.this.guardEntity.getLocation().add(1, 0, 1)));

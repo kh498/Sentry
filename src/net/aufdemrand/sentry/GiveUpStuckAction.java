@@ -5,8 +5,8 @@ import net.citizensnpcs.api.ai.StuckAction;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Location;
 
-public class GiveUpStuckAction implements StuckAction {
-    SentryInstance inst = null;
+class GiveUpStuckAction implements StuckAction {
+    private SentryInstance inst = null;
 
     GiveUpStuckAction(final SentryInstance inst) {
         this.inst = inst;
