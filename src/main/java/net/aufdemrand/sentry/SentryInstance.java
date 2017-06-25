@@ -122,8 +122,14 @@ public class SentryInstance {
             this.plugin.getServer().getScheduler().cancelTask(this.taskID);
         }
     }
+    public boolean hasTargetType(final Target type) {
+        return hasTargetType(type.level);
+    }
     public boolean hasTargetType(final int type) {
         return (this.targets & type) == type;
+    }
+    public boolean hasIgnoreType(final Target type) {
+        return hasIgnoreType(type.level);
     }
     public boolean hasIgnoreType(final int type) {
         return (this.ignores & type) == type;
@@ -135,27 +141,27 @@ public class SentryInstance {
 
         if (this.ignores == 0) { return false; }
 
-        if (hasIgnoreType(Target.ALL.level)) { return true; }
+        if (hasIgnoreType(Target.ALL)) { return true; }
 
         if (aTarget instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (hasIgnoreType(Target.PLAYERS.level)) { return true; }
+            if (hasIgnoreType(Target.PLAYERS)) { return true; }
 
             else {
 
                 final OfflinePlayer player = (OfflinePlayer) aTarget;
 
-                if (this.hasIgnoreType(Target.NAMED_PLAYERS.level) && containsIgnore("PLAYER:" + player)) {
+                if (this.hasIgnoreType(Target.NAMED_PLAYERS) && containsIgnore("PLAYER:" + player)) {
                     return true;
                 }
 
-                if (this.hasIgnoreType(Target.OWNER.level) &&
+                if (this.hasIgnoreType(Target.OWNER) &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                if (hasTargetType(Target.NAMED_NPCS.level) && containsIgnore("NPC:" + aTarget.getName())) {
+                if (hasTargetType(Target.NAMED_NPCS) && containsIgnore("NPC:" + aTarget.getName())) {
                     return true;
                 }
-                if (this.hasIgnoreType(Target.MC_TEAMS.level)) {
+                if (this.hasIgnoreType(Target.MC_TEAMS)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
@@ -167,7 +173,7 @@ public class SentryInstance {
 
         else if (CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasIgnoreType(Target.NPCS.level)) {
+            if (this.hasIgnoreType(Target.NPCS)) {
                 return true;
             }
 
@@ -177,9 +183,9 @@ public class SentryInstance {
 
                 final String name = npc.getName();
 
-                if (this.hasIgnoreType(Target.NAMED_NPCS.level) && containsIgnore("NPC:" + name)) { return true; }
+                if (this.hasIgnoreType(Target.NAMED_NPCS) && containsIgnore("NPC:" + name)) { return true; }
 
-                else if (hasIgnoreType(Target.GROUPS.level)) {
+                else if (hasIgnoreType(Target.GROUPS)) {
                     @SuppressWarnings("deprecation") final String[] groups1 =
                         this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
                     @SuppressWarnings("deprecation") final String[] groups2 =
@@ -202,9 +208,9 @@ public class SentryInstance {
             }
         }
 
-        else if (aTarget instanceof Monster && hasIgnoreType(Target.MONSTERS.level)) { return true; }
+        else if (aTarget instanceof Monster && hasIgnoreType(Target.MONSTERS)) { return true; }
 
-        else if (hasIgnoreType(Target.NAMED_ENTITIES.level)) {
+        else if (hasIgnoreType(Target.NAMED_ENTITIES)) {
             if (containsIgnore("ENTITY:" + aTarget.getType())) { return true; }
         }
 
@@ -215,29 +221,29 @@ public class SentryInstance {
 
         if (this.targets == 0 || this.targets == Target.EVENTS.level) { return false; }
 
-        if (this.hasTargetType(Target.ALL.level)) { return true; }
+        if (this.hasTargetType(Target.ALL)) { return true; }
 
         //Check if target
         if (aTarget instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasTargetType(Target.PLAYERS.level)) {
+            if (this.hasTargetType(Target.PLAYERS)) {
                 return true;
             }
 
             else {
                 final OfflinePlayer player = (OfflinePlayer) aTarget;
 
-                if (hasTargetType(Target.NAMED_PLAYERS.level) && this.containsTarget("PLAYER:" + player)) {
+                if (hasTargetType(Target.NAMED_PLAYERS) && this.containsTarget("PLAYER:" + player)) {
                     return true;
                 }
 
                 if (this.containsTarget("ENTITY:OWNER") &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                if (hasTargetType(Target.NAMED_NPCS.level) && this.containsTarget("NPC:" + aTarget.getName())) {
+                if (hasTargetType(Target.NAMED_NPCS) && this.containsTarget("NPC:" + aTarget.getName())) {
                     return true;
                 }
-                if (this.hasTargetType(Target.MC_TEAMS.level)) {
+                if (this.hasTargetType(Target.MC_TEAMS)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     if (team != null) {
                         if (this.containsTarget("TEAM:" + team)) { return true; }
@@ -248,7 +254,7 @@ public class SentryInstance {
 
         else if (CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasTargetType(Target.NPCS.level)) {
+            if (this.hasTargetType(Target.NPCS)) {
                 return true;
             }
 
@@ -256,9 +262,9 @@ public class SentryInstance {
 
             final String name = npc.getName();
 
-            if (this.hasTargetType(Target.NAMED_NPCS.level) && containsTarget("NPC:" + name)) { return true; }
+            if (this.hasTargetType(Target.NAMED_NPCS) && containsTarget("NPC:" + name)) { return true; }
 
-            if (this.hasTargetType(Target.GROUPS.level)) {
+            if (this.hasTargetType(Target.GROUPS)) {
                 @SuppressWarnings("deprecation") final String[] groups1 =
                     this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
                 @SuppressWarnings("deprecation") final String[] groups2 =
@@ -281,9 +287,9 @@ public class SentryInstance {
                 }
             }
         }
-        else if (aTarget instanceof Monster && this.hasTargetType(Target.MONSTERS.level)) { return true; }
+        else if (aTarget instanceof Monster && this.hasTargetType(Target.MONSTERS)) { return true; }
 
-        else if (aTarget != null && hasTargetType(Target.NAMED_ENTITIES.level)) {
+        else if (aTarget != null && hasTargetType(Target.NAMED_ENTITIES)) {
             if (this.containsTarget("ENTITY:" + aTarget.getType())) { return true; }
         }
         return false;
