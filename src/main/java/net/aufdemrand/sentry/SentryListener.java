@@ -293,7 +293,7 @@ public class SentryListener implements Listener {
                 continue; //not a sentry, or not this world, or dead.
             }
 
-            if (sentryInst.getGuardEntity().equals(defender)) {
+            if (sentryInst.getGuardEntity() != null && sentryInst.getGuardEntity().equals(defender)) {
                 if (sentryInst.isRetaliate() && attacker instanceof LivingEntity) {
                     sentryInst.setTarget((LivingEntity) attacker, true);
                 }
