@@ -7,6 +7,7 @@ import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.TraitInfo;
 import net.citizensnpcs.api.trait.trait.Equipment;
 import net.citizensnpcs.api.trait.trait.Owner;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,7 +33,7 @@ public class Sentry extends JavaPlugin {
 
     public static Sentry instance;
     //FactionsSupport
-    static boolean FactionsActive = false;
+    static boolean FactionsActive;
     private static String LOG_PREFIX = "";
     public final List<Material> Helmets = new LinkedList<Material>() {{
         add(Material.LEATHER_HELMET);
@@ -85,8 +86,8 @@ public class Sentry extends JavaPlugin {
     public String blockMessage = "";
     public boolean bodyguardsObeyProtection = true;
     public boolean ignoreListInvincibility = true;
-    public boolean groupsChecked = false;
-    public net.milkbowl.vault.permission.Permission perms = null;
+    public boolean groupsChecked;
+    public Permission perms;
     public Material archer;
     public Material pyro1;
     public Material pyro2;
@@ -101,15 +102,15 @@ public class Sentry extends JavaPlugin {
     public Material magi;
     public Material bombardier;
     //Denizen Hook
-    public boolean DieLikePlayers = false;
+    public boolean DieLikePlayers;
     //SimpleClans sSupport
-    boolean ClansActive = false;
+    boolean ClansActive;
     //TownySupport
-    boolean TownyActive = false;
+    boolean TownyActive;
     //War sSupport
-    boolean WarActive = false;
-    boolean DenizenActive = false;
-    public boolean debug = false;
+    boolean WarActive;
+    boolean DenizenActive;
+    public boolean debug;
     public static Sentry getInstance() {
         return instance;
     }
@@ -341,8 +342,8 @@ public class Sentry extends JavaPlugin {
         return null;
     }
     public String getMCTeamName(final Player player) {
-        @SuppressWarnings("deprecation")
-        final Team t = getServer().getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
+        @SuppressWarnings("deprecation") final Team t =
+            getServer().getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
         if (t != null) {
             return t.getName();
         }
@@ -768,8 +769,7 @@ public class Sentry extends JavaPlugin {
                 }
                 arg = new StringBuilder(arg.toString().trim());
 
-                @SuppressWarnings("deprecation")
-                final LivingEntity et = Bukkit.getPlayer(arg.toString());
+                @SuppressWarnings("deprecation") final LivingEntity et = Bukkit.getPlayer(arg.toString());
 
                 boolean ok = false;
 
@@ -1500,8 +1500,8 @@ public class Sentry extends JavaPlugin {
                 return false;
             }
 
-            final RegisteredServiceProvider<net.milkbowl.vault.permission.Permission> permissionProvider =
-                getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+            final RegisteredServiceProvider<Permission> permissionProvider =
+                getServer().getServicesManager().getRegistration(Permission.class);
 
             if (permissionProvider != null) {
                 this.perms = permissionProvider.getProvider();

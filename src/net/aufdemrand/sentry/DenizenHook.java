@@ -23,7 +23,7 @@ import java.util.Set;
 
 class DenizenHook {
 
-    private static boolean DenizenActive = false;
+    private static boolean DenizenActive;
     static Plugin DenizenPlugin;
 
     static boolean SentryDeath(final Set<Player> _myDamagers, final NPC npc) {

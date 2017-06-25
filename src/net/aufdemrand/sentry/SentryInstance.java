@@ -52,64 +52,64 @@ public class SentryInstance {
     private final Random random = new Random();
     private final List<String> _nationsEnemies = new ArrayList<>();
     private final List<String> _factionEnemies = new ArrayList<>();
-    boolean loaded = false;
-    NPC myNPC = null;
+    boolean loaded;
+    NPC myNPC;
     /* Settable */
 
     SentryTrait myTrait;
     Long isRespawnable = System.currentTimeMillis();
     private Location _projTargetLostLoc;
-    private int armor = 0;
+    private int armor;
     private int sentryRange = 10;
     private int nightVision = 16;
     private int strength = 1;
     private int followDistance = 16;
-    private int warningRange = 0;
+    private int warningRange;
     private int respawnDelaySeconds = 10;
-    private double healRate = 0.0;
+    private double healRate;
     private double attackRateSeconds = 2.0;
     private double sentryHealth = 20;
     private double sentryWeight = 1.0;
     private float sentrySpeed = (float) 1.0;
     private boolean killsDropInventory = true;
-    private boolean dropInventory = false;
+    private boolean dropInventory;
     private boolean targetable = true;
     private boolean luckyHits = true;
-    private boolean ignoreLOS = false;
-    private boolean invincible = false;
+    private boolean ignoreLOS;
+    private boolean invincible;
     private boolean retaliate = true;
-    private int lightningLevel = 0;
-    private boolean incendiary = false;
+    private int lightningLevel;
+    private boolean incendiary;
     private int mountID = -1;
     //Enderpearl count
-    private int epCount = 0;
+    private int epCount;
     private String greetingMessage = "&a<NPC> says: Welcome, <PLAYER>!";
     private String warningMessage = "&a<NPC> says: Halt! Come no further!";
-    private LivingEntity guardEntity = null;
-    private String guardTarget = null;
-    private Packet healAnimation = null;
+    private LivingEntity guardEntity;
+    private String guardTarget;
+    private Packet healAnimation;
     private List<String> ignoreTargets = new ArrayList<>();
     private List<String> validTargets = new ArrayList<>();
-    private boolean lightning = false;
+    private boolean lightning;
     private LivingEntity meleeTarget;
     private Class<? extends Projectile> myProjectile;
     private long okToFire = System.currentTimeMillis();
     private long okToHeal = System.currentTimeMillis();
     private long okToReassess = System.currentTimeMillis();
-    private long okToTakeDamage = 0;
-    private List<PotionEffect> potionEffects = null;
-    private ItemStack potionType = null;
+    private long okToTakeDamage;
+    private List<PotionEffect> potionEffects;
+    private ItemStack potionType;
     private LivingEntity projectileTarget;
 
     /* Internals */
     private Status sentryStatus = Status.DYING;
-    private Location Spawn = null;
+    private Location Spawn;
 
     /* Technicals */
     private int taskID = -1;
-    private boolean mountCreated = false;
-    private int targets = 0;
-    private int ignores = 0;
+    private boolean mountCreated;
+    private int targets;
+    private int ignores;
     public SentryInstance(final Sentry plugin) {
         this.plugin = plugin;
         this.isRespawnable = System.currentTimeMillis();
@@ -215,10 +215,10 @@ public class SentryInstance {
                 if (this.hasIgnoreType(Target.NAMED_NPCS.level) && containsIgnore("NPC:" + name)) { return true; }
 
                 else if (hasIgnoreType(Target.GROUPS.level)) {
-                    @SuppressWarnings("deprecation")
-                    final String[] groups1 = this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
-                    @SuppressWarnings("deprecation")
-                    final String[] groups2 = this.plugin.perms.getPlayerGroups((World) null, name); //global perms
+                    @SuppressWarnings("deprecation") final String[] groups1 =
+                        this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
+                    @SuppressWarnings("deprecation") final String[] groups2 =
+                        this.plugin.perms.getPlayerGroups((World) null, name); //global perms
 
                     if (groups1 != null) {
                         for (final String aGroups1 : groups1) {
@@ -349,10 +349,10 @@ public class SentryInstance {
             if (this.hasTargetType(Target.NAMED_NPCS.level) && containsTarget("NPC:" + name)) { return true; }
 
             if (this.hasTargetType(Target.GROUPS.level)) {
-                @SuppressWarnings("deprecation")
-                final String[] groups1 = this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
-                @SuppressWarnings("deprecation")
-                final String[] groups2 = this.plugin.perms.getPlayerGroups((World) null, name); //global perms
+                @SuppressWarnings("deprecation") final String[] groups1 =
+                    this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
+                @SuppressWarnings("deprecation") final String[] groups2 =
+                    this.plugin.perms.getPlayerGroups((World) null, name); //global perms
                 //		String[] groups3 = plugin.perms.getPlayerGroups(aTarget.getWorld().getName(),name); // world perms
                 //	String[] groups4 = plugin.perms.getPlayerGroups((Player)aTarget); // world perms
 

@@ -16,7 +16,7 @@ import java.util.List;
 @SuppressWarnings("WeakerAccess")
 public class SentryTrait extends Trait implements Toggleable {
 
-    private Sentry plugin = null;
+    private final Sentry plugin;
 
     private boolean isToggled = true;
     private SentryInstance thisInstance;

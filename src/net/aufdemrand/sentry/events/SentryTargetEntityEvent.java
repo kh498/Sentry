@@ -24,7 +24,7 @@ public class SentryTargetEntityEvent extends Event implements Cancellable {
     private final LivingEntity target;
     private final NPC npc;
     private final boolean isRetaliating;
-    private boolean isCancelled = false;
+    private boolean isCancelled;
 
     public SentryTargetEntityEvent(final NPC npc, final LivingEntity target, final boolean isRetaliating) {
         this.npc = npc;
@@ -43,7 +43,7 @@ public class SentryTargetEntityEvent extends Event implements Cancellable {
     public boolean isRetaliating() {
         return this.isRetaliating;
     }
-    
+
     @Override
     public HandlerList getHandlers() {
         return handlers;

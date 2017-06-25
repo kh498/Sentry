@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.Random;
 
 public class SpiderAttackStrategy implements net.citizensnpcs.api.ai.AttackStrategy {
-    private Sentry plugin = null;
+    private final Sentry plugin;
     private final Random random = new Random();
 
     public SpiderAttackStrategy(final Sentry plugin) {
