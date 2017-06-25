@@ -157,32 +157,32 @@ public class SentryInstance {
                     return true;
                 }
 
-                if (this.hasIgnoreType(Target.TOWNY.level)) {
-                    final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
+//                if (this.hasIgnoreType(Target.TOWNY.level)) {
+//                    final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
+//
+//                    if (info[1] != null) {
+//                        if (containsIgnore("TOWN:" + info[1])) { return true; }
+//                    }
+//
+//                    if (info[0] != null) {
+//                        if (containsIgnore("NATION:" + info[0])) { return true; }
+//                    }
+//                }
 
-                    if (info[1] != null) {
-                        if (containsIgnore("TOWN:" + info[1])) { return true; }
-                    }
-
-                    if (info[0] != null) {
-                        if (containsIgnore("NATION:" + info[0])) { return true; }
-                    }
-                }
-
-                if (this.hasIgnoreType(Target.FACTION.level)) {
-                    final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
-                    //	plugin.getLogger().info(faction);
-                    if (faction != null) {
-                        if (containsIgnore("FACTION:" + faction)) { return true; }
-                    }
-                }
-                if (this.hasIgnoreType(Target.WAR.level)) {
-                    final String team = this.plugin.getWarTeam((Player) aTarget);
-                    //	plugin.getLogger().info(faction);
-                    if (team != null) {
-                        if (containsIgnore("WARTEAM:" + team)) { return true; }
-                    }
-                }
+//                if (this.hasIgnoreType(Target.FACTION.level)) {
+//                    final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
+//                    //	plugin.getLogger().info(faction);
+//                    if (faction != null) {
+//                        if (containsIgnore("FACTION:" + faction)) { return true; }
+//                    }
+//                }
+//                if (this.hasIgnoreType(Target.WAR.level)) {
+//                    final String team = this.plugin.getWarTeam((Player) aTarget);
+//                    //	plugin.getLogger().info(faction);
+//                    if (team != null) {
+//                        if (containsIgnore("WARTEAM:" + team)) { return true; }
+//                    }
+//                }
                 if (this.hasIgnoreType(Target.MC_TEAMS.level)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
@@ -190,23 +190,23 @@ public class SentryInstance {
                         if (containsIgnore("TEAM:" + team)) { return true; }
                     }
                 }
-                if (this.hasIgnoreType(Target.CLANS.level)) {
-                    final String clan = this.plugin.getClan((Player) aTarget);
-                    //	plugin.getLogger().info(faction);
-                    if (clan != null) {
-                        if (containsIgnore("CLAN:" + clan)) { return true; }
-                    }
-                }
+//                if (this.hasIgnoreType(Target.CLANS.level)) {
+//                    final String clan = this.plugin.getClan((Player) aTarget);
+//                    //	plugin.getLogger().info(faction);
+//                    if (clan != null) {
+//                        if (containsIgnore("CLAN:" + clan)) { return true; }
+//                    }
+//                }
             }
         }
 
-        else if (net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
+        else if (CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
             if (this.hasIgnoreType(Target.NPCS.level)) {
                 return true;
             }
 
-            final NPC npc = net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(aTarget);
+            final NPC npc = CitizensAPI.getNPCRegistry().getNPC(aTarget);
 
             if (npc != null) {
 
@@ -273,52 +273,52 @@ public class SentryInstance {
                     return true;
                 }
 
-                if (this.hasTargetType(Target.TOWNY.level) || (this.hasTargetType(Target.TOWNY_ENEMIES.level))) {
-                    final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
+//                if (this.hasTargetType(Target.TOWNY.level) || (this.hasTargetType(Target.TOWNY_ENEMIES.level))) {
+//                    final String[] info = this.plugin.getResidentTownyInfo((Player) aTarget);
+//
+//                    if (this.hasTargetType(Target.TOWNY.level) && info[1] != null) {
+//                        if (this.containsTarget("TOWN:" + info[1])) { return true; }
+//                    }
+//
+//                    if (info[0] != null) {
+//                        if (this.hasTargetType(Target.TOWNY.level) && this.containsTarget("NATION:" + info[0])) {
+//                            return true;
+//                        }
+//
+//                        if (this.hasTargetType(Target.TOWNY_ENEMIES.level)) {
+//                            for (final String s : this._nationsEnemies) {
+//                                if (this.plugin.isNationEnemy(s, info[0])) { return true; }
+//                            }
+//                        }
+//
+//                    }
+//                }
 
-                    if (this.hasTargetType(Target.TOWNY.level) && info[1] != null) {
-                        if (this.containsTarget("TOWN:" + info[1])) { return true; }
-                    }
+//                if (this.hasTargetType(Target.FACTION.level) || this.hasTargetType(Target.FACTION_ENEMIES.level)) {
+//                    if (Sentry.FactionsActive) {
+//                        final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
+//
+//                        if (faction != null) {
+//                            if (this.containsTarget("FACTION:" + faction)) { return true; }
+//
+//                            if (this.hasTargetType(Target.FACTION_ENEMIES.level)) {
+//                                for (final String s : this._factionEnemies) {
+//                                    if (FactionsUtil.isFactionEnemy(s, faction)) {
+//                                        return true;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
 
-                    if (info[0] != null) {
-                        if (this.hasTargetType(Target.TOWNY.level) && this.containsTarget("NATION:" + info[0])) {
-                            return true;
-                        }
-
-                        if (this.hasTargetType(Target.TOWNY_ENEMIES.level)) {
-                            for (final String s : this._nationsEnemies) {
-                                if (this.plugin.isNationEnemy(s, info[0])) { return true; }
-                            }
-                        }
-
-                    }
-                }
-
-                if (this.hasTargetType(Target.FACTION.level) || this.hasTargetType(Target.FACTION_ENEMIES.level)) {
-                    if (Sentry.FactionsActive) {
-                        final String faction = FactionsUtil.getFactionsTag((Player) aTarget);
-
-                        if (faction != null) {
-                            if (this.containsTarget("FACTION:" + faction)) { return true; }
-
-                            if (this.hasTargetType(Target.FACTION_ENEMIES.level)) {
-                                for (final String s : this._factionEnemies) {
-                                    if (FactionsUtil.isFactionEnemy(s, faction)) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (this.hasTargetType(Target.WAR.level)) {
-                    final String team = this.plugin.getWarTeam((Player) aTarget);
-                    //	plugin.getLogger().info(faction);
-                    if (team != null) {
-                        if (this.containsTarget("WARTEAM:" + team)) { return true; }
-                    }
-                }
+//                if (this.hasTargetType(Target.WAR.level)) {
+//                    final String team = this.plugin.getWarTeam((Player) aTarget);
+//                    //	plugin.getLogger().info(faction);
+//                    if (team != null) {
+//                        if (this.containsTarget("WARTEAM:" + team)) { return true; }
+//                    }
+//                }
                 if (this.hasTargetType(Target.MC_TEAMS.level)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
@@ -326,23 +326,23 @@ public class SentryInstance {
                         if (this.containsTarget("TEAM:" + team)) { return true; }
                     }
                 }
-                if (this.hasTargetType(Target.CLANS.level)) {
-                    final String clan = this.plugin.getClan((Player) aTarget);
-                    //	plugin.getLogger().info(faction);
-                    if (clan != null) {
-                        if (this.containsTarget("CLAN:" + clan)) { return true; }
-                    }
-                }
+//                if (this.hasTargetType(Target.CLANS.level)) {
+//                    final String clan = this.plugin.getClan((Player) aTarget);
+//                    //	plugin.getLogger().info(faction);
+//                    if (clan != null) {
+//                        if (this.containsTarget("CLAN:" + clan)) { return true; }
+//                    }
+//                }
             }
         }
 
-        else if (net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
+        else if (CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
             if (this.hasTargetType(Target.NPCS.level)) {
                 return true;
             }
 
-            final NPC npc = net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(aTarget);
+            final NPC npc = CitizensAPI.getNPCRegistry().getNPC(aTarget);
 
             final String name = npc.getName();
 
@@ -396,51 +396,7 @@ public class SentryInstance {
 
         clearTarget();
 
-        boolean handled = false;
-
-        if (runScripts && this.plugin.DenizenActive) {
-            handled = DenizenHook.SentryDeath(this._myDamagers, this.myNPC);
-        }
-        if (handled) { return; }
-
-        if (this.plugin.DenizenActive) {
-            try {
-                Entity killer = getMyEntity().getKiller();
-                if (killer == null) {
-                    //might have been a projectile.
-                    final EntityDamageEvent ev = getMyEntity().getLastDamageCause();
-                    if (ev != null && ev instanceof EntityDamageByEntityEvent) {
-                        killer = ((EntityDamageByEntityEvent) ev).getDamager();
-                    }
-                }
-
-                DenizenHook.DenizenAction(this.myNPC, "death", null);
-                DenizenHook.DenizenAction(this.myNPC, "death by" + cause.toString().replace(" ", "_"), null);
-
-                if (killer != null) {
-
-                    if (killer instanceof Projectile && ((Projectile) killer).getShooter() != null &&
-                        ((Projectile) killer).getShooter() instanceof Entity) {
-                        killer = (Entity) ((Projectile) killer).getShooter();
-                    }
-
-                    this.plugin.debug(this.myNPC, "Running Denizen actions with killer: " + killer.toString());
-
-                    if (killer instanceof org.bukkit.OfflinePlayer) {
-                        DenizenHook.DenizenAction(this.myNPC, "death by player", (org.bukkit.OfflinePlayer) killer);
-                    }
-                    else {
-                        DenizenHook.DenizenAction(this.myNPC, "death by entity", null);
-                        DenizenHook.DenizenAction(this.myNPC, "death by " + killer.getType().toString(), null);
-                    }
-
-                }
-
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
-
-        }
+        final boolean handled = false;
 
         this.sentryStatus = Status.DEAD;
 
@@ -929,12 +885,6 @@ public class SentryInstance {
             this.Spawn = getMyEntity().getLocation();
         }
 
-        if (this.plugin.DenizenActive) {
-            if (this.myNPC.hasTrait(net.aufdemrand.denizen.npc.traits.HealthTrait.class)) {
-                this.myNPC.removeTrait(net.aufdemrand.denizen.npc.traits.HealthTrait.class);
-            }
-        }
-
         //disable citizens respawning. Cause Sentry doesn't always raise EntityDeath
         this.myNPC.data().set("respawn-delay", -1);
 
@@ -1246,20 +1196,20 @@ public class SentryInstance {
                     else if (t.contains("EVENT:")) { this.targets |= Target.EVENTS.level; }
                     else if (t.contains("PLAYER:")) { this.targets |= Target.NAMED_PLAYERS.level; }
                     else if (t.contains("ENTITY:")) { this.targets |= Target.NAMED_ENTITIES.level; }
-                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.targets |= Target.FACTION.level; }
-                    else if (Sentry.FactionsActive && t.contains("FACTIONENEMIES:")) {
-                        this.targets |= Target.FACTION_ENEMIES.level;
-                        this._factionEnemies.add(t.split(":")[1]);
-                    }
-                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.targets |= Target.TOWNY.level; }
-                    else if (this.plugin.TownyActive && t.contains("NATIONENEMIES:")) {
-                        this.targets |= Target.TOWNY_ENEMIES.level;
-                        this._nationsEnemies.add(t.split(":")[1]);
-                    }
-                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.targets |= Target.TOWNY.level; }
-                    else if (this.plugin.WarActive && t.contains("WARTEAM:")) { this.targets |= Target.WAR.level; }
+//                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.targets |= Target.FACTION.level; }
+//                    else if (Sentry.FactionsActive && t.contains("FACTIONENEMIES:")) {
+//                        this.targets |= Target.FACTION_ENEMIES.level;
+//                        this._factionEnemies.add(t.split(":")[1]);
+//                    }
+//                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.targets |= Target.TOWNY.level; }
+//                    else if (this.plugin.TownyActive && t.contains("NATIONENEMIES:")) {
+//                        this.targets |= Target.TOWNY_ENEMIES.level;
+//                        this._nationsEnemies.add(t.split(":")[1]);
+//                    }
+//                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.targets |= Target.TOWNY.level; }
+//                    else if (this.plugin.WarActive && t.contains("WARTEAM:")) { this.targets |= Target.WAR.level; }
                     else if (t.contains("TEAM:")) { this.targets |= Target.MC_TEAMS.level; }
-                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.targets |= Target.CLANS.level; }
+//                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.targets |= Target.CLANS.level; }
                 }
             }
             for (final String t : this.ignoreTargets) {
@@ -1276,11 +1226,11 @@ public class SentryInstance {
                     else if (t.contains("NPC:")) { this.ignores |= Target.NAMED_NPCS.level; }
                     else if (t.contains("PLAYER:")) { this.ignores |= Target.NAMED_PLAYERS.level; }
                     else if (t.contains("ENTITY:")) { this.ignores |= Target.NAMED_ENTITIES.level; }
-                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.ignores |= Target.FACTION.level; }
-                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.ignores |= Target.TOWNY.level; }
-                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.ignores |= Target.TOWNY.level; }
-                    else if (this.plugin.WarActive && t.contains("TEAM:")) { this.ignores |= Target.WAR.level; }
-                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.ignores |= Target.CLANS.level; }
+//                    else if (Sentry.FactionsActive && t.contains("FACTION:")) { this.ignores |= Target.FACTION.level; }
+//                    else if (this.plugin.TownyActive && t.contains("TOWN:")) { this.ignores |= Target.TOWNY.level; }
+//                    else if (this.plugin.TownyActive && t.contains("NATION:")) { this.ignores |= Target.TOWNY.level; }
+//                    else if (this.plugin.WarActive && t.contains("TEAM:")) { this.ignores |= Target.WAR.level; }
+//                    else if (this.plugin.ClansActive && t.contains("CLAN:")) { this.ignores |= Target.CLANS.level; }
                 }
             }
         } catch (final Exception e) {

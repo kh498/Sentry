@@ -9,14 +9,8 @@ public enum Target {
     NAMED_ENTITIES(powTwo(5)),      /* 32 */
     NAMED_PLAYERS(powTwo(6)),       /* 64 */
     NAMED_NPCS(powTwo(7)),          /* 128 */
-    FACTION(powTwo(8)),             /* 256 */
-    TOWNY(powTwo(9)),               /* 512 */
-    WAR(powTwo(10)),                /* 1024 */
     GROUPS(powTwo(11)),             /* 2048 */
     OWNER(powTwo(12)),              /* 4098 */
-    CLANS(powTwo(13)),              /* 8196 */
-    TOWNY_ENEMIES(powTwo(14)),      /* 16384 */
-    FACTION_ENEMIES(powTwo(15)),    /* 32768 */
     MC_TEAMS(powTwo(16));           /* 65536 */
 
     public final int level;

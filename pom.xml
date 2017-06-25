@@ -28,12 +28,8 @@
             <url>http://repo.bukkit.org/content/groups/public/</url>
         </repository>
         <repository>
-            <id>everything</id>
+            <id>citizensnpcs</id>
             <url>http://repo.citizensnpcs.co</url>
-        </repository>
-        <repository>
-            <id>simpleclans-repo</id>
-            <url>http://repo.greatmancode.com/content/repositories/snapshots/</url>
         </repository>
         <repository>
             <id>sk89q-repo</id>
@@ -65,53 +61,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.aufdemrand</groupId>
-            <artifactId>denizen</artifactId>
-            <version>0.9.8-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.p000ison.dev.simpleclans2</groupId>
-            <artifactId>SimpleClans2</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/SimpleClans.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.tommytony.war</groupId>
-            <artifactId>war</artifactId>
-            <version>1.7.4</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/War.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.palmergames.bukkit</groupId>
-            <artifactId>towny</artifactId>
-            <version>0.84.0.4</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/Towny.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>factions</artifactId>
-            <version>2.7.5</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/Factions.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>mcore</artifactId>
-            <version>2.7.5</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/mcore.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
             <version>LATEST</version>
@@ -120,49 +69,4 @@
             <systemPath>${project.basedir}/lib/Vault.jar</systemPath>
         </dependency>
     </dependencies>
-
-    <ciManagement>
-        <system>jenkins</system>
-        <url>http://ci.citizensnpcs.co</url>
-    </ciManagement>
-    <scm>
-        <connection>scm:git:git://github.com/kh498/Sentry.git</connection>
-        <developerConnection>scm:git:git:@github.com:kh498/Sentry.git</developerConnection>
-        <url>https://github.com/kh498/Sentry/tree/master/</url>
-    </scm>
-
-    <build>
-        <defaultGoal>clean package install</defaultGoal>
-        <finalName>${project.name}</finalName>
-        <sourceDirectory>${basedir}/src/</sourceDirectory>
-        <resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>*.yml</include>
-                </includes>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <version>3.1</version>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <optimize>true</optimize>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-            </plugin>
-        </plugins>
-    </build>
-
-    <url>http://wiki.citizensnpcs.co/Sentry</url>
 </project>

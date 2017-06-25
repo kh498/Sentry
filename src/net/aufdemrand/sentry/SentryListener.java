@@ -368,10 +368,10 @@ public class SentryListener implements Listener {
 
                 final LivingEntity livingKiller = killer instanceof LivingEntity ? (LivingEntity) killer : null;
 
-                if (this.plugin.DenizenActive) {
-                    DenizenHook.DenizenAction(npc, "mount death",
-                                              (livingKiller instanceof Player ? (Player) livingKiller : null));
-                }
+//                if (this.plugin.DenizenActive) {
+//                    DenizenHook.DenizenAction(npc, "mount death",
+//                                              (livingKiller instanceof Player ? (Player) livingKiller : null));
+//                }
 
                 if (livingKiller == null) { return; }
                 if (inst.isIgnored(livingKiller)) { return; }

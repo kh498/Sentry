@@ -1,6 +1,5 @@
 package net.aufdemrand.sentry;
 
-import com.palmergames.bukkit.towny.object.TownBlock;
 import net.citizensnpcs.Citizens;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
@@ -293,28 +292,8 @@ public class Sentry extends JavaPlugin {
 
         return new PotionEffect(type, dur, amp);
     }
-    public String[] getResidentTownyInfo(final Player player) {
-        final String[] info = {null, null};
 
-        if (!this.TownyActive) { return info; }
-
-        final com.palmergames.bukkit.towny.object.Resident resident;
-        try {
-            resident = com.palmergames.bukkit.towny.object.TownyUniverse.getDataSource().getResident(player.getName());
-            if (resident.hasTown()) {
-                info[1] = resident.getTown().getName();
-                if (resident.getTown().hasNation()) {
-                    info[0] = resident.getTown().getNation().getName();
-                }
-
-            }
-        } catch (final Exception e) {
-            return info;
-        }
-
-        return info;
-    }
-    public SentryInstance getSentry(final Entity ent) {
+    public static SentryInstance getSentry(final Entity ent) {
         if (ent == null) { return null; }
         if (!(ent instanceof org.bukkit.entity.LivingEntity)) { return null; }
         final NPC npc = net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(ent);
@@ -324,23 +303,14 @@ public class Sentry extends JavaPlugin {
 
         return null;
     }
-    public SentryInstance getSentry(final NPC npc) {
+
+    public static SentryInstance getSentry(final NPC npc) {
         if (npc != null && npc.hasTrait(SentryTrait.class)) {
             return npc.getTrait(SentryTrait.class).getInstance();
         }
         return null;
     }
-    public String getWarTeam(final Player player) {
-        if (!this.WarActive) { return null; }
-        try {
-            final com.tommytony.war.Team t = com.tommytony.war.Team.getTeamByPlayerName(player.getName());
-            if (t != null) { return t.getName(); }
-        } catch (final Exception e) {
-            getLogger().info("Error getting Team " + e.getMessage());
-            return null;
-        }
-        return null;
-    }
+
     public String getMCTeamName(final Player player) {
         @SuppressWarnings("deprecation") final Team t =
             getServer().getScoreboardManager().getMainScoreboard().getPlayerTeam(player);
@@ -349,27 +319,7 @@ public class Sentry extends JavaPlugin {
         }
         return null;
     }
-    boolean isNationEnemy(final String Nation1, final String Nation2) {
-        if (!this.TownyActive) { return false; }
-        if (Nation1.equalsIgnoreCase(Nation2)) { return false; }
-        try {
 
-            if (!com.palmergames.bukkit.towny.object.TownyUniverse.getDataSource().hasNation(Nation1) ||
-                !com.palmergames.bukkit.towny.object.TownyUniverse.getDataSource().hasNation(Nation2)) { return false; }
-
-            final com.palmergames.bukkit.towny.object.Nation theNation1 =
-                com.palmergames.bukkit.towny.object.TownyUniverse.getDataSource().getNation(Nation1);
-            final com.palmergames.bukkit.towny.object.Nation theNation2 =
-                com.palmergames.bukkit.towny.object.TownyUniverse.getDataSource().getNation(Nation2);
-
-            if (theNation1.hasEnemy(theNation2) || theNation2.hasEnemy(theNation1)) { return true; }
-
-        } catch (final Exception e) {
-            return false;
-        }
-
-        return false;
-    }
     public void loadItemList(final String key, final List<Material> list) {
         final List<String> stringList = getConfig().getStringList(key);
 
@@ -1230,18 +1180,7 @@ public class Sentry extends JavaPlugin {
                 }
                 arg = new StringBuilder(arg.toString().trim());
 
-                if (arg.toString().equalsIgnoreCase("nationenemies") && inst.myNPC.isSpawned()) {
-                    final String nationName = getNationNameForLocation(inst.myNPC.getEntity().getLocation());
-                    if (nationName != null) {
-                        arg.append(":").append(nationName);
-                    }
-                    else {
-                        sender.sendMessage(ChatColor.RED + "Could not get Nation for this NPC's location");
-                        return true;
-                    }
-                }
-
-                if (args[1].equals("add") && arg.length() > 0 && arg.toString().split(":").length > 1) {
+                if ("add".equals(args[1]) && arg.length() > 0 && arg.toString().split(":").length > 1) {
 
                     if (!inst.containsTarget(arg.toString().toUpperCase())) {
                         inst.getValidTargets().add(arg.toString().toUpperCase());
@@ -1378,58 +1317,6 @@ public class Sentry extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-
-        try {
-
-            if (checkPlugin("Denizen")) {
-                final String denizenVersion =
-                    getServer().getPluginManager().getPlugin("Denizen").getDescription().getVersion();
-                if (denizenVersion.startsWith("0.7") || denizenVersion.startsWith("0.8")) {
-                    getLogger().log(Level.WARNING, "Sentry is not compatible with Denizen .7 or .8");
-                }
-                else if (denizenVersion.startsWith("0.9")) {
-                    DenizenHook.DenizenPlugin = getServer().getPluginManager().getPlugin("Denizen");
-                    DenizenHook.setupDenizenHook();
-                    this.DenizenActive = true;
-                }
-                else {
-                    getLogger().log(Level.WARNING, "Unknown version of Denizen");
-                }
-            }
-        } catch (final NoClassDefFoundError | Exception e) {
-            getLogger().log(Level.WARNING, "An error occurred attempting to register with Denizen " + e.getMessage());
-        }
-
-        if (this.DenizenActive) {
-            getLogger().log(Level.INFO, "NPCDeath Triggers and DIE/LIVE command registered successfully with Denizen");
-        }
-        else { getLogger().log(Level.INFO, "Could not register with Denizen"); }
-
-        if (checkPlugin("Towny")) {
-            getLogger()
-                .log(Level.INFO, "Registered with Towny successfully. the TOWN: and NATION: targets will function");
-            this.TownyActive = true;
-        }
-        else { getLogger().log(Level.INFO, "Could not find or register with Towny"); }
-
-        if (checkPlugin("Factions")) {
-            getLogger().log(Level.INFO, "Registered with Factions successfully. the FACTION: target will function");
-            FactionsActive = true;
-        }
-        else { getLogger().log(Level.INFO, "Could not find or register with Factions."); }
-
-        if (checkPlugin("War")) {
-            getLogger().log(Level.INFO, "Registered with War successfully. The TEAM: target will function");
-            this.WarActive = true;
-        }
-        else { getLogger().log(Level.INFO, "Could not find or register with War. "); }
-
-        if (checkPlugin("SimpleClans")) {
-            getLogger().log(Level.INFO, "Registered with SimpleClans successfully. The CLAN: target will function");
-            this.ClansActive = true;
-        }
-        else { getLogger().log(Level.INFO, "Could not find or register with SimpleClans. "); }
-
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(SentryTrait.class).withName("sentry"));
 
         Sentry.instance = this;
