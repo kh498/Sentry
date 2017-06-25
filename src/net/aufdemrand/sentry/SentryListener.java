@@ -27,7 +27,7 @@ public class SentryListener implements Listener {
     }
 
     @EventHandler
-    public void kill(final org.bukkit.event.entity.EntityDeathEvent event) {
+    public static void kill(final org.bukkit.event.entity.EntityDeathEvent event) {
 
         if (event.getEntity() == null) { return; }
 
@@ -46,7 +46,7 @@ public class SentryListener implements Listener {
             }
         }
 
-        final SentryInstance sentry = this.plugin.getSentry(killer);
+        final SentryInstance sentry = Sentry.getSentry(killer);
 
         if (sentry != null && !sentry.doesKillsDropInventory()) {
             event.getDrops().clear();
@@ -55,8 +55,8 @@ public class SentryListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void despawn(final net.citizensnpcs.api.event.NPCDespawnEvent event) {
-        final SentryInstance sentry = this.plugin.getSentry(event.getNPC());
+    public static void despawn(final net.citizensnpcs.api.event.NPCDespawnEvent event) {
+        final SentryInstance sentry = Sentry.getSentry(event.getNPC());
         //don't despawn active bodyguards on chunk unload
         if (sentry != null && event.getReason() == net.citizensnpcs.api.event.DespawnReason.CHUNK_UNLOAD &&
             sentry.getGuardEntity() != null) {
@@ -65,16 +65,16 @@ public class SentryListener implements Listener {
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public void entityTeleportEvent(final org.bukkit.event.entity.EntityTeleportEvent event) {
-        final SentryInstance sentry = this.plugin.getSentry(event.getEntity());
+    public static void entityTeleportEvent(final org.bukkit.event.entity.EntityTeleportEvent event) {
+        final SentryInstance sentry = Sentry.getSentry(event.getEntity());
         if (sentry != null && sentry.getEpCount() != 0 && sentry.isWarlock1()) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public void entityTeleportEvent(final org.bukkit.event.player.PlayerTeleportEvent event) {
-        final SentryInstance sentry = this.plugin.getSentry(event.getPlayer());
+    public static void entityTeleportEvent(final org.bukkit.event.player.PlayerTeleportEvent event) {
+        final SentryInstance sentry = Sentry.getSentry(event.getPlayer());
         if (sentry != null) {
             if (sentry.getEpCount() != 0 && sentry.isWarlock1() &&
                 event.getCause() == org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
@@ -86,7 +86,7 @@ public class SentryListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void projectileHit(final ProjectileHitEvent event) {
         if (event.getEntity() instanceof EnderPearl && event.getEntity().getShooter() instanceof Entity) {
-            final SentryInstance sentry = this.plugin.getSentry((Entity) event.getEntity().getShooter());
+            final SentryInstance sentry = Sentry.getSentry((Entity) event.getEntity().getShooter());
             if (sentry != null) {
                 sentry.setEpCount(sentry.getEpCount() - 1);
                 if (sentry.getEpCount() < 0) { sentry.setEpCount(0); }
@@ -97,7 +97,7 @@ public class SentryListener implements Listener {
         }
         else if (event.getEntity() instanceof SmallFireball && event.getEntity().getShooter() instanceof Entity) {
             final org.bukkit.block.Block block = event.getEntity().getLocation().getBlock();
-            final SentryInstance sentry = this.plugin.getSentry((Entity) event.getEntity().getShooter());
+            final SentryInstance sentry = Sentry.getSentry((Entity) event.getEntity().getShooter());
 
             if (sentry != null && sentry.isPyromancer1()) {
 
@@ -117,10 +117,10 @@ public class SentryListener implements Listener {
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public void EnvDamage(final EntityDamageEvent event) {
+    public static void EnvDamage(final EntityDamageEvent event) {
         if (event instanceof EntityDamageByEntityEvent || event.isCancelled()) { return; }
 
-        final SentryInstance inst = this.plugin.getSentry(event.getEntity());
+        final SentryInstance inst = Sentry.getSentry(event.getEntity());
         if (inst == null) { return; }
 
         event.setCancelled(true);
@@ -170,8 +170,8 @@ public class SentryListener implements Listener {
             }
         }
 
-        final SentryInstance sentryAttacker = this.plugin.getSentry(attacker);
-        final SentryInstance sentryDefender = this.plugin.getSentry(defender);
+        final SentryInstance sentryAttacker = Sentry.getSentry(attacker);
+        final SentryInstance sentryDefender = Sentry.getSentry(defender);
 
         this.plugin.debug(
             "start: from: " + attacker + " to " + defender + " cancelled " + event.isCancelled() + " damage " +
@@ -211,10 +211,10 @@ public class SentryListener implements Listener {
             }
 
             //don't hurt guard target.
-            if (defender == sentryAttacker.getGuardEntity()) { event.setCancelled(true); }
+            if (defender.equals(sentryAttacker.getGuardEntity())) { event.setCancelled(true); }
 
             //stop hitting yourself.
-            if (attacker == defender) { event.setCancelled(true); }
+            if (attacker.equals(defender)) { event.setCancelled(true); }
 
             //apply potion effects
             if (sentryAttacker.getPotionEffects() != null && !event.isCancelled() && defender instanceof LivingEntity) {
@@ -247,7 +247,7 @@ public class SentryListener implements Listener {
             //to a sentry
 
             //stop hitting yourself.
-            if (attacker == defender) { return; }
+            if (attacker.equals(defender)) { return; }
 
             //innate protections
             if (event.getCause() == DamageCause.LIGHTNING && sentryDefender.isStormcaller()) { return; }
@@ -258,15 +258,13 @@ public class SentryListener implements Listener {
             if (sentryDefender.getGuardTarget() == null) { event.setCancelled(false); }
 
             //don't take damage from guard entity.
-            if (attacker == sentryDefender.getGuardEntity()) { event.setCancelled(true); }
+            if (attacker.equals(sentryDefender.getGuardEntity())) { event.setCancelled(true); }
 
-            if (attacker != null) {
-                final NPC npc = net.citizensnpcs.api.CitizensAPI.getNPCRegistry().getNPC(attacker);
-                if (npc != null && npc.hasTrait(SentryTrait.class) && sentryDefender.getGuardEntity() != null) {
-                    if (npc.getTrait(SentryTrait.class).getInstance().getGuardEntity() ==
-                        sentryDefender.getGuardEntity()) { //don't take damage from co-guards.
-                        event.setCancelled(true);
-                    }
+            final NPC npc = CitizensAPI.getNPCRegistry().getNPC(attacker);
+            if (npc != null && npc.hasTrait(SentryTrait.class) && sentryDefender.getGuardEntity() != null) {
+                if (npc.getTrait(SentryTrait.class).getInstance().getGuardEntity()
+                       .equals(sentryDefender.getGuardEntity())) { //don't take damage from co-guards.
+                    event.setCancelled(true);
                 }
             }
 
@@ -281,28 +279,28 @@ public class SentryListener implements Listener {
         }
 
         //process this event on each sentry to check for respondable events.
-        if ((!event.isCancelled() || ok) && attacker != defender && event.getDamage() > 0) {
+        if ((!event.isCancelled() || ok) && !attacker.equals(defender) && event.getDamage() > 0) {
             checkForEvents(defender, attacker, event);
         }
     }
 
     private void checkForEvents(final Entity defender, final Entity attacker, final EntityDamageByEntityEvent event) {
         for (final NPC npc : CitizensAPI.getNPCRegistry()) {
-            final SentryInstance sentryInst = this.plugin.getSentry(npc);
+            final SentryInstance sentryInst = Sentry.getSentry(npc);
 
-            if (sentryInst == null || !npc.isSpawned() || npc.getEntity().getWorld() != defender.getWorld()) {
+            if (sentryInst == null || !npc.isSpawned() || !npc.getEntity().getWorld().equals(defender.getWorld())) {
                 continue; //not a sentry, or not this world, or dead.
             }
 
-            if (sentryInst.getGuardEntity() == defender) {
+            if (sentryInst.getGuardEntity().equals(defender)) {
                 if (sentryInst.isRetaliate() && attacker instanceof LivingEntity) {
                     sentryInst.setTarget((LivingEntity) attacker, true);
                 }
             }
 
             //are u attacking mai horse?
-            if (sentryInst.getMountNPC() != null && sentryInst.getMountNPC().getEntity() == defender) {
-                if (attacker == sentryInst.getGuardEntity()) {
+            if (sentryInst.getMountNPC() != null && sentryInst.getMountNPC().getEntity().equals(defender)) {
+                if (attacker.equals(sentryInst.getGuardEntity())) {
                     event.setCancelled(true);
                 }
                 else if (sentryInst.isRetaliate() && attacker instanceof LivingEntity) {
@@ -347,7 +345,7 @@ public class SentryListener implements Listener {
         final NPC eventNPC = event.getNPC();
         //if the mount dies carry aggression over.
         for (final NPC npc : CitizensAPI.getNPCRegistry()) {
-            final SentryInstance inst = this.plugin.getSentry(npc);
+            final SentryInstance inst = Sentry.getSentry(npc);
             if (inst == null || !npc.isSpawned() || !inst.isMounted()) {
                 continue; //not a sentry, dead, or not mounted
             }
@@ -368,11 +366,6 @@ public class SentryListener implements Listener {
 
                 final LivingEntity livingKiller = killer instanceof LivingEntity ? (LivingEntity) killer : null;
 
-//                if (this.plugin.DenizenActive) {
-//                    DenizenHook.DenizenAction(npc, "mount death",
-//                                              (livingKiller instanceof Player ? (Player) livingKiller : null));
-//                }
-
                 if (livingKiller == null) { return; }
                 if (inst.isIgnored(livingKiller)) { return; }
 
@@ -386,12 +379,12 @@ public class SentryListener implements Listener {
     }
 
     @EventHandler
-    public void onNPCRightClick(final net.citizensnpcs.api.event.NPCRightClickEvent event) {
-        final SentryInstance inst = this.plugin.getSentry(event.getNPC());
+    public static void onNPCRightClick(final net.citizensnpcs.api.event.NPCRightClickEvent event) {
+        final SentryInstance inst = Sentry.getSentry(event.getNPC());
         if (inst == null) { return; }
 
         if (inst.getMyNPC().getEntity() instanceof org.bukkit.entity.Horse) {
-            if (inst.getGuardEntity() != event.getClicker()) {
+            if (!inst.getGuardEntity().equals(event.getClicker())) {
                 event.setCancelled(true);
             }
         }

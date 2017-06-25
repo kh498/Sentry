@@ -9,9 +9,9 @@ public enum Target {
     NAMED_ENTITIES(powTwo(5)),      /* 32 */
     NAMED_PLAYERS(powTwo(6)),       /* 64 */
     NAMED_NPCS(powTwo(7)),          /* 128 */
-    GROUPS(powTwo(11)),             /* 2048 */
-    OWNER(powTwo(12)),              /* 4098 */
-    MC_TEAMS(powTwo(16));           /* 65536 */
+    GROUPS(powTwo(8)),              /* 256 */
+    OWNER(powTwo(9)),               /* 512 */
+    MC_TEAMS(powTwo(10));           /* 1024 */
 
     public final int level;
 

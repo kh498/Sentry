@@ -9,7 +9,6 @@ import net.citizensnpcs.api.trait.trait.Owner;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -64,10 +63,10 @@ public class Sentry extends JavaPlugin {
         add(Material.DIAMOND_BOOTS);
         add(Material.GOLD_BOOTS);
     }};
-    public final Map<Material, List<PotionEffect>> WeaponEffects = new HashMap<>();
-    public final Map<Material, Double> SpeedBuffs = new HashMap<>();
-    public final Map<Material, Double> StrengthBuffs = new HashMap<>();
-    public final Map<Material, Double> ArmorBuffs = new HashMap<>();
+    public final Map<Material, List<PotionEffect>> WeaponEffects = new EnumMap<>(Material.class);
+    public final Map<Material, Double> SpeedBuffs = new EnumMap<>(Material.class);
+    public final Map<Material, Double> StrengthBuffs = new EnumMap<>(Material.class);
+    public final Map<Material, Double> ArmorBuffs = new EnumMap<>(Material.class);
     public final Queue<Projectile> arrows = new LinkedList<>();
     public int sentryEXP = 5;
     public int logicTicks = 10;
@@ -102,17 +101,11 @@ public class Sentry extends JavaPlugin {
     public Material bombardier;
     //Denizen Hook
     public boolean DieLikePlayers;
-    //SimpleClans sSupport
-    boolean ClansActive;
-    //TownySupport
-    boolean TownyActive;
-    //War sSupport
-    boolean WarActive;
-    boolean DenizenActive;
     public boolean debug;
     public static Sentry getInstance() {
         return instance;
     }
+
     private boolean checkPlugin(final String name) {
         if (getServer().getPluginManager().getPlugin(name) != null) {
             if (getServer().getPluginManager().getPlugin(name).isEnabled()) {
@@ -233,35 +226,12 @@ public class Sentry extends JavaPlugin {
         }
 
     }
-    public String getClan(final Player player) {
-        if (!this.ClansActive) { return null; }
-        try {
-            final net.sacredlabyrinth.phaed.simpleclans.Clan c =
-                net.sacredlabyrinth.phaed.simpleclans.SimpleClans.getInstance().getClanManager()
-                                                                 .getClanByPlayerName(player.getName());
-            if (c != null) { return c.getName(); }
-        } catch (final Exception e) {
-            getLogger().info("Error getting Clan " + e.getMessage());
-            return null;
-        }
-        return null;
-    }
-    private Material getMaterial(final String str) {
+
+    private static Material getMaterial(final String str) {
         return str == null ? null : Material.getMaterial(str.toUpperCase());
     }
-    public String getNationNameForLocation(final Location l) {
-        if (!this.TownyActive) { return null; }
-        try {
-            final TownBlock tb = com.palmergames.bukkit.towny.object.TownyUniverse.getTownBlock(l);
-            if (tb != null) {
-                if (tb.getTown().hasNation()) { return tb.getTown().getNation().getName(); }
-            }
-        } catch (final Exception e) {
-            return null;
-        }
-        return null;
-    }
-    private PotionEffect getPotion(final String S) {
+
+    private static PotionEffect getPotion(final String S) {
         if (S == null) { return null; }
         final String[] args = S.trim().split(":");
 
@@ -401,11 +371,11 @@ public class Sentry extends JavaPlugin {
 
         Boolean set = null;
         if (args.length == 2) {
-            if (args[1].equalsIgnoreCase("true")) { set = true; }
-            else if (args[1].equalsIgnoreCase("false")) { set = false; }
+            if ("true".equalsIgnoreCase(args[1])) { set = true; }
+            else if ("false".equalsIgnoreCase(args[1])) { set = false; }
         }
 
-        if (args[0].equalsIgnoreCase("help")) {
+        if ("help".equalsIgnoreCase(args[0])) {
 
             sender.sendMessage(ChatColor.GOLD + "------- Sentry Commands -------");
             sender.sendMessage(ChatColor.GOLD +
@@ -471,14 +441,14 @@ public class Sentry extends JavaPlugin {
                 ChatColor.YELLOW + " Change the greeting text. <NPC> and <PLAYER> can be used as placeholders");
             return true;
         }
-        else if (args[0].equalsIgnoreCase("debug")) {
+        else if ("debug".equalsIgnoreCase(args[0])) {
 
             this.debug = !this.debug;
 
             sender.sendMessage(ChatColor.GREEN + "Debug now: " + this.debug);
             return true;
         }
-        else if (args[0].equalsIgnoreCase("reload")) {
+        else if ("reload".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.reload")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -529,7 +499,7 @@ public class Sentry extends JavaPlugin {
                 }
                 else {
                     //has citizens.admin
-                    if (!ThisNPC.getTrait(Owner.class).getOwner().equalsIgnoreCase("server")) {
+                    if (!"server".equalsIgnoreCase(ThisNPC.getTrait(Owner.class).getOwner())) {
                         //not server-owned NPC
                         sender.sendMessage(ChatColor.RED +
                                            "You, or the server, must be the owner of this Sentry to execute commands.");
@@ -543,7 +513,7 @@ public class Sentry extends JavaPlugin {
 
         final SentryInstance inst = ThisNPC.getTrait(SentryTrait.class).getInstance();
 
-        if (args[0].equalsIgnoreCase("spawn")) {
+        if ("spawn".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.spawn")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -558,7 +528,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("invincible")) {
+        else if ("invincible".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.invincible")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -575,7 +545,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("retaliate")) {
+        else if ("retaliate".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.retaliate")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -593,7 +563,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("criticals")) {
+        else if ("criticals".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.criticals")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -612,7 +582,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("drops")) {
+        else if ("drops".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.drops")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -630,7 +600,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("killdrops")) {
+        else if ("killdrops".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.killdrops")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -649,7 +619,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("targetable")) {
+        else if ("targetable".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.targetable")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -669,7 +639,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("mount")) {
+        else if ("mount".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.options.mount")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -691,7 +661,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("guard")) {
+        else if ("guard".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.guard")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -703,12 +673,12 @@ public class Sentry extends JavaPlugin {
 
             if (args.length > 1) {
 
-                if (args[1].equalsIgnoreCase("-p")) {
+                if ("-p".equalsIgnoreCase(args[1])) {
                     start = 2;
                     playersOnly = true;
                 }
 
-                if (args[1].equalsIgnoreCase("-l")) {
+                if ("-l".equalsIgnoreCase(args[1])) {
                     start = 2;
                     localOnly = true;
                 }
@@ -757,7 +727,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("follow")) {
+        else if ("follow".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.follow")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -782,7 +752,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("health")) {
+        else if ("health".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.health")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -807,7 +777,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("armor")) {
+        else if ("armor".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.armor")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -830,7 +800,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("strength")) {
+        else if ("strength".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.strength")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -854,7 +824,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("nightvision")) {
+        else if ("nightvision".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.nightvision")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -879,7 +849,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("respawn")) {
+        else if ("respawn".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.respawn")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -914,7 +884,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("speed")) {
+        else if ("speed".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.speed")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -937,7 +907,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("attackrate")) {
+        else if ("attackrate".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.attackrate")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -961,7 +931,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("healrate")) {
+        else if ("healrate".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.healrate")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -985,7 +955,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("range")) {
+        else if ("range".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.range")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1010,7 +980,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("warningrange")) {
+        else if ("warningrange".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.stats.warningrange")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1036,7 +1006,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("equip")) {
+        else if ("equip".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.equip")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1051,7 +1021,7 @@ public class Sentry extends JavaPlugin {
 
                 if (ThisNPC.getEntity().getType() == org.bukkit.entity.EntityType.ENDERMAN ||
                     ThisNPC.getEntity().getType() == org.bukkit.entity.EntityType.PLAYER) {
-                    if (args[1].equalsIgnoreCase("none")) {
+                    if ("none".equalsIgnoreCase(args[1])) {
                         //remove equipment
                         equip(ThisNPC, Material.AIR);
                         inst.UpdateWeapon();
@@ -1076,7 +1046,7 @@ public class Sentry extends JavaPlugin {
 
             return true;
         }
-        else if (args[0].equalsIgnoreCase("warning")) {
+        else if ("warning".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.warning")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1101,7 +1071,7 @@ public class Sentry extends JavaPlugin {
             }
             return true;
         }
-        else if (args[0].equalsIgnoreCase("greeting")) {
+        else if ("greeting".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.greeting")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1129,7 +1099,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("info")) {
+        else if ("info".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.info")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1157,7 +1127,7 @@ public class Sentry extends JavaPlugin {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("target")) {
+        else if ("target".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.target")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1192,7 +1162,7 @@ public class Sentry extends JavaPlugin {
                     return true;
                 }
 
-                else if (args[1].equals("remove") && arg.length() > 0 && arg.toString().split(":").length > 1) {
+                else if ("remove".equals(args[1]) && arg.length() > 0 && arg.toString().split(":").length > 1) {
 
                     inst.getValidTargets().remove(arg.toString().toUpperCase());
                     inst.processTargets();
@@ -1202,7 +1172,7 @@ public class Sentry extends JavaPlugin {
                     return true;
                 }
 
-                else if (args[1].equals("clear")) {
+                else if ("clear".equals(args[1])) {
 
                     inst.getValidTargets().clear();
                     inst.processTargets();
@@ -1210,7 +1180,7 @@ public class Sentry extends JavaPlugin {
                     sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Targets cleared.");
                     return true;
                 }
-                else if (args[1].equals("list")) {
+                else if ("list".equals(args[1])) {
                     sender.sendMessage(ChatColor.GREEN + "Targets: " + inst.getValidTargets().toString());
                     return true;
                 }
@@ -1228,7 +1198,7 @@ public class Sentry extends JavaPlugin {
             }
         }
 
-        else if (args[0].equalsIgnoreCase("ignore")) {
+        else if ("ignore".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sentry.ignore")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permissions for that command.");
                 return true;
@@ -1253,7 +1223,7 @@ public class Sentry extends JavaPlugin {
                 }
                 arg = new StringBuilder(arg.toString().trim());
 
-                if (args[1].equals("add") && arg.length() > 0 && arg.toString().split(":").length > 1) {
+                if ("add".equals(args[1]) && arg.length() > 0 && arg.toString().split(":").length > 1) {
                     if (!inst.containsIgnore(arg.toString().toUpperCase())) {
                         inst.getIgnoreTargets().add(arg.toString().toUpperCase());
                     }
@@ -1264,7 +1234,7 @@ public class Sentry extends JavaPlugin {
                     return true;
                 }
 
-                else if (args[1].equals("remove") && arg.length() > 0 && arg.toString().split(":").length > 1) {
+                else if ("remove".equals(args[1]) && arg.length() > 0 && arg.toString().split(":").length > 1) {
 
                     inst.getIgnoreTargets().remove(arg.toString().toUpperCase());
                     inst.processTargets();
@@ -1274,7 +1244,7 @@ public class Sentry extends JavaPlugin {
                     return true;
                 }
 
-                else if (args[1].equals("clear")) {
+                else if ("clear".equals(args[1])) {
 
                     inst.getIgnoreTargets().clear();
                     inst.processTargets();
@@ -1282,7 +1252,7 @@ public class Sentry extends JavaPlugin {
                     sender.sendMessage(ChatColor.GREEN + ThisNPC.getName() + " Ignore cleared.");
                     return true;
                 }
-                else if (args[1].equals("list")) {
+                else if ("list".equals(args[1])) {
 
                     sender.sendMessage(ChatColor.GREEN + "Ignores: " + inst.getIgnoreTargets().toString());
                     return true;
@@ -1401,7 +1371,7 @@ public class Sentry extends JavaPlugin {
             return false;
         }
     }
-    private boolean tryParseInt(final String value) {
+    private static boolean tryParseInt(final String value) {
         try {
             //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(value);

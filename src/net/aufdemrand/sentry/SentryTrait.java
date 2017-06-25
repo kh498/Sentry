@@ -33,7 +33,7 @@ public class SentryTrait extends Trait implements Toggleable {
 
         if (key.keyExists("traits")) { key = key.getRelative("traits"); }
 
-        this.isToggled = key.getBoolean("toggled", isToggled());
+        this.isToggled = key.getBoolean("toggled", this.isToggled);
         this.thisInstance.setRetaliate(
             key.getBoolean("Retaliate", this.plugin.getConfig().getBoolean("DefaultOptions.Retaliate", true)));
         this.thisInstance.setInvincible(
@@ -260,6 +260,7 @@ public class SentryTrait extends Trait implements Toggleable {
         return this.isToggled;
     }
 
+    @SuppressWarnings("unused")
     public boolean isToggled() {
         return this.isToggled;
     }

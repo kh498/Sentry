@@ -9,7 +9,7 @@ import org.bukkit.Location;
 public class GiveUpStuckAction implements StuckAction {
     private final SentryInstance inst;
 
-    GiveUpStuckAction(final SentryInstance inst) {
+    public GiveUpStuckAction(final SentryInstance inst) {
         this.inst = inst;
     }
 
