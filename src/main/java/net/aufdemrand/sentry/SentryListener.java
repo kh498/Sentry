@@ -1,7 +1,7 @@
 package net.aufdemrand.sentry;
 
 import net.aufdemrand.sentry.enums.Status;
-import net.aufdemrand.sentry.enums.Target;
+import net.aufdemrand.sentry.enums.TargetMask;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.block.BlockFace;
@@ -309,8 +309,7 @@ public class SentryListener implements Listener {
                 }
             }
 
-            //TODO use enum
-            if (sentryInst.hasTargetType(Target.EVENTS) && sentryInst.getSentryStatus() == Status.LOOKING &&
+            if (sentryInst.hasTargetType(TargetMask.EVENTS) && sentryInst.getSentryStatus() == Status.LOOKING &&
                 attacker instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(attacker)) {
                 //pv-something event.
                 if (npc.getEntity().getLocation().distance(defender.getLocation()) <= sentryInst.getSentryRange() ||

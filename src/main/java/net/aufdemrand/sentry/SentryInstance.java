@@ -3,7 +3,7 @@ package net.aufdemrand.sentry;
 import net.aufdemrand.sentry.actions.GiveUpStuckAction;
 import net.aufdemrand.sentry.enums.HitType;
 import net.aufdemrand.sentry.enums.Status;
-import net.aufdemrand.sentry.enums.Target;
+import net.aufdemrand.sentry.enums.TargetMask;
 import net.aufdemrand.sentry.events.SentryTargetEntityEvent;
 import net.aufdemrand.sentry.strategies.CreeperAttackStrategy;
 import net.aufdemrand.sentry.strategies.MountAttackStrategy;
@@ -122,46 +122,44 @@ public class SentryInstance {
             this.plugin.getServer().getScheduler().cancelTask(this.taskID);
         }
     }
-    public boolean hasTargetType(final Target type) {
-        return hasTargetType(type.level);
+    public boolean hasTargetType(final TargetMask type) {
+        return TargetMask.test(this.targets, type);
     }
-    public boolean hasTargetType(final int type) {
-        return (this.targets & type) == type;
-    }
-    public boolean hasIgnoreType(final Target type) {
-        return hasIgnoreType(type.level);
-    }
-    public boolean hasIgnoreType(final int type) {
-        return (this.ignores & type) == type;
-    }
-    public boolean isIgnored(final LivingEntity aTarget) {
-        //check ignores
 
+    public boolean hasIgnoreType(final TargetMask type) {
+        return TargetMask.test(this.ignores, type);
+    }
+
+    /**
+     * Check if an entity is ignoring a specific target
+     *
+     * @param aTarget
+     *
+     * @return
+     */
+    public boolean isIgnored(final LivingEntity aTarget) {
         if (aTarget.equals(this.guardEntity)) { return true; }
 
         if (this.ignores == 0) { return false; }
 
-        if (hasIgnoreType(Target.ALL)) { return true; }
+        if (hasIgnoreType(TargetMask.ALL)) { return true; }
 
         if (aTarget instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (hasIgnoreType(Target.PLAYERS)) { return true; }
+            if (hasIgnoreType(TargetMask.PLAYERS)) { return true; }
 
             else {
 
                 final OfflinePlayer player = (OfflinePlayer) aTarget;
 
-                if (this.hasIgnoreType(Target.NAMED_PLAYERS) && containsIgnore("PLAYER:" + player)) {
+                if (this.hasIgnoreType(TargetMask.NAMED_PLAYERS) && containsIgnore("PLAYER:" + player)) {
                     return true;
                 }
 
-                if (this.hasIgnoreType(Target.OWNER) &&
+                if (this.hasIgnoreType(TargetMask.OWNER) &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                if (hasTargetType(Target.NAMED_NPCS) && containsIgnore("NPC:" + aTarget.getName())) {
-                    return true;
-                }
-                if (this.hasIgnoreType(Target.MC_TEAMS)) {
+                if (this.hasIgnoreType(TargetMask.MC_TEAMS)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
@@ -173,7 +171,7 @@ public class SentryInstance {
 
         else if (CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasIgnoreType(Target.NPCS)) {
+            if (this.hasIgnoreType(TargetMask.NPCS)) {
                 return true;
             }
 
@@ -183,9 +181,11 @@ public class SentryInstance {
 
                 final String name = npc.getName();
 
-                if (this.hasIgnoreType(Target.NAMED_NPCS) && containsIgnore("NPC:" + name)) { return true; }
+                if (this.hasIgnoreType(TargetMask.NAMED_NPCS) && containsIgnore("NPC:" + name)) {
+                    return true;
+                }
 
-                else if (hasIgnoreType(Target.GROUPS)) {
+                if (hasIgnoreType(TargetMask.GROUPS)) {
                     @SuppressWarnings("deprecation") final String[] groups1 =
                         this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
                     @SuppressWarnings("deprecation") final String[] groups2 =
@@ -208,9 +208,9 @@ public class SentryInstance {
             }
         }
 
-        else if (aTarget instanceof Monster && hasIgnoreType(Target.MONSTERS)) { return true; }
+        else if (aTarget instanceof Monster && hasIgnoreType(TargetMask.MONSTERS)) { return true; }
 
-        else if (hasIgnoreType(Target.NAMED_ENTITIES)) {
+        else if (hasIgnoreType(TargetMask.NAMED_ENTITIES)) {
             if (containsIgnore("ENTITY:" + aTarget.getType())) { return true; }
         }
 
@@ -219,31 +219,31 @@ public class SentryInstance {
     }
     public boolean isTarget(final LivingEntity aTarget) {
 
-        if (this.targets == 0 || this.targets == Target.EVENTS.level) { return false; }
+        if (this.targets == 0 || TargetMask.testOnly(this.targets, TargetMask.EVENTS)) { return false; }
 
-        if (this.hasTargetType(Target.ALL)) { return true; }
+        if (this.hasTargetType(TargetMask.ALL)) { return true; }
 
         //Check if target
         if (aTarget instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasTargetType(Target.PLAYERS)) {
+            if (this.hasTargetType(TargetMask.PLAYERS)) {
                 return true;
             }
 
             else {
                 final OfflinePlayer player = (OfflinePlayer) aTarget;
 
-                if (hasTargetType(Target.NAMED_PLAYERS) && this.containsTarget("PLAYER:" + player)) {
+                if (hasTargetType(TargetMask.NAMED_PLAYERS) && this.containsTarget("PLAYER:" + player)) {
                     return true;
                 }
 
                 if (this.containsTarget("ENTITY:OWNER") &&
                     player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
 
-                if (hasTargetType(Target.NAMED_NPCS) && this.containsTarget("NPC:" + aTarget.getName())) {
+                if (hasTargetType(TargetMask.NAMED_NPCS) && this.containsTarget("NPC:" + aTarget.getName())) {
                     return true;
                 }
-                if (this.hasTargetType(Target.MC_TEAMS)) {
+                if (this.hasTargetType(TargetMask.MC_TEAMS)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     if (team != null) {
                         if (this.containsTarget("TEAM:" + team)) { return true; }
@@ -254,7 +254,7 @@ public class SentryInstance {
 
         else if (CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (this.hasTargetType(Target.NPCS)) {
+            if (this.hasTargetType(TargetMask.NPCS)) {
                 return true;
             }
 
@@ -262,9 +262,9 @@ public class SentryInstance {
 
             final String name = npc.getName();
 
-            if (this.hasTargetType(Target.NAMED_NPCS) && containsTarget("NPC:" + name)) { return true; }
+            if (this.hasTargetType(TargetMask.NAMED_NPCS) && containsTarget("NPC:" + name)) { return true; }
 
-            if (this.hasTargetType(Target.GROUPS)) {
+            if (this.hasTargetType(TargetMask.GROUPS)) {
                 @SuppressWarnings("deprecation") final String[] groups1 =
                     this.plugin.perms.getPlayerGroups(aTarget.getWorld(), name); // world perms
                 @SuppressWarnings("deprecation") final String[] groups2 =
@@ -287,9 +287,9 @@ public class SentryInstance {
                 }
             }
         }
-        else if (aTarget instanceof Monster && this.hasTargetType(Target.MONSTERS)) { return true; }
+        else if (aTarget instanceof Monster && this.hasTargetType(TargetMask.MONSTERS)) { return true; }
 
-        else if (aTarget != null && hasTargetType(Target.NAMED_ENTITIES)) {
+        else if (aTarget != null && hasTargetType(TargetMask.NAMED_ENTITIES)) {
             if (this.containsTarget("ENTITY:" + aTarget.getType())) { return true; }
         }
         return false;
@@ -1088,49 +1088,81 @@ public class SentryInstance {
     }
 
     public void processTargets() {
-        try {
-            this.targets = 0;
-            this.ignores = 0;
-            this._ignoreTargets.clear();
-            this._validTargets.clear();
+//        try {
+        this.targets = 0;
+        this.ignores = 0;
+        this._ignoreTargets.clear();
+        this._validTargets.clear();
 
+        if (this.validTargets != null) {
             for (final String t : this.validTargets) {
-                if (t.contains("ENTITY:ALL")) { this.targets |= Target.ALL.level; }
-                else if (t.contains("ENTITY:MONSTER")) { this.targets |= Target.MONSTERS.level; }
-                else if (t.contains("ENTITY:PLAYER")) { this.targets |= Target.PLAYERS.level; }
-                else if (t.contains("ENTITY:NPC")) { this.targets |= Target.NPCS.level; }
+                if (t.contains("ENTITY:ALL")) { this.targets = TargetMask.set(this.targets, TargetMask.ALL); }
+                else if (t.contains("ENTITY:MONSTER")) {
+                    this.targets = TargetMask.set(this.targets, TargetMask.MONSTERS);
+                }
+                else if (t.contains("ENTITY:PLAYER")) {
+                    this.targets = TargetMask.set(this.targets, TargetMask.PLAYERS);
+                }
+                else if (t.contains("ENTITY:NPC")) {
+                    this.targets = TargetMask.set(this.targets, TargetMask.NPCS);
+                }
                 else {
                     this._validTargets.add(t);
-                    if (t.contains("NPC:")) { this.targets |= Target.NAMED_NPCS.level; }
-                    else if (this.plugin.perms != null && this.plugin.perms.isEnabled() && t.contains("GROUP:")) {
-                        this.targets |= Target.NAMED_NPCS.level;
+                    if (t.contains("NPC:")) {
+                        this.targets = TargetMask.set(this.targets, TargetMask.NAMED_NPCS);
                     }
-                    else if (t.contains("EVENT:")) { this.targets |= Target.EVENTS.level; }
-                    else if (t.contains("PLAYER:")) { this.targets |= Target.NAMED_PLAYERS.level; }
-                    else if (t.contains("ENTITY:")) { this.targets |= Target.NAMED_ENTITIES.level; }
-                    else if (t.contains("TEAM:")) { this.targets |= Target.MC_TEAMS.level; }
+                    else if (this.plugin.perms != null && this.plugin.perms.isEnabled() && t.contains("GROUP:")) {
+                        this.targets = TargetMask.set(this.targets, TargetMask.NAMED_NPCS);
+                    }
+                    else if (t.contains("EVENT:")) {
+                        this.targets = TargetMask.set(this.targets, TargetMask.EVENTS);
+                    }
+                    else if (t.contains("PLAYER:")) {
+                        this.targets = TargetMask.set(this.targets, TargetMask.NAMED_PLAYERS);
+                    }
+                    else if (t.contains("ENTITY:")) {
+                        this.targets = TargetMask.set(this.targets, TargetMask.NAMED_ENTITIES);
+                    }
+                    else if (t.contains("TEAM:")) {
+                        this.targets = TargetMask.set(this.targets, TargetMask.MC_TEAMS);
+                    }
                 }
             }
+        }
+        if (this.ignoreTargets != null) {
             for (final String t : this.ignoreTargets) {
-                if (t.contains("ENTITY:ALL")) { this.ignores |= Target.ALL.level; }
-                else if (t.contains("ENTITY:MONSTER")) { this.ignores |= Target.MONSTERS.level; }
-                else if (t.contains("ENTITY:PLAYER")) { this.ignores |= Target.PLAYERS.level; }
-                else if (t.contains("ENTITY:NPC")) { this.ignores |= Target.NPCS.level; }
-                else if (t.contains("ENTITY:OWNER")) { this.ignores |= Target.OWNER.level; }
+                if (t.contains("ENTITY:ALL")) {
+                    this.ignores = TargetMask.set(this.ignores, TargetMask.ALL);
+                }
+                else if (t.contains("ENTITY:MONSTER")) {
+                    this.ignores = TargetMask.set(this.ignores, TargetMask.MONSTERS);
+                }
+                else if (t.contains("ENTITY:PLAYER")) {
+                    this.ignores = TargetMask.set(this.ignores, TargetMask.PLAYERS);
+                }
+                else if (t.contains("ENTITY:NPC")) {
+                    this.ignores = TargetMask.set(this.ignores, TargetMask.NPCS);
+                }
+                else if (t.contains("ENTITY:OWNER")) {
+                    this.ignores = TargetMask.set(this.ignores, TargetMask.OWNER);
+                }
                 else {
                     this._ignoreTargets.add(t);
                     if (this.plugin.perms != null && this.plugin.perms.isEnabled() && t.contains("GROUP:")) {
-                        this.ignores |= Target.NAMED_NPCS.level;
+                        this.ignores = TargetMask.set(this.ignores, TargetMask.NAMED_NPCS);
                     }
-                    else if (t.contains("NPC:")) { this.ignores |= Target.NAMED_NPCS.level; }
-                    else if (t.contains("PLAYER:")) { this.ignores |= Target.NAMED_PLAYERS.level; }
-                    else if (t.contains("ENTITY:")) { this.ignores |= Target.NAMED_ENTITIES.level; }
+                    else if (t.contains("NPC:")) {
+                        this.ignores = TargetMask.set(this.ignores, TargetMask.NAMED_NPCS);
+                    }
+                    else if (t.contains("PLAYER:")) {
+                        this.ignores = TargetMask.set(this.ignores, TargetMask.NAMED_PLAYERS);
+                    }
+                    else if (t.contains("ENTITY:")) {
+                        this.ignores = TargetMask.set(this.ignores, TargetMask.NAMED_ENTITIES);
+                    }
                 }
             }
-        } catch (final Exception e) {
-            e.printStackTrace();
         }
-
     }
 
     private boolean isMyChunkLoaded() {
