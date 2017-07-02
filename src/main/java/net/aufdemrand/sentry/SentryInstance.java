@@ -496,15 +496,15 @@ public class SentryInstance {
 
         boolean ballistics = true;
 
-        if (this.myProjectile.equals(Arrow.class)) {
+        if (Arrow.class.equals(this.myProjectile)) {
             effect = Effect.BOW_FIRE;
         }
-        else if (this.myProjectile.equals(SmallFireball.class) || this.myProjectile.equals(Fireball.class) ||
-                 this.myProjectile.equals(WitherSkull.class)) {
+        else if (SmallFireball.class.equals(this.myProjectile) || Fireball.class.equals(this.myProjectile) ||
+                 WitherSkull.class.equals(this.myProjectile)) {
             effect = Effect.BLAZE_SHOOT;
             ballistics = false;
         }
-        else if (this.myProjectile.equals(ThrownPotion.class)) {
+        else if (ThrownPotion.class.equals(this.myProjectile)) {
             v = 21;
         }
         else {
@@ -571,7 +571,7 @@ public class SentryInstance {
             //TODO fix noise
             victor = victor.add(noise);
 
-            if (this.myProjectile.equals(Arrow.class) || this.myProjectile.equals(ThrownPotion.class)) {
+            if (Arrow.class.equals(this.myProjectile) || ThrownPotion.class.equals(this.myProjectile)) {
                 v += (1.188 * Math.pow(hangTime, 2));
             }
             else {
@@ -614,7 +614,7 @@ public class SentryInstance {
 
             final Projectile theArrow;
 
-            if (this.myProjectile.equals(ThrownPotion.class)) {
+            if (ThrownPotion.class.equals(this.myProjectile)) {
                 final net.minecraft.server.v1_8_R3.World nmsWorld = ((CraftWorld) getMyEntity().getWorld()).getHandle();
                 final EntityPotion ent = new EntityPotion(nmsWorld, loc.getX(), loc.getY(), loc.getZ(),
                                                           CraftItemStack.asNMSCopy(this.potionType));
@@ -623,7 +623,7 @@ public class SentryInstance {
 
             }
 
-            else if (this.myProjectile.equals(EnderPearl.class)) {
+            else if (EnderPearl.class.equals(this.myProjectile)) {
                 theArrow = getMyEntity().launchProjectile(this.myProjectile);
             }
 
@@ -631,10 +631,10 @@ public class SentryInstance {
                 theArrow = getMyEntity().getWorld().spawn(loc, this.myProjectile);
             }
 
-            if (this.myProjectile.equals(Fireball.class) || this.myProjectile.equals(WitherSkull.class)) {
+            if (Fireball.class.equals(this.myProjectile) || WitherSkull.class.equals(this.myProjectile)) {
                 victor = victor.multiply(1 / 1000000000);
             }
-            else if (this.myProjectile.equals(SmallFireball.class)) {
+            else if (SmallFireball.class.equals(this.myProjectile)) {
                 victor = victor.multiply(1 / 1000000000);
                 ((SmallFireball) theArrow).setIsIncendiary(this.incendiary);
                 if (!this.incendiary) {
@@ -642,7 +642,7 @@ public class SentryInstance {
                     ((SmallFireball) theArrow).setYield(0);
                 }
             }
-            else if (this.myProjectile.equals(EnderPearl.class)) {
+            else if (EnderPearl.class.equals(this.myProjectile)) {
                 this.epCount++;
                 if (this.epCount > Integer.MAX_VALUE - 1) { this.epCount = 0; }
                 this.plugin.debug(this.epCount + "");
@@ -657,7 +657,7 @@ public class SentryInstance {
         // go twang
         if (effect != null) { getMyEntity().getWorld().playEffect(getMyEntity().getLocation(), effect, null); }
 
-        if (this.myProjectile.equals(Arrow.class)) {
+        if (Arrow.class.equals(this.myProjectile)) {
             draw(false);
             //TODO add a draw bow effect here
         }
@@ -849,25 +849,25 @@ public class SentryInstance {
     }
 
     public boolean isPyromancer() {
-        return (this.myProjectile.equals(Fireball.class) || this.myProjectile.equals(SmallFireball.class));
+        return (Fireball.class.equals(this.myProjectile) || SmallFireball.class.equals(this.myProjectile));
     }
     public boolean isPyromancer1() {
-        return (!this.incendiary && this.myProjectile.equals(SmallFireball.class));
+        return (!this.incendiary && SmallFireball.class.equals(this.myProjectile));
     }
     public boolean isPyromancer2() {
-        return (this.incendiary && this.myProjectile.equals(SmallFireball.class));
+        return (this.incendiary && SmallFireball.class.equals(this.myProjectile));
     }
     public boolean isPyromancer3() {
-        return (this.myProjectile.equals(Fireball.class));
+        return (Fireball.class.equals(this.myProjectile));
     }
     public boolean isStormcaller() {
         return (this.lightning);
     }
     public boolean isWarlock1() {
-        return (this.myProjectile.equals(EnderPearl.class));
+        return (EnderPearl.class.equals(this.myProjectile));
     }
     public boolean isWitchDoctor() {
-        return (this.myProjectile.equals(ThrownPotion.class));
+        return (ThrownPotion.class.equals(this.myProjectile));
     }
 
     public void onDamage(final EntityDamageByEntityEvent event) {
