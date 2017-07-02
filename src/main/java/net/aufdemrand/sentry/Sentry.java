@@ -99,7 +99,6 @@ public class Sentry extends JavaPlugin {
     public Material witchdoctor;
     public Material magi;
     public Material bombardier;
-    //Denizen Hook
     public boolean DieLikePlayers;
     public boolean debug;
     public static Sentry getInstance() {
