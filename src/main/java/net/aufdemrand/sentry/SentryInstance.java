@@ -15,6 +15,7 @@ import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.MobType;
 import net.citizensnpcs.api.trait.trait.Owner;
+import net.citizensnpcs.util.PlayerAnimation;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityPotion;
 import net.minecraft.server.v1_8_R3.Packet;
@@ -660,6 +661,11 @@ public class SentryInstance {
         if (Arrow.class.equals(this.myProjectile)) {
             draw(false);
             //TODO add a draw bow effect here
+            if (getMyEntity() instanceof org.bukkit.entity.Player ||
+                getMyEntity() instanceof org.bukkit.entity.Skeleton) {
+                System.out.println("playing animation");
+                PlayerAnimation.START_USE_ITEM.play((Player) getMyEntity(), 64);
+            }
         }
         else {
             if (getMyEntity() instanceof org.bukkit.entity.Player) {
