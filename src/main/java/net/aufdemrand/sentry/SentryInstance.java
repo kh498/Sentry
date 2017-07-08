@@ -578,8 +578,13 @@ public class SentryInstance {
             else {
                 v += (.5 * Math.pow(hangTime, 2));
             }
+        //Add noise so the the archer doesn't hit each time
+        final Vector noise = Vector.getRandom();
+        victor = victor.add(noise);
 
             v += (this.random.nextDouble() - .8) / 2;
+        // normalize vector
+        victor = Util.normalizeVector(victor);
 
             // apply power
             victor = victor.multiply(v / 20.0);
