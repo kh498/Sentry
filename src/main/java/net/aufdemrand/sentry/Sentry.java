@@ -87,18 +87,6 @@ public class Sentry extends JavaPlugin {
     public boolean groupsChecked;
     public Permission perms;
     public Material archer;
-    public Material pyro1;
-    public Material pyro2;
-    public Material pyro3;
-    public Material sc1;
-    public Material sc2;
-    public Material sc3;
-    public Material warlock1;
-    public Material warlock2;
-    public Material warlock3;
-    public Material witchdoctor;
-    public Material magi;
-    public Material bombardier;
     public boolean DieLikePlayers;
     public boolean debug;
     public static Sentry getInstance() {
@@ -354,7 +342,7 @@ public class Sentry extends JavaPlugin {
         int i = 0;
 
         //did player specify a id?
-        if (tryParseInt(inargs[0])) {
+        if (Util.tryParseInt(inargs[0])) {
             npcID = Integer.parseInt(inargs[0]);
             i = 1;
         }
@@ -1317,18 +1305,6 @@ public class Sentry extends JavaPlugin {
         loadItemList("Leggings", this.Leggings);
         loadItemList("Boots", this.Boots);
         this.archer = getMaterial(getConfig().getString("AttackTypes.Archer", null));
-        this.pyro1 = getMaterial(getConfig().getString("AttackTypes.Pyro1", null));
-        this.pyro2 = getMaterial(getConfig().getString("AttackTypes.Pyro2", null));
-        this.pyro3 = getMaterial(getConfig().getString("AttackTypes.Pyro3", null));
-        this.bombardier = getMaterial(getConfig().getString("AttackTypes.Bombardier", null));
-        this.sc1 = getMaterial(getConfig().getString("AttackTypes.StormCaller1", null));
-        this.sc2 = getMaterial(getConfig().getString("AttackTypes.StormCaller2", null));
-        this.witchdoctor = getMaterial(getConfig().getString("AttackTypes.WitchDoctor", null));
-        this.magi = getMaterial(getConfig().getString("AttackTypes.IceMagi", null));
-        this.sc3 = getMaterial(getConfig().getString("AttackTypes.StormCaller3", null));
-        this.warlock1 = getMaterial(getConfig().getString("AttackTypes.Warlock1", null));
-        this.warlock2 = getMaterial(getConfig().getString("AttackTypes.Warlock2", null));
-        this.warlock3 = getMaterial(getConfig().getString("AttackTypes.Warlock3", null));
         this.DieLikePlayers = getConfig().getBoolean("Server.DieLikePlayers", false);
         this.bodyguardsObeyProtection = getConfig().getBoolean("Server.bodyguardsObeyProtection", true);
         this.ignoreListInvincibility = getConfig().getBoolean("Server.ignoreListInvincibility", true);
@@ -1367,15 +1343,6 @@ public class Sentry extends JavaPlugin {
 
         } catch (final Exception e) {
             e.printStackTrace();
-            return false;
-        }
-    }
-    private static boolean tryParseInt(final String value) {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            Integer.parseInt(value);
-            return true;
-        } catch (final NumberFormatException nfe) {
             return false;
         }
     }

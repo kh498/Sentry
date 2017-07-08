@@ -22,7 +22,7 @@ public class Util {
         final Location loco = from.getEyeLocation();
         Vector norman = to.getEyeLocation().subtract(loco).toVector();
         norman = normalizeVector(norman);
-        norman.multiply(.5);
+        norman.multiply(.5D);
 
         return loco.add(norman);
 
@@ -44,7 +44,7 @@ public class Util {
         }
     }
 
-    public static boolean CanWarp(final Entity player) {
+    public static boolean canWarp(final Entity player) {
         if (player instanceof Player) {
 
             if (player.hasPermission("sentry.bodyguard.*")) {
@@ -88,13 +88,13 @@ public class Util {
     public static double hangTime(final double launchAngle, final double v, final double elev, final double g) {
 
         final double a = v * Math.sin(launchAngle);
-        final double b = -2 * g * elev;
+        final double b = -2D * g * elev;
 
-        if (Math.pow(a, 2) + b < 0) {
+        if (Math.pow(a, 2D) + b < 0) {
             return 0;
         }
 
-        return (a + Math.sqrt(Math.pow(a, 2) + b)) / g;
+        return (a + Math.sqrt(Math.pow(a, 2D) + b)) / g;
 
     }
 
@@ -112,12 +112,12 @@ public class Util {
                                      final double g) {
 
         final Vector victor = from.clone().subtract(to).toVector();
-        final double dist = Math.sqrt(Math.pow(victor.getX(), 2) + Math.pow(victor.getZ(), 2));
+        final double dist = Math.sqrt(Math.pow(victor.getX(), 2D) + Math.pow(victor.getZ(), 2D));
 
-        final double v2 = Math.pow(v, 2);
-        final double v4 = Math.pow(v, 4);
+        final double v2 = Math.pow(v, 2D);
+        final double v4 = Math.pow(v, 4D);
 
-        final double derp = g * (g * Math.pow(dist, 2) + 2 * elev * v2);
+        final double derp = g * (g * Math.pow(dist, 2D) + 2D * elev * v2);
 
         //Check if hittable.
         if (v4 < derp) {
@@ -129,7 +129,6 @@ public class Util {
             //calc angle
             return Math.atan((v2 - Math.sqrt(v4 - derp)) / (g * dist));
         }
-
     }
 
     public static String format(String input, final NPC npc, final CommandSender player, final Material item,
@@ -151,6 +150,15 @@ public class Util {
     }
 
 
+    static boolean tryParseInt(final String value) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Integer.parseInt(value);
+            return true;
+        } catch (final NumberFormatException nfe) {
+            return false;
+        }
+    }
 }
 
 

@@ -19,7 +19,7 @@ public class GiveUpStuckAction implements StuckAction {
         if (!npc.isSpawned()) { return false; }
         final Location base = navigator.getTargetAsLocation();
 
-        if (base.getWorld() == npc.getEntity().getLocation().getWorld()) {
+        if (base.getWorld().equals(npc.getEntity().getLocation().getWorld())) {
             if (npc.getEntity().getLocation().distanceSquared(base) <= 4) { return true; }
         }
 

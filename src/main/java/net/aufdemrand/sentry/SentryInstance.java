@@ -185,6 +185,10 @@ public class SentryInstance {
                 if (this.hasIgnoreType(TargetMask.NAMED_NPCS) && containsIgnore("NPC:" + name)) {
                     return true;
                 }
+                else {
+                    System.out.println("NOT IGNORING NAMED NPCS! NPC ID: " + this.myNPC.getId() + " | target name: " +
+                                       aTarget.getName());
+                }
 
                 if (hasIgnoreType(TargetMask.GROUPS)) {
                     @SuppressWarnings("deprecation") final String[] groups1 =
@@ -485,37 +489,26 @@ public class SentryInstance {
 
         return null;
     }
+
     public void draw(final boolean on) {
         ((CraftLivingEntity) (getMyEntity())).getHandle().b(on);
     }
 
     public void fire(final LivingEntity theEntity) {
-        double v = 34;
-        double g = 20;
+        double v = 34D;
+        double g = 20D;
 
         Effect effect = null;
-
-        boolean ballistics = true;
-
         if (Arrow.class.equals(this.myProjectile)) {
             effect = Effect.BOW_FIRE;
         }
-        else if (SmallFireball.class.equals(this.myProjectile) || Fireball.class.equals(this.myProjectile) ||
-                 WitherSkull.class.equals(this.myProjectile)) {
-            effect = Effect.BLAZE_SHOOT;
-            ballistics = false;
-        }
         else if (ThrownPotion.class.equals(this.myProjectile)) {
-            v = 21;
+            v = 21D;
+            g = 20D;
         }
         else {
-            v = 17.75;
-            g = 13.5;
-        }
-
-        if (this.lightning) {
-            ballistics = false;
-            effect = null;
+            v = 17.75D;
+            g = 13.5D;
         }
 
         // calc shooting spot.
@@ -554,128 +547,85 @@ public class SentryInstance {
             return;
         }
 
-        if (ballistics) {
-            final Double launchAngle = Util.launchAngle(loc, to, v, elev, g);
-            if (launchAngle == null) {
-                // target cant be hit
-                clearTarget();
-                return;
-            }
+        final Double launchAngle = Util.launchAngle(loc, to, v, elev, g);
+        if (launchAngle == null) {
+            // target cant be hit
+            clearTarget();
+            return;
+        }
 
-            // Apply angle
-            victor.setY(Math.tan(launchAngle) * dist);
-            final Vector noise = Vector.getRandom();
-            // normalize vector
-            victor = Util.normalizeVector(victor);
+        // Apply angle
+        victor.setY(Math.tan(launchAngle) * dist);
 
-//            noise = noise.multiply(1 / 10.0);
-            //TODO fix noise
-            victor = victor.add(noise);
-
-            if (Arrow.class.equals(this.myProjectile) || ThrownPotion.class.equals(this.myProjectile)) {
-                v += (1.188 * Math.pow(hangTime, 2));
-            }
-            else {
-                v += (.5 * Math.pow(hangTime, 2));
-            }
         //Add noise so the the archer doesn't hit each time
         final Vector noise = Vector.getRandom();
         victor = victor.add(noise);
 
-            v += (this.random.nextDouble() - .8) / 2;
         // normalize vector
         victor = Util.normalizeVector(victor);
 
-            // apply power
-            victor = victor.multiply(v / 20.0);
+        //so many magic numbers :):):)::)
+        v += 1.188 * Math.pow(hangTime, 2);
+        v += (this.random.nextDouble() - .8) / 2;
 
-            // Shoot!
-            // Projectile theArrow
-            // =getMyEntity().launchProjectile(myProjectile);
+        // apply power
+        victor = victor.multiply(v / 20.0);
+
+        // Shoot!
+        // Projectile theArrow
+        // =getMyEntity().launchProjectile(myProjectile);
+
+
+        final Projectile theArrow;
+
+        if (ThrownPotion.class.equals(this.myProjectile)) {
+            final net.minecraft.server.v1_8_R3.World nmsWorld = ((CraftWorld) getMyEntity().getWorld()).getHandle();
+            final EntityPotion ent = new EntityPotion(nmsWorld, loc.getX(), loc.getY(), loc.getZ(),
+                                                      CraftItemStack.asNMSCopy(this.potionType));
+            nmsWorld.addEntity(ent);
+            theArrow = (Projectile) ent.getBukkitEntity();
 
         }
+
+        else if (EnderPearl.class.equals(this.myProjectile)) {
+            theArrow = getMyEntity().launchProjectile(this.myProjectile);
+        }
+
         else {
-            if (dist > this.sentryRange) {
-                // target cant be hit
-                clearTarget();
-                return;
-
-            }
+            theArrow = getMyEntity().getWorld().spawn(loc, this.myProjectile);
         }
 
-        if (this.lightning) {
-            if (this.lightningLevel == 2) {
-                to.getWorld().strikeLightning(to);
-            }
-            else if (this.lightningLevel == 1) {
-                to.getWorld().strikeLightningEffect(to);
-                theEntity.damage(getStrength(), getMyEntity());
-            }
-            else if (this.lightningLevel == 3) {
-                to.getWorld().strikeLightningEffect(to);
-                theEntity.setHealth(0);
+        if (Fireball.class.equals(this.myProjectile) || WitherSkull.class.equals(this.myProjectile)) {
+            victor = victor.multiply(1 / 1000000000);
+        }
+        else if (SmallFireball.class.equals(this.myProjectile)) {
+            victor = victor.multiply(1 / 1000000000);
+            ((SmallFireball) theArrow).setIsIncendiary(this.incendiary);
+            if (!this.incendiary) {
+                theArrow.setFireTicks(0);
+                ((SmallFireball) theArrow).setYield(0);
             }
         }
-        else {
-
-            final Projectile theArrow;
-
-            if (ThrownPotion.class.equals(this.myProjectile)) {
-                final net.minecraft.server.v1_8_R3.World nmsWorld = ((CraftWorld) getMyEntity().getWorld()).getHandle();
-                final EntityPotion ent = new EntityPotion(nmsWorld, loc.getX(), loc.getY(), loc.getZ(),
-                                                          CraftItemStack.asNMSCopy(this.potionType));
-                nmsWorld.addEntity(ent);
-                theArrow = (Projectile) ent.getBukkitEntity();
-
-            }
-
-            else if (EnderPearl.class.equals(this.myProjectile)) {
-                theArrow = getMyEntity().launchProjectile(this.myProjectile);
-            }
-
-            else {
-                theArrow = getMyEntity().getWorld().spawn(loc, this.myProjectile);
-            }
-
-            if (Fireball.class.equals(this.myProjectile) || WitherSkull.class.equals(this.myProjectile)) {
-                victor = victor.multiply(1 / 1000000000);
-            }
-            else if (SmallFireball.class.equals(this.myProjectile)) {
-                victor = victor.multiply(1 / 1000000000);
-                ((SmallFireball) theArrow).setIsIncendiary(this.incendiary);
-                if (!this.incendiary) {
-                    theArrow.setFireTicks(0);
-                    ((SmallFireball) theArrow).setYield(0);
-                }
-            }
-            else if (EnderPearl.class.equals(this.myProjectile)) {
-                this.epCount++;
-                if (this.epCount > Integer.MAX_VALUE - 1) { this.epCount = 0; }
-                this.plugin.debug(this.epCount + "");
-            }
-
-            this.plugin.arrows.add(theArrow);
-            theArrow.setShooter(getMyEntity());
-            theArrow.setVelocity(victor);
+        else if (EnderPearl.class.equals(this.myProjectile)) {
+            this.epCount++;
+            if (this.epCount > Integer.MAX_VALUE - 1) { this.epCount = 0; }
+            this.plugin.debug(this.epCount + "");
         }
+
+        this.plugin.arrows.add(theArrow);
+        theArrow.setShooter(getMyEntity());
+        theArrow.setVelocity(victor);
+
 
         // OK we're shooting
         // go twang
         if (effect != null) { getMyEntity().getWorld().playEffect(getMyEntity().getLocation(), effect, null); }
 
-        if (Arrow.class.equals(this.myProjectile)) {
-            draw(false);
-            //TODO add a draw bow effect here
-            if (getMyEntity() instanceof org.bukkit.entity.Player ||
-                getMyEntity() instanceof org.bukkit.entity.Skeleton) {
-                System.out.println("playing animation");
-                PlayerAnimation.START_USE_ITEM.play((Player) getMyEntity(), 64);
-            }
-        }
-        else {
-            if (getMyEntity() instanceof org.bukkit.entity.Player) {
-                net.citizensnpcs.util.PlayerAnimation.ARM_SWING.play((Player) getMyEntity(), 64);
-            }
+        draw(false);
+        //TODO add a draw bow effect here
+        if (getMyEntity() instanceof org.bukkit.entity.Player || getMyEntity() instanceof org.bukkit.entity.Skeleton) {
+            System.out.println("playing animation");
+            PlayerAnimation.START_USE_ITEM.play((Player) getMyEntity(), 64);
         }
     }
 
@@ -857,28 +807,6 @@ public class SentryInstance {
         }
 
         this.mountCreated = false;
-    }
-
-    public boolean isPyromancer() {
-        return (Fireball.class.equals(this.myProjectile) || SmallFireball.class.equals(this.myProjectile));
-    }
-    public boolean isPyromancer1() {
-        return (!this.incendiary && SmallFireball.class.equals(this.myProjectile));
-    }
-    public boolean isPyromancer2() {
-        return (this.incendiary && SmallFireball.class.equals(this.myProjectile));
-    }
-    public boolean isPyromancer3() {
-        return (Fireball.class.equals(this.myProjectile));
-    }
-    public boolean isStormcaller() {
-        return (this.lightning);
-    }
-    public boolean isWarlock1() {
-        return (EnderPearl.class.equals(this.myProjectile));
-    }
-    public boolean isWitchDoctor() {
-        return (ThrownPotion.class.equals(this.myProjectile));
     }
 
     public void onDamage(final EntityDamageByEntityEvent event) {
@@ -1243,12 +1171,11 @@ public class SentryInstance {
     public boolean UpdateWeapon() {
         Material weapon = Material.AIR;
 
-        ItemStack is = null;
+        final ItemStack is;
 
         if (getMyEntity() instanceof HumanEntity) {
             is = ((HumanEntity) getMyEntity()).getInventory().getItemInHand();
             weapon = is.getType();
-            if (weapon != this.plugin.witchdoctor) { is.setDurability((short) 0); }
         }
 
         this.lightning = false;
@@ -1261,59 +1188,9 @@ public class SentryInstance {
         if (weapon == this.plugin.archer || getMyEntity() instanceof org.bukkit.entity.Skeleton) {
             this.myProjectile = org.bukkit.entity.Arrow.class;
         }
-        else if (weapon == this.plugin.pyro3 || getMyEntity() instanceof org.bukkit.entity.Ghast) {
-            this.myProjectile = org.bukkit.entity.Fireball.class;
-        }
-        else if (weapon == this.plugin.pyro2 || getMyEntity() instanceof org.bukkit.entity.Blaze ||
-                 getMyEntity() instanceof org.bukkit.entity.EnderDragon) {
-            this.myProjectile = org.bukkit.entity.SmallFireball.class;
-            this.incendiary = true;
-        }
-        else if (weapon == this.plugin.pyro1) {
-            this.myProjectile = org.bukkit.entity.SmallFireball.class;
-            this.incendiary = false;
-        }
-        else if (weapon == this.plugin.magi || getMyEntity() instanceof org.bukkit.entity.Snowman) {
-            this.myProjectile = org.bukkit.entity.Snowball.class;
-        }
-        else if (weapon == this.plugin.warlock1) {
-            this.myProjectile = org.bukkit.entity.EnderPearl.class;
-        }
-        else if (weapon == this.plugin.warlock2 || getMyEntity() instanceof org.bukkit.entity.Wither) {
-            this.myProjectile = org.bukkit.entity.WitherSkull.class;
-        }
-        else if (weapon == this.plugin.warlock3) {
-            this.myProjectile = org.bukkit.entity.WitherSkull.class;
-        }
-        else if (weapon == this.plugin.bombardier) {
-            this.myProjectile = org.bukkit.entity.Egg.class;
-        }
-        else if (weapon == this.plugin.witchdoctor || getMyEntity() instanceof org.bukkit.entity.Witch) {
-            if (is == null) {
-                is = new ItemStack(Material.POTION, 1, (short) 16396);
-            }
-            this.myProjectile = org.bukkit.entity.ThrownPotion.class;
-            this.potionType = is;
-        }
-        else if (weapon == this.plugin.sc1) {
-            this.myProjectile = org.bukkit.entity.ThrownPotion.class;
-            this.lightning = true;
-            this.lightningLevel = 1;
-        }
-        else if (weapon == this.plugin.sc2) {
-            this.myProjectile = org.bukkit.entity.ThrownPotion.class;
-            this.lightning = true;
-            this.lightningLevel = 2;
-        }
-        else if (weapon == this.plugin.sc3) {
-            this.myProjectile = org.bukkit.entity.ThrownPotion.class;
-            this.lightning = true;
-            this.lightningLevel = 3;
-        }
         else {
             return false; //melee
         }
-
         return true; //ranged
     }
 
@@ -1427,7 +1304,8 @@ public class SentryInstance {
             getNavigator().setTarget(theEntity, true);
             getNavigator().getLocalParameters().speedModifier(getSpeed());
             getNavigator().getLocalParameters().stuckAction(this.giveUp);
-            getNavigator().getLocalParameters().stationaryTicks(5 * 20);
+            getNavigator().getLocalParameters().stationaryTicks(3 * 20);
+            getNavigator().getLocalParameters().avoidWater(true);
         }
     }
 
@@ -1890,7 +1768,7 @@ public class SentryInstance {
                         final double dist =
                             SentryInstance.this.meleeTarget.getLocation().distance(getMyEntity().getLocation());
                         //block if in range
-                        draw(dist < 3);
+                        draw(dist < 3D);
                         // Did it get away?
                         if (dist > SentryInstance.this.sentryRange) {
                             // it got away...
@@ -1933,7 +1811,7 @@ public class SentryInstance {
 
                     if (!SentryInstance.this.guardEntity.getLocation().getWorld().equals(npcLoc.getWorld()) ||
                         !isMyChunkLoaded()) {
-                        if (Util.CanWarp(SentryInstance.this.guardEntity)) {
+                        if (Util.canWarp(SentryInstance.this.guardEntity)) {
                             SentryInstance.this.myNPC.despawn();
                             SentryInstance.this.myNPC
                                 .spawn((SentryInstance.this.guardEntity.getLocation().add(1, 0, 1)));

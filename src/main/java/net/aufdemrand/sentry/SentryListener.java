@@ -4,7 +4,6 @@ import net.aufdemrand.sentry.enums.Status;
 import net.aufdemrand.sentry.enums.TargetMask;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,7 +13,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.util.Vector;
 
 import static org.bukkit.Effect.ENDER_SIGNAL;
 
@@ -65,25 +63,6 @@ public class SentryListener implements Listener {
         }
     }
 
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public static void entityTeleportEvent(final org.bukkit.event.entity.EntityTeleportEvent event) {
-        final SentryInstance sentry = Sentry.getSentry(event.getEntity());
-        if (sentry != null && sentry.getEpCount() != 0 && sentry.isWarlock1()) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
-    public static void entityTeleportEvent(final org.bukkit.event.player.PlayerTeleportEvent event) {
-        final SentryInstance sentry = Sentry.getSentry(event.getPlayer());
-        if (sentry != null) {
-            if (sentry.getEpCount() != 0 && sentry.isWarlock1() &&
-                event.getCause() == org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void projectileHit(final ProjectileHitEvent event) {
         if (event.getEntity() instanceof EnderPearl && event.getEntity().getShooter() instanceof Entity) {
@@ -94,25 +73,6 @@ public class SentryListener implements Listener {
                 event.getEntity().getLocation().getWorld()
                      .playEffect(event.getEntity().getLocation(), ENDER_SIGNAL, 1, 100);
                 //enderpearl from a sentry
-            }
-        }
-        else if (event.getEntity() instanceof SmallFireball && event.getEntity().getShooter() instanceof Entity) {
-            final org.bukkit.block.Block block = event.getEntity().getLocation().getBlock();
-            final SentryInstance sentry = Sentry.getSentry((Entity) event.getEntity().getShooter());
-
-            if (sentry != null && sentry.isPyromancer1()) {
-
-                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-
-                    for (final BlockFace face : BlockFace.values()) {
-                        if (block.getRelative(face).getType() == org.bukkit.Material.FIRE) {
-                            block.getRelative(face).setType(org.bukkit.Material.AIR);
-                        }
-                    }
-
-                    if (block.getType() == org.bukkit.Material.FIRE) { block.setType(org.bukkit.Material.AIR); }
-
-                });
             }
         }
     }
@@ -140,16 +100,6 @@ public class SentryListener implements Listener {
             case SUICIDE:
             case MAGIC:
                 inst.onEnvironmentDamage(event);
-                break;
-            case LIGHTNING:
-                if (!inst.isStormcaller()) { inst.onEnvironmentDamage(event); }
-                break;
-            case FIRE:
-            case FIRE_TICK:
-                if (!inst.isPyromancer() && !inst.isStormcaller()) { inst.onEnvironmentDamage(event); }
-                break;
-            case POISON:
-                if (!inst.isWitchDoctor()) { inst.onEnvironmentDamage(event); }
                 break;
             case FALL:
                 break;
@@ -221,25 +171,6 @@ public class SentryListener implements Listener {
             if (sentryAttacker.getPotionEffects() != null && !event.isCancelled() && defender instanceof LivingEntity) {
                 ((LivingEntity) defender).addPotionEffects(sentryAttacker.getPotionEffects());
             }
-
-            if (sentryAttacker.isWarlock1()) {
-                if (!event.isCancelled()) {
-                    if (sentryDefender == null) {
-                        event.setCancelled(
-                            true); //warlock 1 should not do direct damage, except to other sentries which take no fall damage.
-                    }
-
-                    final double h = sentryAttacker.getStrength() + 3;
-                    double v = 7.7 * Math.sqrt(h) + .2;
-                    if (h <= 3) { v -= 2; }
-                    if (v > 150) { v = 150; }
-
-                    defender.setVelocity(new Vector(0, v / 20, 0));
-
-                }
-
-            }
-
         }
 
         boolean ok = false; //When you try your best but you don't succeeded :,(
@@ -249,11 +180,6 @@ public class SentryListener implements Listener {
 
             //stop hitting yourself.
             if (attacker.equals(defender)) { return; }
-
-            //innate protections
-            if (event.getCause() == DamageCause.LIGHTNING && sentryDefender.isStormcaller()) { return; }
-            if ((event.getCause() == DamageCause.FIRE || event.getCause() == DamageCause.FIRE_TICK) &&
-                (sentryDefender.isPyromancer() || sentryDefender.isStormcaller())) { return; }
 
             //only bodyguards obey pvp-protection
             if (sentryDefender.getGuardTarget() == null) { event.setCancelled(false); }
