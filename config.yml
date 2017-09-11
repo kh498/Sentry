@@ -45,10 +45,10 @@ DefaultTexts:
  
 #Default target list for new Sentries. 
 DefaultTargets:
- - "event:PvP"
- - "event:PvE"
- - "event:PvNPC"
- - "event:PvSentry"
+ - "events:PvP"
+ - "events:PvE"
+ - "events:PvNPC"
+ - "events:PvSentry"
 
 #Default ignore list for new Sentries
 DefaultIgnores: []

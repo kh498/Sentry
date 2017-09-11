@@ -110,6 +110,7 @@ public class SentryInstance {
     private boolean mountCreated;
     private int targets;
     private int ignores;
+
     public SentryInstance(final Sentry plugin) {
         this.plugin = plugin;
         this.isRespawnable = System.currentTimeMillis();
@@ -118,11 +119,13 @@ public class SentryInstance {
     boolean isMounted() {
         return this.mountID >= 0;
     }
+
     public void cancelRunnable() {
         if (this.taskID != -1) {
             this.plugin.getServer().getScheduler().cancelTask(this.taskID);
         }
     }
+
     public boolean hasTargetType(final TargetMask type) {
         return TargetMask.test(this.targets, type);
     }
@@ -139,15 +142,23 @@ public class SentryInstance {
      * @return
      */
     public boolean isIgnored(final LivingEntity aTarget) {
-        if (aTarget.equals(this.guardEntity)) { return true; }
+        if (aTarget.equals(this.guardEntity)) {
+            return true;
+        }
 
-        if (this.ignores == 0) { return false; }
+        if (this.ignores == 0) {
+            return false;
+        }
 
-        if (hasIgnoreType(TargetMask.ALL)) { return true; }
+        if (hasIgnoreType(TargetMask.ALL)) {
+            return true;
+        }
 
         if (aTarget instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
 
-            if (hasIgnoreType(TargetMask.PLAYERS)) { return true; }
+            if (hasIgnoreType(TargetMask.PLAYERS)) {
+                return true;
+            }
 
             else {
 
@@ -158,13 +169,17 @@ public class SentryInstance {
                 }
 
                 if (this.hasIgnoreType(TargetMask.OWNER) &&
-                    player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
+                    player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) {
+                    return true;
+                }
 
                 if (this.hasIgnoreType(TargetMask.MC_TEAMS)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     //	plugin.getLogger().info(faction);
                     if (team != null) {
-                        if (containsIgnore("TEAM:" + team)) { return true; }
+                        if (containsIgnore("TEAM:" + team)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -185,10 +200,6 @@ public class SentryInstance {
                 if (this.hasIgnoreType(TargetMask.NAMED_NPCS) && containsIgnore("NPC:" + name)) {
                     return true;
                 }
-                else {
-                    System.out.println("NOT IGNORING NAMED NPCS! NPC ID: " + this.myNPC.getId() + " | target name: " +
-                                       aTarget.getName());
-                }
 
                 if (hasIgnoreType(TargetMask.GROUPS)) {
                     @SuppressWarnings("deprecation") final String[] groups1 =
@@ -199,34 +210,47 @@ public class SentryInstance {
                     if (groups1 != null) {
                         for (final String aGroups1 : groups1) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                            if (containsIgnore("GROUP:" + aGroups1)) { return true; }
+                            if (containsIgnore("GROUP:" + aGroups1)) {
+                                return true;
+                            }
                         }
                     }
 
                     if (groups2 != null) {
                         for (final String aGroups2 : groups2) {
                             //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                            if (containsIgnore("GROUP:" + aGroups2)) { return true; }
+                            if (containsIgnore("GROUP:" + aGroups2)) {
+                                return true;
+                            }
                         }
                     }
                 }
             }
         }
 
-        else if (aTarget instanceof Monster && hasIgnoreType(TargetMask.MONSTERS)) { return true; }
+        else if (aTarget instanceof Monster && hasIgnoreType(TargetMask.MONSTERS)) {
+            return true;
+        }
 
         else if (hasIgnoreType(TargetMask.NAMED_ENTITIES)) {
-            if (containsIgnore("ENTITY:" + aTarget.getType())) { return true; }
+            if (containsIgnore("ENTITY:" + aTarget.getType())) {
+                return true;
+            }
         }
 
         //not ignored, ok!
         return false;
     }
+
     public boolean isTarget(final LivingEntity aTarget) {
 
-        if (this.targets == 0 || TargetMask.testOnly(this.targets, TargetMask.EVENTS)) { return false; }
+        if (this.targets == 0 || TargetMask.testOnly(this.targets, TargetMask.EVENTS)) {
+            return false;
+        }
 
-        if (this.hasTargetType(TargetMask.ALL)) { return true; }
+        if (this.hasTargetType(TargetMask.ALL)) {
+            return true;
+        }
 
         //Check if target
         if (aTarget instanceof Player && !CitizensAPI.getNPCRegistry().isNPC(aTarget)) {
@@ -243,7 +267,9 @@ public class SentryInstance {
                 }
 
                 if (this.containsTarget("ENTITY:OWNER") &&
-                    player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) { return true; }
+                    player.getUniqueId().equals(this.myNPC.getTrait(Owner.class).getOwnerId())) {
+                    return true;
+                }
 
                 if (hasTargetType(TargetMask.NAMED_NPCS) && this.containsTarget("NPC:" + aTarget.getName())) {
                     return true;
@@ -251,7 +277,9 @@ public class SentryInstance {
                 if (this.hasTargetType(TargetMask.MC_TEAMS)) {
                     final String team = this.plugin.getMCTeamName((Player) aTarget);
                     if (team != null) {
-                        if (this.containsTarget("TEAM:" + team)) { return true; }
+                        if (this.containsTarget("TEAM:" + team)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -267,7 +295,9 @@ public class SentryInstance {
 
             final String name = npc.getName();
 
-            if (this.hasTargetType(TargetMask.NAMED_NPCS) && containsTarget("NPC:" + name)) { return true; }
+            if (this.hasTargetType(TargetMask.NAMED_NPCS) && containsTarget("NPC:" + name)) {
+                return true;
+            }
 
             if (this.hasTargetType(TargetMask.GROUPS)) {
                 @SuppressWarnings("deprecation") final String[] groups1 =
@@ -280,38 +310,52 @@ public class SentryInstance {
                 if (groups1 != null) {
                     for (final String aGroups1 : groups1) {
                         //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found world1 group " + groups1[i] + " on " + name);
-                        if (this.containsTarget("GROUP:" + aGroups1)) { return true; }
+                        if (this.containsTarget("GROUP:" + aGroups1)) {
+                            return true;
+                        }
                     }
                 }
 
                 if (groups2 != null) {
                     for (final String aGroups2 : groups2) {
                         //	plugin.getLogger().log(java.util.logging.Level.INFO , myNPC.getName() + "  found global group " + groups2[i] + " on " + name);
-                        if (this.containsTarget("GROUP:" + aGroups2)) { return true; }
+                        if (this.containsTarget("GROUP:" + aGroups2)) {
+                            return true;
+                        }
                     }
                 }
             }
         }
-        else if (aTarget instanceof Monster && this.hasTargetType(TargetMask.MONSTERS)) { return true; }
+        else if (aTarget instanceof Monster && this.hasTargetType(TargetMask.MONSTERS)) {
+            return true;
+        }
 
         else if (aTarget != null && hasTargetType(TargetMask.NAMED_ENTITIES)) {
-            if (this.containsTarget("ENTITY:" + aTarget.getType())) { return true; }
+            if (this.containsTarget("ENTITY:" + aTarget.getType())) {
+                return true;
+            }
         }
         return false;
 
     }
+
     public boolean containsIgnore(final String theTarget) {
         return this._ignoreTargets.contains(theTarget.toUpperCase());
     }
+
     public boolean containsTarget(final String theTarget) {
         return this._validTargets.contains(theTarget.toUpperCase());
 
     }
+
     public void deactivate() {
         this.plugin.getServer().getScheduler().cancelTask(this.taskID);
     }
+
     public void die(final DamageCause cause) {
-        if (this.sentryStatus == Status.DYING || this.sentryStatus == Status.DEAD || getMyEntity() == null) { return; }
+        if (this.sentryStatus == Status.DYING || this.sentryStatus == Status.DEAD || getMyEntity() == null) {
+            return;
+        }
 
         this.sentryStatus = Status.DYING;
 
@@ -334,21 +378,31 @@ public class SentryInstance {
                 if (invItems == null) {
                     continue;
                 }
-                if (invItems.getType() != Material.AIR) { items.add(invItems); }
+                if (invItems.getType() != Material.AIR) {
+                    items.add(invItems);
+                }
             }
 
             final ItemStack itemInHand = ((HumanEntity) getMyEntity()).getInventory().getItemInHand();
-            if (itemInHand.getType() != Material.AIR) { items.add(itemInHand); }
+            if (itemInHand.getType() != Material.AIR) {
+                items.add(itemInHand);
+            }
 
             ((HumanEntity) getMyEntity()).getInventory().clear();
             ((HumanEntity) getMyEntity()).getInventory().setArmorContents(null);
             ((HumanEntity) getMyEntity()).getInventory().setItemInHand(null);
         }
 
-        if (items.isEmpty()) { getMyEntity().playEffect(EntityEffect.DEATH); }
-        else { getMyEntity().playEffect(EntityEffect.HURT); }
+        if (items.isEmpty()) {
+            getMyEntity().playEffect(EntityEffect.DEATH);
+        }
+        else {
+            getMyEntity().playEffect(EntityEffect.HURT);
+        }
 
-        if (!this.dropInventory) { items.clear(); }
+        if (!this.dropInventory) {
+            items.clear();
+        }
 
         for (final ItemStack is : items) {
             getMyEntity().getWorld().dropItemNaturally(getMyEntity().getLocation(), is);
@@ -371,16 +425,21 @@ public class SentryInstance {
 
         if (this.respawnDelaySeconds == -1) {
             cancelRunnable();
-            if (this.isMounted()) { Util.removeMount(this.mountID); }
+            if (this.isMounted()) {
+                Util.removeMount(this.mountID);
+            }
             this.myNPC.destroy();
         }
         else {
             this.isRespawnable = System.currentTimeMillis() + this.respawnDelaySeconds * 1000;
         }
     }
+
     private static void faceEntity(final Entity from, final Entity at) {
 
-        if (!from.getWorld().equals(at.getWorld())) { return; }
+        if (!from.getWorld().equals(at.getWorld())) {
+            return;
+        }
         final Location loc = from.getLocation();
 
         final double xDiff = at.getLocation().getX() - loc.getX();
@@ -399,13 +458,16 @@ public class SentryInstance {
         net.citizensnpcs.util.NMS.look(from, (float) yaw - 90, (float) pitch);
 
     }
+
     private void faceForward() {
         net.citizensnpcs.util.NMS.look(getMyEntity(), getMyEntity().getLocation().getYaw(), 0);
     }
+
     private void faceAlignWithVehicle() {
         final org.bukkit.entity.Entity v = getMyEntity().getVehicle();
         net.citizensnpcs.util.NMS.look(getMyEntity(), v.getLocation().getYaw(), 0);
     }
+
     public LivingEntity findTarget(int Range) {
         Range += this.warningRange;
         final List<Entity> entitiesWithinRange = getMyEntity().getNearbyEntities(Range, Range, Range);
@@ -417,7 +479,9 @@ public class SentryInstance {
         this.plugin.debug(this.myNPC, "Potential targets found nearby: " + sb.toString().trim());
 
         for (final Entity aTarget : entitiesWithinRange) {
-            if (!(aTarget instanceof LivingEntity)) { continue; }
+            if (!(aTarget instanceof LivingEntity)) {
+                continue;
+            }
 
             final LivingEntity livingTarget = (LivingEntity) aTarget;
 
@@ -433,7 +497,11 @@ public class SentryInstance {
                 // too dark?
                 double ll = aTarget.getLocation().getBlock().getLightLevel();
                 // sneaking cut light in half
-                if (aTarget instanceof Player) { if (((Player) aTarget).isSneaking()) { ll /= 2; } }
+                if (aTarget instanceof Player) {
+                    if (((Player) aTarget).isSneaking()) {
+                        ll /= 2;
+                    }
+                }
 
                 // too dark?
                 final boolean canSeeTarget = ll >= (16 - this.nightVision);
@@ -451,7 +519,9 @@ public class SentryInstance {
                             if (!this.warnings.containsKey(aTarget.getUniqueId()) ||
                                 System.currentTimeMillis() >= this.warnings.get(aTarget.getUniqueId()) + 60 * 1000) {
                                 aTarget.sendMessage(getWarningMessage((Player) aTarget));
-                                if (!getNavigator().isNavigating()) { faceEntity(getMyEntity(), aTarget); }
+                                if (!getNavigator().isNavigating()) {
+                                    faceEntity(getMyEntity(), aTarget);
+                                }
                                 this.warnings.put(aTarget.getUniqueId(), System.currentTimeMillis());
                             }
 
@@ -539,7 +609,9 @@ public class SentryInstance {
 
         final double dist = Math.sqrt(Math.pow(victor.getX(), 2) + Math.pow(victor.getZ(), 2));
         elev = victor.getY();
-        if (dist == 0) { return; }
+        if (dist == 0) {
+            return;
+        }
 
         if (!hasLOS(theEntity)) {
             // target cant be seen..
@@ -608,7 +680,9 @@ public class SentryInstance {
         }
         else if (EnderPearl.class.equals(this.myProjectile)) {
             this.epCount++;
-            if (this.epCount > Integer.MAX_VALUE - 1) { this.epCount = 0; }
+            if (this.epCount > Integer.MAX_VALUE - 1) {
+                this.epCount = 0;
+            }
             this.plugin.debug(this.epCount + "");
         }
 
@@ -619,7 +693,9 @@ public class SentryInstance {
 
         // OK we're shooting
         // go twang
-        if (effect != null) { getMyEntity().getWorld().playEffect(getMyEntity().getLocation(), effect, null); }
+        if (effect != null) {
+            getMyEntity().getWorld().playEffect(getMyEntity().getLocation(), effect, null);
+        }
 
         draw(false);
         //TODO add a draw bow effect here
@@ -665,22 +741,36 @@ public class SentryInstance {
     }
 
     public double getHealth() {
-        if (this.myNPC == null) { return 0; }
-        if (getMyEntity() == null) { return 0; }
+        if (this.myNPC == null) {
+            return 0;
+        }
+        if (getMyEntity() == null) {
+            return 0;
+        }
         return getMyEntity().getHealth();
     }
 
     public void setHealth(double health) {
-        if (this.myNPC == null) { return; }
-        if (getMyEntity() == null) { return; }
-        if (getMyEntity().getMaxHealth() != this.sentryHealth) { getMyEntity().setMaxHealth(this.sentryHealth); }
-        if (health > this.sentryHealth) { health = this.sentryHealth; }
+        if (this.myNPC == null) {
+            return;
+        }
+        if (getMyEntity() == null) {
+            return;
+        }
+        if (getMyEntity().getMaxHealth() != this.sentryHealth) {
+            getMyEntity().setMaxHealth(this.sentryHealth);
+        }
+        if (health > this.sentryHealth) {
+            health = this.sentryHealth;
+        }
 
         getMyEntity().setHealth(health);
     }
 
     public float getSpeed() {
-        if (!this.myNPC.isSpawned()) { return this.sentrySpeed; }
+        if (!this.myNPC.isSpawned()) {
+            return this.sentrySpeed;
+        }
         double mod = 0;
         if (getMyEntity() instanceof Player) {
             for (final ItemStack armourItems : ((Player) getMyEntity()).getInventory().getArmorContents()) {
@@ -742,19 +832,33 @@ public class SentryInstance {
 
         // check for illegal values
 
-        if (this.sentryWeight <= 0) { this.sentryWeight = 1.0; }
+        if (this.sentryWeight <= 0) {
+            this.sentryWeight = 1.0;
+        }
 
-        if (this.attackRateSeconds > 30) { this.attackRateSeconds = 30.0; }
+        if (this.attackRateSeconds > 30) {
+            this.attackRateSeconds = 30.0;
+        }
 
-        if (this.sentryHealth < 0) { this.sentryHealth = 0; }
+        if (this.sentryHealth < 0) {
+            this.sentryHealth = 0;
+        }
 
-        if (this.sentryRange < 1) { this.sentryRange = 1; }
+        if (this.sentryRange < 1) {
+            this.sentryRange = 1;
+        }
 
-        if (this.sentryRange > 200) { this.sentryRange = 200; }
+        if (this.sentryRange > 200) {
+            this.sentryRange = 200;
+        }
 
-        if (this.sentryWeight <= 0) { this.sentryWeight = 1.0; }
+        if (this.sentryWeight <= 0) {
+            this.sentryWeight = 1.0;
+        }
 
-        if (this.respawnDelaySeconds < -1) { this.respawnDelaySeconds = -1; }
+        if (this.respawnDelaySeconds < -1) {
+            this.respawnDelaySeconds = -1;
+        }
 
         if (this.Spawn == null) {
             this.Spawn = getMyEntity().getLocation();
@@ -811,7 +915,9 @@ public class SentryInstance {
 
     public void onDamage(final EntityDamageByEntityEvent event) {
 
-        if (this.sentryStatus == Status.DYING) { return; }
+        if (this.sentryStatus == Status.DYING) {
+            return;
+        }
 
         if (this.myNPC == null || !this.myNPC.isSpawned()) {
             // how did you get here?
@@ -822,7 +928,9 @@ public class SentryInstance {
             return; //don't take damage when bodyguard target isnt around.
         }
 
-        if (System.currentTimeMillis() < this.okToTakeDamage + 500) { return; }
+        if (System.currentTimeMillis() < this.okToTakeDamage + 500) {
+            return;
+        }
         this.okToTakeDamage = System.currentTimeMillis();
 
         event.getEntity().setLastDamageCause(event);
@@ -845,11 +953,15 @@ public class SentryInstance {
             attacker = (LivingEntity) event.getDamager();
         }
 
-        if (this.invincible) { return; }
+        if (this.invincible) {
+            return;
+        }
 
         if (this.plugin.ignoreListInvincibility) {
 
-            if (isIgnored(attacker)) { return; }
+            if (isIgnored(attacker)) {
+                return;
+            }
         }
 
         // can i kill it? lets go kill it.
@@ -975,14 +1087,18 @@ public class SentryInstance {
                 die(event.getCause());
 
             }
-            else { getMyEntity().damage(finalDamage); }
+            else {
+                getMyEntity().damage(finalDamage);
+            }
         }
     }
 
     //called from SentryInstance no @EventHandler should be here
     void onEnvironmentDamage(final EntityDamageEvent event) {
 
-        if (this.sentryStatus == Status.DYING) { return; }
+        if (this.sentryStatus == Status.DYING) {
+            return;
+        }
 
         if (!this.myNPC.isSpawned() || this.invincible) {
             return;
@@ -992,7 +1108,9 @@ public class SentryInstance {
             return; //don't take damage when bodyguard target isn't around.
         }
 
-        if (System.currentTimeMillis() < this.okToTakeDamage + 500) { return; }
+        if (System.currentTimeMillis() < this.okToTakeDamage + 500) {
+            return;
+        }
         this.okToTakeDamage = System.currentTimeMillis();
 
         getMyEntity().setLastDamageCause(event);
@@ -1006,7 +1124,8 @@ public class SentryInstance {
         if (finalDamage > 0) {
             getMyEntity().playEffect(EntityEffect.HURT);
 
-            if (event.getCause() == DamageCause.FIRE) {
+            //panic when on fire
+            if (event.getCause() == DamageCause.FIRE_TICK) {
                 if (!getNavigator().isNavigating()) {
                     getNavigator().setTarget(
                         getMyEntity().getLocation().add(this.random.nextInt(2) - 1, 0, this.random.nextInt(2) - 1));
@@ -1036,7 +1155,9 @@ public class SentryInstance {
 
         if (this.validTargets != null) {
             for (final String t : this.validTargets) {
-                if (t.contains("ENTITY:ALL")) { this.targets = TargetMask.set(this.targets, TargetMask.ALL); }
+                if (t.contains("ENTITY:ALL")) {
+                    this.targets = TargetMask.set(this.targets, TargetMask.ALL);
+                }
                 else if (t.contains("ENTITY:MONSTER")) {
                     this.targets = TargetMask.set(this.targets, TargetMask.MONSTERS);
                 }
@@ -1106,14 +1227,18 @@ public class SentryInstance {
     }
 
     private boolean isMyChunkLoaded() {
-        if (getMyEntity() == null) { return false; }
+        if (getMyEntity() == null) {
+            return false;
+        }
         final Location npcLoc = getMyEntity().getLocation();
         return npcLoc.getWorld().isChunkLoaded(npcLoc.getBlockX() >> 4, npcLoc.getBlockZ() >> 4);
     }
 
     public boolean setGuardTarget(final LivingEntity entity, final boolean forcePlayer) {
 
-        if (this.myNPC == null) { return false; }
+        if (this.myNPC == null) {
+            return false;
+        }
 
         if (entity == null) {
             this.guardEntity = null;
@@ -1217,8 +1342,12 @@ public class SentryInstance {
         /* Ignore this call if the target is already the melee target or the projectile target */
         if (theEntity.equals(this.meleeTarget) || theEntity.equals(this.projectileTarget)) {
             //But update the status of this npc
-            if (isRetaliating) { this.sentryStatus = Status.RETALIATING; }
-            else { this.sentryStatus = Status.HOSTILE; }
+            if (isRetaliating) {
+                this.sentryStatus = Status.RETALIATING;
+            }
+            else {
+                this.sentryStatus = Status.HOSTILE;
+            }
             return;
         }
 
@@ -1266,7 +1395,9 @@ public class SentryInstance {
                 getNavigator().cancelNavigation();
 
                 faceForward();
-                if (getGoalController().isPaused()) { getGoalController().setPaused(false); }
+                if (getGoalController().isPaused()) {
+                    getGoalController().setPaused(false);
+                }
             }
             return;
         }
@@ -1280,10 +1411,16 @@ public class SentryInstance {
             return;
         }
 
-        if (!getNavigator().isNavigating()) { faceEntity(getMyEntity(), theEntity); }
+        if (!getNavigator().isNavigating()) {
+            faceEntity(getMyEntity(), theEntity);
+        }
 
-        if (isRetaliating) { this.sentryStatus = Status.RETALIATING; }
-        else { this.sentryStatus = Status.HOSTILE; }
+        if (isRetaliating) {
+            this.sentryStatus = Status.RETALIATING;
+        }
+        else {
+            this.sentryStatus = Status.HOSTILE;
+        }
 
         if (UpdateWeapon()) {
             //ranged
@@ -1301,7 +1438,9 @@ public class SentryInstance {
                 getNavigator().getEntityTarget().getTarget().equals(theEntity)) {
                 return; //already attacking this, dummy.
             }
-            if (!getGoalController().isPaused()) { getGoalController().setPaused(true); }
+            if (!getGoalController().isPaused()) {
+                getGoalController().setPaused(true);
+            }
             getNavigator().setTarget(theEntity, true);
             getNavigator().getLocalParameters().speedModifier(getSpeed());
             getNavigator().getLocalParameters().stuckAction(this.giveUp);
@@ -1312,13 +1451,17 @@ public class SentryInstance {
 
     protected Navigator getNavigator() {
         NPC npc = getMountNPC();
-        if (npc == null || !npc.isSpawned()) { npc = this.myNPC; }
+        if (npc == null || !npc.isSpawned()) {
+            npc = this.myNPC;
+        }
         return npc.getNavigator();
     }
 
     protected GoalController getGoalController() {
         NPC npc = getMountNPC();
-        if (npc == null || !npc.isSpawned()) { npc = this.myNPC; }
+        if (npc == null || !npc.isSpawned()) {
+            npc = this.myNPC;
+        }
         return npc.getDefaultGoalController();
     }
 
@@ -1337,7 +1480,9 @@ public class SentryInstance {
 
     public void mount() {
         if (this.myNPC.isSpawned()) {
-            if (getMyEntity().isInsideVehicle()) { getMyEntity().getVehicle().setPassenger(null); }
+            if (getMyEntity().isInsideVehicle()) {
+                getMyEntity().getVehicle().setPassenger(null);
+            }
             NPC n = getMountNPC();
 
             if (n == null || (!n.isSpawned() && !this.mountCreated)) {
@@ -1360,7 +1505,9 @@ public class SentryInstance {
                 n.getEntity().setPassenger(null);
                 n.getEntity().setPassenger(getMyEntity());
             }
-            else { this.mountID = -1; }
+            else {
+                this.mountID = -1;
+            }
 
         }
     }
@@ -1441,208 +1588,276 @@ public class SentryInstance {
     public int getSentryRange() {
         return this.sentryRange;
     }
+
     public void setSentryRange(final int sentryRange) {
         this.sentryRange = sentryRange;
     }
+
     public int getNightVision() {
         return this.nightVision;
     }
+
     public void setNightVision(final int nightVision) {
         this.nightVision = nightVision;
     }
+
     public int getFollowDistance() {
         return this.followDistance;
     }
+
     public void setFollowDistance(final int followDistance) {
         this.followDistance = followDistance;
     }
+
     public int getWarningRange() {
         return this.warningRange;
     }
+
     public void setWarningRange(final int warningRange) {
         this.warningRange = warningRange;
     }
+
     public int getRespawnDelaySeconds() {
         return this.respawnDelaySeconds;
     }
+
     public void setRespawnDelaySeconds(final int respawnDelaySeconds) {
         this.respawnDelaySeconds = respawnDelaySeconds;
     }
+
     public double getHealRate() {
         return this.healRate;
     }
+
     public void setHealRate(final double healRate) {
         this.healRate = healRate;
     }
+
     public double getAttackRateSeconds() {
         return this.attackRateSeconds;
     }
+
     public void setAttackRateSeconds(final double attackRateSeconds) {
         this.attackRateSeconds = attackRateSeconds;
     }
+
     public double getSentryHealth() {
         return this.sentryHealth;
     }
+
     public void setSentryHealth(final double sentryHealth) {
         this.sentryHealth = sentryHealth;
     }
+
     public double getSentryWeight() {
         return this.sentryWeight;
     }
+
     public void setSentryWeight(final double sentryWeight) {
         this.sentryWeight = sentryWeight;
     }
+
     public float getSentrySpeed() {
         return this.sentrySpeed;
     }
+
     public void setSentrySpeed(final float sentrySpeed) {
         this.sentrySpeed = sentrySpeed;
     }
+
     public boolean doesKillsDropInventory() {
         return this.killsDropInventory;
     }
+
     public void setKillsDropInventory(final boolean killsDropInventory) {
         this.killsDropInventory = killsDropInventory;
     }
+
     public boolean isDropInventory() {
         return this.dropInventory;
     }
+
     public void setDropInventory(final boolean dropInventory) {
         this.dropInventory = dropInventory;
     }
+
     public boolean isTargetable() {
         return this.targetable;
     }
+
     public void setTargetable(final boolean targetable) {
         this.targetable = targetable;
     }
+
     public boolean isLuckyHits() {
         return this.luckyHits;
     }
+
     public void setLuckyHits(final boolean luckyHits) {
         this.luckyHits = luckyHits;
     }
+
     public boolean isIgnoreLOS() {
         return this.ignoreLOS;
     }
+
     public void setIgnoreLOS(final boolean ignoreLOS) {
         this.ignoreLOS = ignoreLOS;
     }
+
     public boolean isInvincible() {
         return this.invincible;
     }
+
     public void setInvincible(final boolean invincible) {
         this.invincible = invincible;
     }
+
     public boolean isRetaliate() {
         return this.retaliate;
     }
+
     public void setRetaliate(final boolean retaliate) {
         this.retaliate = retaliate;
     }
+
     public int getMountID() {
         return this.mountID;
     }
+
     public void setMountID(final int mountID) {
         this.mountID = mountID;
     }
+
     public int getEpCount() {
         return this.epCount;
     }
+
     public void setEpCount(final int epCount) {
         this.epCount = epCount;
     }
+
     public String getGreetingMessage() {
         return this.greetingMessage;
     }
+
     public void setGreetingMessage(final String greetingMessage) {
         this.greetingMessage = greetingMessage;
     }
+
     public String getWarningMessage() {
         return this.warningMessage;
     }
+
     public void setWarningMessage(final String warningMessage) {
         this.warningMessage = warningMessage;
     }
+
     public LivingEntity getGuardEntity() {
         return this.guardEntity;
     }
+
     @SuppressWarnings("SameParameterValue")
     public void setGuardEntity(final LivingEntity guardEntity) {
         this.guardEntity = guardEntity;
     }
+
     public List<String> getIgnoreTargets() {
         return this.ignoreTargets;
     }
+
     public void setIgnoreTargets(final List<String> ignoreTargets) {
         this.ignoreTargets = ignoreTargets;
     }
+
     public List<String> getValidTargets() {
         return this.validTargets;
     }
+
     public void setValidTargets(final List<String> validTargets) {
         this.validTargets = validTargets;
     }
+
     public LivingEntity getMeleeTarget() {
         return this.meleeTarget;
     }
+
     public void setMeleeTarget(final LivingEntity meleeTarget) {
         this.meleeTarget = meleeTarget;
     }
+
     public SentryTrait getMyTrait() {
         return this.myTrait;
     }
+
     public List<PotionEffect> getPotionEffects() {
         return this.potionEffects;
     }
+
     public void setPotionEffects(final List<PotionEffect> potionEffects) {
         this.potionEffects = potionEffects;
     }
+
     public LivingEntity getProjectileTarget() {
         return this.projectileTarget;
     }
+
     public void setProjectileTarget(final LivingEntity projectileTarget) {
         this.projectileTarget = projectileTarget;
     }
+
     public Status getSentryStatus() {
         return this.sentryStatus;
     }
+
     public void setSentryStatus(final Status sentryStatus) {
         this.sentryStatus = sentryStatus;
     }
+
     public Location getSpawn() {
         return this.Spawn;
     }
+
     public void setSpawn(final Location spawn) {
         this.Spawn = spawn;
     }
+
     public Set<Player> get_myDamagers() {
         return this._myDamagers;
     }
+
     public int getLightningLevel() {
         return this.lightningLevel;
     }
+
     public boolean isIncendiary() {
         return this.incendiary;
     }
+
     public boolean isLoaded() {
         return this.loaded;
     }
+
     public NPC getMyNPC() {
         return this.myNPC;
     }
+
     public long getOkToFire() {
         return this.okToFire;
     }
+
     public long getOkToHeal() {
         return this.okToHeal;
     }
+
     public long getOkToReassess() {
         return this.okToReassess;
     }
+
     public long getOkToTakeDamage() {
         return this.okToTakeDamage;
     }
+
     public boolean isMountCreated() {
         return this.mountCreated;
     }
@@ -1683,7 +1898,9 @@ public class SentryInstance {
                         SentryInstance.this.sentryStatus != Status.DEAD &&
                         SentryInstance.this.sentryStatus != Status.DYING) {
                         double heal = 1;
-                        if (SentryInstance.this.healRate < 0.5) { heal = (0.5 / SentryInstance.this.healRate); }
+                        if (SentryInstance.this.healRate < 0.5) {
+                            heal = (0.5 / SentryInstance.this.healRate);
+                        }
 
                         setHealth(getHealth() + heal);
 
@@ -1704,7 +1921,9 @@ public class SentryInstance {
             }
 
             if (SentryInstance.this.myNPC.isSpawned() && !getMyEntity().isInsideVehicle() && isMounted() &&
-                isMyChunkLoaded()) { mount(); }
+                isMyChunkLoaded()) {
+                mount();
+            }
 
             if (SentryInstance.this.sentryStatus == Status.DEAD &&
                 System.currentTimeMillis() > SentryInstance.this.isRespawnable &&
@@ -1715,11 +1934,11 @@ public class SentryInstance {
                 SentryInstance.this.plugin.debug(SentryInstance.this.myNPC, "respawning npc");
                 if (SentryInstance.this.guardEntity == null) {
                     SentryInstance.this.myNPC.spawn(SentryInstance.this.Spawn.clone());
-                    //	myNPC.teleport(Spawn,org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    //	myNPC.teleport(Spawn,org.bukkit.events.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
                 else {
                     SentryInstance.this.myNPC.spawn(SentryInstance.this.guardEntity.getLocation().add(2, 0, 2));
-                    //	myNPC.teleport(guardEntity.getLocation().add(2, 0, 2),org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    //	myNPC.teleport(guardEntity.getLocation().add(2, 0, 2),org.bukkit.events.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
             }
             else if ((SentryInstance.this.sentryStatus == Status.HOSTILE ||
@@ -1763,7 +1982,9 @@ public class SentryInstance {
 
                 else if (SentryInstance.this.meleeTarget != null && !SentryInstance.this.meleeTarget.isDead()) {
 
-                    if (isMounted()) { faceEntity(getMyEntity(), SentryInstance.this.meleeTarget); }
+                    if (isMounted()) {
+                        faceEntity(getMyEntity(), SentryInstance.this.meleeTarget);
+                    }
 
                     if (SentryInstance.this.meleeTarget.getWorld().equals(getMyEntity().getLocation().getWorld())) {
                         final double dist =
