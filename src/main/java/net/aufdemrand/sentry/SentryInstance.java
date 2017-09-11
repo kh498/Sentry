@@ -954,8 +954,9 @@ public class SentryInstance {
                 }
             }
             if (msg != null && !msg.isEmpty()) {
-                attacker.sendMessage(
-                    Util.format(msg, npc, attacker, ((Player) attacker).getItemInHand().getType(), finalDamage + ""));
+                AdvancedChat.sendActionbar((Player) attacker, Util.format(msg, npc, attacker,
+                                                                          ((Player) attacker).getItemInHand().getType(),
+                                                                          finalDamage + ""));
             }
         }
 
