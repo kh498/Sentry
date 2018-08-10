@@ -122,8 +122,8 @@
             <url>http://maven.sk89q.com/repo/</url>
         </repository>
         <repository>
-            <id>CommonUtilsJava</id>
-            <url>https://raw.github.com/kh498/CommonUtilsJava/mvn-repo/</url>
+            <id>kh498</id>
+            <url>https://raw.githubusercontent.com/kh498/maven2/repo</url>
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
@@ -133,20 +133,23 @@
 
     <!-- Dependencies -->
     <dependencies>
+        <!--spigot API 1.8.8 -->
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
             <version>1.8.8-R0.1-SNAPSHOT</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
+
+        <!--spigot 1.8.8 -->
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
             <version>1.8.8-R0.1-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}\lib\spigot_server_1.8.8-R0.1.jar</systemPath>
         </dependency>
+
         <dependency>
             <groupId>net.citizensnpcs</groupId>
             <artifactId>citizens</artifactId>
@@ -165,7 +168,7 @@
         <dependency>
             <groupId>no.kh498.util</groupId>
             <artifactId>CommonUtil</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
