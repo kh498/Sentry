@@ -6,21 +6,12 @@ This is a heavliy modified version of the original Sentry. All support for the e
 
 ## Maven 
 
-```
-<repository>
-    <id>Sentry</id>
-    <url>https://raw.github.com/kh498/Sentry/mvn-repo/</url>
-    <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-    </snapshots>
-</repository>
-```
+Add [my repo](https://github.com/kh498/maven2) 
 
 ```
 <dependency>
     <groupId>net.aufdemrand</groupId>
     <artifactId>sentry</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
